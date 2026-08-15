@@ -31,16 +31,19 @@ jobs:
           uv run ruff check src/pumble_keys/cli src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/testing src/pumble_keys/knowledge tests tools
       - name: mypy (hand-written code)
         run: uv run mypy src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/cli src/pumble_keys/testing src/pumble_keys/knowledge
-      - name: Tests (unit/contract/parity/MCP/CLI/pack rules)
-        run: uv run pytest -q
+      - name: Tests (unit/contract/parity/MCP/CLI/pack rules) + coverage gate
+        run: |
+          uv run coverage run -m pytest -q
+          uv run coverage report
       - name: Fixture scan
         run: uv run python tools/sanitize_fixture.py --check
       - name: Secret scan
         run: uv run python tools/scan_secrets.py --all
-      - name: Generation drift (boundaries + inventory)
+      - name: Generation drift (boundaries + inventory + source anchors)
         run: |
           uv run python tools/check_generated_boundaries.py
           uv run python tools/inventory_generated_api.py --check
+          uv run python tools/check_source_anchors.py
       - name: App asset freshness
         run: uv run python tools/build_app.py --check
       - name: Dependency audit

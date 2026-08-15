@@ -26,28 +26,43 @@ jobs:
         run: |
           git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
             echo "tag does not point at a reviewed commit on main"; exit 1; }
-      - name: Version consistency (tag == project version)
+      - name: Sync (locked)
+        run: uv sync --all-extras --dev --locked
+      - name: Version consistency (tag == pyproject == _version.py)
         run: |
           TAG="${GITHUB_REF_NAME#v}"
           PROJECT=$(uv run python -c "import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          MODULE=$(uv run python -c "from pumble_keys._version import __version__;print(__version__)")
           test "$TAG" = "$PROJECT" || { echo "tag $TAG != project $PROJECT"; exit 1; }
-      - name: Sync (locked)
-        run: uv sync --all-extras --dev --locked
-      - name: Full offline checks
+          test "$TAG" = "$MODULE" || { echo "tag $TAG != _version.py $MODULE"; exit 1; }
+      - name: Ruff (hand-written paths)
         run: |
-          uv run pytest -q
+          uv run ruff format --check src/pumble_keys/cli src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/testing src/pumble_keys/knowledge tests tools
+          uv run ruff check src/pumble_keys/cli src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/testing src/pumble_keys/knowledge tests tools
+      - name: mypy (hand-written code)
+        run: uv run mypy src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/cli src/pumble_keys/testing src/pumble_keys/knowledge
+      - name: Full offline checks (with coverage gate)
+        run: |
+          uv run coverage run -m pytest -q
+          uv run coverage report
           uv run python tools/sanitize_fixture.py --check
           uv run python tools/scan_secrets.py --all
           uv run python tools/check_generated_boundaries.py
+          uv run python tools/inventory_generated_api.py --check
+          uv run python tools/check_source_anchors.py
           uv run python tools/build_app.py --check
+      - name: Dependency audit
+        run: uv run pip-audit
       - name: Frontend build + package smoke (build receipts)
         run: |
           npm ci --prefix app
           npm run build --prefix app
           uv run python tools/build_app.py --check
           uv run python tools/pack_smoke.py
-      - name: Build artifacts
-        run: uv build
+      - name: Build artifacts (reproducible)
+        run: |
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          uv build
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
@@ -62,20 +77,41 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      # Publish exactly the bytes the verify job built and checked —
+      # never rebuild here.
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
-          version: "0.9.9"
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "22.12.0"
-      - name: Rebuild deterministically for publication
-        run: |
-          npm ci --prefix app
-          npm run build --prefix app
-          uv run python tools/build_app.py --check
-          uv build
+          name: dist
+          path: dist
       - name: Publish via trusted publishing (provenance attached)
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
         with:
           attestations: true
+
+  github-release:
+    runs-on: ubuntu-latest
+    needs: [publish]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: dist
+          path: dist
+      - name: Create GitHub release with verified artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Release notes: this version's section from CHANGELOG.md.
+          awk -v ver="$VERSION" '
+            $0 ~ "^## " ver " " {inside=1; next}
+            inside && /^## / {exit}
+            inside {print}
+          ' CHANGELOG.md > release-notes.md
+          test -s release-notes.md || { echo "no CHANGELOG section for $VERSION"; exit 1; }
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file release-notes.md \
+            --verify-tag
