@@ -31,7 +31,7 @@
 | P22 — Port Pumble OAuth helpers and token store protocol | DONE | p22 | `pytest tests/unit/test_oauth.py test_token_store.py` — PASS (17) | ruff + pytest (400) + boundaries — PASS | Exact URLs/fields; constant-time state; in-memory store only. |
 | P23 — Port experimental Pumble Socket Mode as an optional extra | DONE | p23 | `pytest tests/unit/test_socket_mode.py` — PASS (12) | ruff + pytest (412) + mypy/pylint/pyright + boundaries + inventory — PASS | Injected transport; [socket] extra via gen.yaml; regen compile gate learned. |
 | P24 — Port the one-shot SDK CLI | DONE | p24 | `pytest tests/cli` — PASS (20) | ruff + pytest (432) + mypy/pylint/pyright + boundaries — PASS | No plaintext key flag; file>stdin>env; exit 0/1/2; façade receipts. |
-| P25 — Create MCP configuration, lifespan, and server factory | NOT_STARTED | — | — | — | — |
+| P25 — Create MCP configuration, lifespan, and server factory | DONE | p25 | `pytest tests/mcp/test_server_factory.py` — PASS (18) | ruff + pytest (450) + mypy/pylint/pyright + boundaries — PASS | Official MCPServer v2; env/file key; readwrite gates in config. |
 | P26 — Implement MCP entry point, transports, and remote authorization | NOT_STARTED | — | — | — | — |
 | P27 — Register the seven curated read tools | NOT_STARTED | — | — | — | — |
 | P28 — Implement signed preview/confirmed MCP writes | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,21 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P25` (DONE)
+- Objective: Create MCP configuration, lifespan, and server factory.
+- Allowed files: `src/pumble_keys/mcp_server/config.py`, `lifespan.py`, `server.py`, `profiles.py`, `tests/mcp/test_server_factory.py`
+- Exit condition: All MCP behavior can be composed from one deterministic factory.
+- Started from commit: `67afe96` (p24)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_server_factory.py -q` → 18 passed.
+  - Uses official `mcp.server.MCPServer` (v2; API confirmed by introspecting the installed `mcp==2.0.0`: constructor takes `lifespan`, `token_verifier`, `auth`, `cache_hints`, `subscriptions`, `middleware`, `extensions`; decorators `tool/resource/prompt/completion`; `run(transport=stdio|sse|streamable-http)` with `stateless_http` and 4 MiB default body limit on the HTTP runner — recorded for P26/P32).
+  - `profiles.py`: immutable `Profile` enum (`curated`, `curated-interactive`, `readonly`, `readwrite`) + `APP_ENABLED_PROFILES`; `dry_run` is a readwrite option, not a profile.
+  - `config.py`: frozen `McpConfig`; API key from env `PUMBLE_API_KEY` or `PUMBLE_API_KEY_FILE` (file wins) — never a tool argument; key and confirmation secret excluded from dump and repr; readwrite requires `allow_raw_writes` AND `audit_log_path` at construction (re-checked at registration in P31); `dry_run` outside readwrite rejected; unknown profile rejected.
+  - `lifespan.py`: `make_lifespan`/`build_state` own one curated async client (resolver cache enabled with TTL), optional `RateLimiter`, `ConfirmationSigner` (configured shared secret → not ephemeral; else 32-byte ephemeral for stdio), optional redacted `JsonlAuditWriter`, and the P34 publisher seat. `aclose` closes exactly once (proven; also on error paths); single-workspace note in docstrings and server instructions.
+  - `server.py`: `create_server(config)` composes `MCPServer` with the lifespan and profile-selected registrar seats in a fixed order (curated ⊂ curated-interactive; readonly ⊂ readwrite — order proven); per-profile tool/resource/prompt snapshots pinned (empty until P27+); `client_factory` injection for tests; extra kwargs (P26 auth) pass through; `log_level=WARNING`, no stdout writes.
+  - Fast gate: ruff + `pytest tests` → 450 passed; mypy/pylint(10.00)/pyright clean; boundaries — PASS; `git diff --check` clean.
+- Deviations: `mcp_server/__init__.py` added (package infrastructure).
 
 - Packet: `P24` (DONE)
 - Objective: Port the one-shot SDK CLI.
