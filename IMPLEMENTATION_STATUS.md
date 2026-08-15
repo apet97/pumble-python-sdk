@@ -41,7 +41,7 @@
 | P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | DONE | p32 | `pytest tests/mcp/test_mcp_2026_core.py` — PASS (13) | ruff + pytest (557) + mypy/pylint/pyright + boundaries — PASS | Modern discover per profile; TTL hints on every cacheable class; header deny pre-body. |
 | P33 — Add optional MRTR interactive send/reply tools | DONE | p33 | `pytest tests/mcp/test_mrtr_writes.py` — PASS (11) | ruff + pytest (568) + mypy/pylint(10.00)/pyright + boundaries — PASS | Curated-interactive only; Resolve/Elicit MRTR; accept = one write; decline/cancel = none. |
 | P34 — Bridge Pumble webhooks to modern MCP subscriptions | DONE | p34 | `pytest tests/mcp/test_subscriptions.py` — PASS (13) | ruff + pytest (581) + mypy/pylint(10.00)/pyright + boundaries — PASS | Signature-gated `/webhooks/pumble`; URI-only refetch cues on the shared bus; in-process bus documented as single-process. |
-| P35 — Scaffold the single MCP App frontend | NOT_STARTED | — | — | — | — |
+| P35 — Scaffold the single MCP App frontend | DONE | p35 | `npm run typecheck && npm test` — PASS (12) | app typecheck/test/build + pytest (581) — PASS | Plain TS + Vite + ext-apps 1.7.5; single-file deterministic build; value-typed bridge; memory-only state enforced by test. |
 | P36 — Register the MCP App opening tool and UI resource | NOT_STARTED | — | — | — | — |
 | P37 — Implement App read/browse/search/thread flows | NOT_STARTED | — | — | — | — |
 | P38 — Implement App composer with preview and explicit confirmation | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P35` (DONE)
+- Objective: Scaffold the single MCP App frontend.
+- Allowed files: `app/package.json`, `app/tsconfig.json`, `app/vite.config.ts`, `app/src/main.ts`, `bridge.ts`, `state.ts`, `render.ts`, `styles.css`, `types.ts`
+- Exit condition: A minimal secure App shell can be packaged by Python.
+- Started from commit: `59fd7a4` (p34)
+- Commands/results:
+  - `npm run typecheck --prefix app` → clean; `npm test --prefix app` → 12 passed (vitest run, not watch); `npm run build --prefix app` → one self-contained `dist/index.html` (~342 KB).
+  - Stack: plain TypeScript (7.0.2) + Vite (8.2.1, rolldown) + official `@modelcontextprotocol/ext-apps` 1.7.5 with its pinned peers `@modelcontextprotocol/sdk` 1.30.0 and `zod` 4.4.3 — no React. All versions exact-pinned; `engines.node: 22.x`; scripts named `typecheck`/`test`/`build` to match the plan's full-gate commands verbatim.
+  - Bridge (`bridge.ts`): built against the introspected installed API (`App.connect`, `callServerTool`, `getHostContext`, `ontoolresult`, `onhostcontextchanged` — NOT from memory). `HostApp` is a structural subset so tests inject a fake host with no MCP connection. Every outcome is a value (`ToolSuccess`/`BridgeFailure` with `tool_error`/`protocol_error`/`malformed_result`), mirroring the Python façade contract; the `{"result": ...}` union envelope is unwrapped exactly like the Python test harness.
+  - State (`state.ts`): in-memory store only; a test scans `app/src` and fails on any persistent-storage API. Render (`render.ts`): all dynamic values via `textContent`; no innerHTML anywhere.
+  - Deterministic build: two consecutive builds hash sha256-identical (`72aa1a8c…404af`). External-reference scan of the built HTML: zero `src=`/`href=` http(s) references, zero `url(http`, zero `@import`; the only `fetch(` is Vite's inert modulepreload polyfill (no preload links exist in a single file) and the only URL strings are zod's validation/schema literals — nothing fetchable is referenced.
+  - Vite 8 finding: `minify: "esbuild"` now fails (esbuild no longer bundled — rolldown/oxc is the default); the config uses the default minifier. `vite-plugin-singlefile` 2.3.3 (pinned) produces the single-file output; recorded as the documented dependency decision (the plan names no inliner).
+- Deviations (infrastructure, beyond the allowed list): `app/index.html` (Vite entry), `app/package-lock.json` (P43 runs `npm ci`), `app/src/vite-env.d.ts` (CSS-module TS declaration), `app/test/bridge.test.ts` (the packet's required unit tests). Local build ran on Node 26 (`engines` pins 22.x, engine-strict off); CI pins Node 22 in P44.
 
 - Packet: `P34` (DONE)
 - Objective: Bridge Pumble webhooks to modern MCP subscriptions.
@@ -70,6 +84,7 @@
   - Slow-subscriber bound: per-stream backlog cap and end-at-cap behavior live in the SDK's `ListenHandler` (documented in the module docstring); clients re-listen and refetch — no replay.
   - SDK findings: the HTTP `session_manager.run()` exit runs the shared server lifespan teardown and clears the stashed static-resource state, so tests that mix the HTTP app with the in-process client keep the whole flow inside the manager context.
 - Deviations: none — only the three allowed files were touched.
+- Known limitation (recorded for the P45 audit): `mount_pumble_webhooks` is a proven seam but no deployment path calls it yet — the CLI's `run_server` hands off to `server.run(transport="streamable-http")`, which builds its own ASGI app, so a real deployment cannot mount `/webhooks/pumble` without assembling the app itself. The Pumble signing secret also has no `McpConfig` field yet, and the lifespan's `subscription_publisher` seat stays `None`. Wiring (CLI flag or documented manual-ASGI deployment) lands with the P42 documentation or earlier.
 
 - Packet: `P33` (DONE)
 - Objective: Add optional MRTR interactive send/reply tools.
