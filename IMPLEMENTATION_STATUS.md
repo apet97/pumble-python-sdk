@@ -20,7 +20,7 @@
 | P11 — Implement optional resolver cache and preflight | DONE | p11 | `pytest tests/unit/test_resolver_cache.py test_preflight.py` — PASS (15) | ruff + pytest (219) + boundaries — PASS | Fake-clock TTL; foreground-only refresh; concurrent preflight. |
 | P12 — Port defensive exhaustive search and message pagination | DONE | p12 | `pytest tests/unit/test_search_all.py test_list_all_messages.py` — PASS (22) | ruff + pytest (241) + boundaries — PASS | Golden replay of same-second overlap, dupes, cap, abort. |
 | P13 — Port compact thread context and reply helper | DONE | p13 | `pytest tests/unit/test_threads.py` — PASS (10) | ruff + pytest (251) + boundaries — PASS | Concurrent root/replies; first-seen participants; blank inputs rejected. |
-| P14 — Build the async curated client façade and read namespaces | NOT_STARTED | — | — | — | — |
+| P14 — Build the async curated client façade and read namespaces | DONE | p14 | `pytest tests/unit/test_client_reads.py` — PASS (13) | ruff + pytest (264) + boundaries — PASS | 11 reads mapped; no global retry_config (regression test). |
 | P15 — Port safe message/channel write façades | NOT_STARTED | — | — | — | — |
 | P16 — Port scheduled-message façade | NOT_STARTED | — | — | — | — |
 | P17 — Add custom-status helpers and invalidate affected caches | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P14` (DONE)
+- Objective: Build the async curated client façade and read namespaces.
+- Allowed files: `src/pumble_keys/extensions/client.py`, `identity.py`, `channels.py`, `users.py`, `messages.py`, `tests/unit/test_client_reads.py`
+- Exit condition: A stable ergonomic read API exists above the generated client.
+- Started from commit: `8de2d77` (p13)
+- Commands/results:
+  - `uv run pytest tests/unit/test_client_reads.py -q` → 13 passed.
+  - `create_pumble_client(api_key, server_url=, timeout_ms=, resolver_cache=, raw=)` → `PumbleClient` with `.raw`, `.identity`, `.channels`, `.users`, `.messages`, `.search`, `.scheduled` (reads), `.threads`, `.preflight`, `.cache`; namespace manifest snapshot-tested. Async-only (no nested loops); async context manager delegates to the generated client's `__aenter__/__aexit__`.
+  - All 11 reads map to the expected generated `_async` callables with kwargs preserved (recorder-fake proof). Page wrappers normalized: `getChannel`→`.channel`, `listMessages`/`searchMessages`/`fetchScheduledMessages`/`fetchThreadReplies`→`.result`. Normal read errors become `FacadeFailure` values via `operation_failure`; `CancelledError` re-raises.
+  - Facade find channel/user: pydantic `FindChannelSuccess`/`FindUserSuccess` (`Found channel #x.` / `Found user Y.`) or labeled `FacadeFailure`; `preflight` wires both. Resolver cache: disabled by default (proven: 2 resolves → 2 list calls, zero cache metrics), `resolver_cache=True`/dict enables (1 list call, 1 hit; `cache.clear/info/metrics/refresh`).
+  - Safety: blank api_key rejected; non-HTTPS server_url rejected outside localhost; generated client built WITHOUT global `retry_config` — regression test asserts `sdk_configuration.retry_config is UNSET` (carry-forward from P04/P09 closed); api key never stored on the façade.
+  - Fast gate: ruff — PASS; `pytest tests` → 264 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `Search`/`Threads`/`ScheduledReads`/`Messaging`/`CacheNamespace` classes live inside `client.py` (small, no extra files beyond the allowed list); `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P13` (DONE)
 - Objective: Port compact thread context and reply helper.

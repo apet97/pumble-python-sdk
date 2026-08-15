@@ -5,6 +5,12 @@ Import cost stays small; nothing here pulls in MCP, telemetry backends,
 or optional extras at import time.
 """
 
+from pumble_keys.extensions.client import (
+    ChannelSummary,
+    PumbleClient,
+    UserSummary,
+    create_pumble_client,
+)
 from pumble_keys.extensions.display import (
     display_channel,
     display_user,
@@ -107,6 +113,7 @@ __all__ = [
     "CategorizedError",
     "ChannelCandidate",
     "ChannelId",
+    "ChannelSummary",
     "ErrorCategory",
     "FacadeError",
     "FacadeFailure",
@@ -114,6 +121,7 @@ __all__ = [
     "MessageId",
     "PageCapExceededError",
     "PreflightResult",
+    "PumbleClient",
     "PumbleId",
     "RateLimitQueueFullError",
     "RateLimiter",
@@ -128,6 +136,7 @@ __all__ = [
     "UserCandidate",
     "UserGroupId",
     "UserId",
+    "UserSummary",
     "WorkspaceId",
     "as_channel_id",
     "as_message_id",
@@ -140,6 +149,7 @@ __all__ = [
     "create_facade_failure",
     "create_facade_invalid_request",
     "create_facade_operation_failure",
+    "create_pumble_client",
     "display_channel",
     "display_user",
     "find_channel_by_name",
