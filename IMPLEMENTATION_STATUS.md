@@ -32,7 +32,7 @@
 | P23 — Port experimental Pumble Socket Mode as an optional extra | DONE | p23 | `pytest tests/unit/test_socket_mode.py` — PASS (12) | ruff + pytest (412) + mypy/pylint/pyright + boundaries + inventory — PASS | Injected transport; [socket] extra via gen.yaml; regen compile gate learned. |
 | P24 — Port the one-shot SDK CLI | DONE | p24 | `pytest tests/cli` — PASS (20) | ruff + pytest (432) + mypy/pylint/pyright + boundaries — PASS | No plaintext key flag; file>stdin>env; exit 0/1/2; façade receipts. |
 | P25 — Create MCP configuration, lifespan, and server factory | DONE | p25 | `pytest tests/mcp/test_server_factory.py` — PASS (18) | ruff + pytest (450) + mypy/pylint/pyright + boundaries — PASS | Official MCPServer v2; env/file key; readwrite gates in config. |
-| P26 — Implement MCP entry point, transports, and remote authorization | NOT_STARTED | — | — | — | — |
+| P26 — Implement MCP entry point, transports, and remote authorization | DONE | p26 | `pytest tests/mcp` — PASS (49) | ruff + pytest (481) + mypy/pylint/pyright + boundaries — PASS | stdio + stateless HTTP; 421/403/413/401 proven at HTTP level; sse rejected. |
 | P27 — Register the seven curated read tools | NOT_STARTED | — | — | — | — |
 | P28 — Implement signed preview/confirmed MCP writes | NOT_STARTED | — | — | — | — |
 | P29 — Register MCP resources with bounded payloads and safe paths | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,21 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P26` (DONE)
+- Objective: Implement MCP entry point, transports, and remote authorization.
+- Allowed files: `src/pumble_keys/mcp_server/cli.py`, `transport.py`, `auth.py`, `tests/mcp/test_mcp_cli.py`, `test_auth.py`, `test_transport.py`
+- Exit condition: The same packaged server runs safely as a local subprocess or remote stateless service.
+- Started from commit: `d0a66d1` (p25)
+- Commands/results:
+  - `uv run pytest tests/mcp -q` → 49 passed.
+  - `transport.py`: `stdio` (default) and `streamable-http` only; `sse` rejected with a clear "superseded" error; defaults 127.0.0.1:2718 `/mcp`; deployed HTTP uses `stateless_http=True` and keeps the SDK's 4 MiB body limit; non-loopback bind without a token verifier fails closed; `--unsafe-no-auth` allows it with a loud stderr WARNING; DNS-rebinding `TransportSecuritySettings` with Host/Origin allowlists (loopback defaults or explicit entries).
+  - HTTP-level proofs against the real Streamable HTTP ASGI app (httpx ASGITransport + session manager): stateless `tools/list` → 200; wrong Host → 421; wrong Origin → 403 (the SDK's code — recorded; plan's generic "reject" satisfied); oversized body → 413; with a token verifier + `AuthSettings`: missing bearer → 401, wrong token → 401, valid token → 200.
+  - `auth.py`: official `TokenVerifier`/`AuthSettings` only — `build_auth_settings` (issuer, resource URL, required scopes; no client-registration/DCR configuration, asserted), `StaticTokenVerifier` (dev/test; unknown/expired fail closed), `load_token_verifier("module:attr")` for provider-neutral production verifiers via `PUMBLE_MCP_TOKEN_VERIFIER`.
+  - `cli.py`: `pumble-keys-mcp` argparse entry; secret-bearing flags (`--api-key`, `--api-key-auth`, `--confirmation-secret`) rejected with exit 2 before parsing; profile/gates flags flow into `McpConfig.from_env`; a configured verifier requires `--auth-issuer` + `--auth-resource-url`; exit codes 0/1/2; KeyboardInterrupt → clean 0; injectable runner for tests. Finding: `MCPServer` requires `auth` settings whenever `token_verifier` is set — the CLI enforces the pairing.
+  - Fixed a cross-directory pytest module-name collision (`test_auth.py` exists in `tests/contract` and `tests/mcp`) by adding `__init__.py` to the test packages.
+  - Fast gate: ruff + `pytest tests` → 481 passed; mypy/pylint(10.00)/pyright clean; boundaries — PASS; `git diff --check` clean.
+- Deviations: `tests/*/__init__.py` files added (collection infrastructure).
 
 - Packet: `P25` (DONE)
 - Objective: Create MCP configuration, lifespan, and server factory.
