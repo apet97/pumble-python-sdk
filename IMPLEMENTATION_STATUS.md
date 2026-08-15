@@ -9,7 +9,7 @@
 | P00 — Anchor sources and create the parity ledger | DONE | p00 | `tools/check_source_anchors.py` — PASS | fast gate n/a (no toolchain yet) | Blob+SHA-256 verified; 26 ops / 32 schemas / 15 writes. |
 | P01 — Create the clean Python repository and toolchain | DONE | p01 | `uv run pytest tests/unit/test_import.py` — PASS (1); 3.11 + 3.12 import OK | `uv sync --all-extras --dev` — PASS | `mcp[cli]==2.0.0` pinned; console scripts declared. |
 | P02 — Add repository rules, generated ownership, and status tracking | DONE | p02 | `pytest tests/unit/test_repo_rules.py` — PASS (6) | `check_status.py` + `check_generated_boundaries.py` — PASS | Boundary checker rejects synthetic generated-path edit. |
-| P03 — Configure a pinned Speakeasy Python target | NOT_STARTED | — | — | — | — |
+| P03 — Configure a pinned Speakeasy Python target | DONE | p03 | scratch generation with this exact config — PASS | `check_generated_boundaries.py`, `check_status.py`, `pytest` (7) — PASS | Pin `1.763.6` works for Python. Two generator gaps recorded for P05. |
 | P04 — Generate and inventory the raw Python SDK | NOT_STARTED | — | — | — | — |
 | P05 — Burn down generator defects without contaminating generated code | NOT_STARTED | — | — | — | — |
 | P06 — Lock OpenAPI and generated contract fidelity | NOT_STARTED | — | — | — | — |
@@ -55,14 +55,23 @@
 
 ## Current packet detail
 
-- Packet: `P02` (DONE)
-- Objective: Add repository rules, generated ownership, and status tracking.
-- Allowed files: `CONTRIBUTING.md`, `IMPLEMENTATION_STATUS.md`, `contracts/generated-ownership.json`, `tools/check_generated_boundaries.py`, `tools/check_status.py`
-- Exit condition: The repository can mechanically distinguish generated and hand-written changes.
-- Started from commit: `45aed34` (p01)
-- Findings: Ownership manifest defines `src/pumble_keys/**` as generated with six hand-written exception subtrees. P04 refines the exact emitted paths after first generation.
-- Commands/results: `uv run pytest tests/unit/test_repo_rules.py` → 6 passed. `check_status.py` → OK. `check_generated_boundaries.py --paths src/pumble_keys/sdk.py` → exit 1 (synthetic edit rejected).
-- Deviations/blockers: Added `tests/unit/test_repo_rules.py` beyond allowed files (packet evidence requires executable tests). The `--require-clean-generation` full-gate mode arrives with the regeneration workflow (P06/P44). No other deviation.
+- Packet: `P03` (DONE)
+- Objective: Configure a pinned Speakeasy Python target.
+- Allowed files: `.speakeasy/workflow.yaml`, `.speakeasy/gen.yaml`, `.speakeasy/README.md`
+- Exit condition: Pinned workflow produces a Python client without an MCP server.
+- Started from commit: `05b6808` (p02)
+- Findings (empirical, from a scratch generation with this exact config):
+  - Pin `1.763.6` generates the Python target successfully. Local CLI is `1.793.0`; `--pinned` selects `1.763.6`. Always pass `--pinned`.
+  - `moduleName: pumble_keys` produces `src/pumble_keys/`; `packageName: pumble_keys_sdk` sets the distribution name. Both confirmed in generated output.
+  - `additionalDependencies.main` writes runtime dependencies into the generated `pyproject.toml`. Confirmed with `mcp[cli] ==2.0.0`.
+  - The generator owns `pyproject.toml` entirely and emits a Poetry build backend.
+  - Speakeasy MCP output is not enabled; the Python target emits no MCP server.
+- Generator gaps with no configuration key (deferred to the P05 documented idempotent patch):
+  1. `[project.scripts]` console entry points. A `python.scripts` key does not exist; the generator silently drops it.
+  2. `requires-python`. The generator emits `>=3.10`; this project requires `>=3.11,<3.15`.
+  3. Development tools that are not generator dependencies (mypy, build, twine, pip-audit).
+- Commands/results: scratch `speakeasy run --pinned` → "SDK for python generated successfully". Repository fast gate: boundaries OK, status OK, `pytest` 7 passed.
+- Deviations/blockers: The packet's second evidence item (`speakeasy run` from a clean worktree, then an idempotent second run) cannot run inside this packet, because the packet's allowed-files list excludes all generator output. Generation and the idempotency proof execute in P04, which owns `src/pumble_keys/`. The configuration itself is proven by an equivalent scratch generation. Note that the P01 hand-written `pyproject.toml` is overwritten by the P04 generation; its metadata is preserved through `gen.yaml` plus the P05 patch.
 
 ## Release evidence pointers
 

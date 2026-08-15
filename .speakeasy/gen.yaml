@@ -1,0 +1,52 @@
+configVersion: 2.0.0
+generation:
+  sdkClassName: PumbleSDK
+  maintainOpenAPIOrder: true
+  fixes:
+    nameResolutionFeb2025: true
+    parameterOrderingFeb2024: true
+    requestResponseComponentNamesFeb2024: true
+    securityFeb2025: true
+    sharedErrorComponentsApr2025: true
+python:
+  version: 0.1.0
+  packageName: pumble_keys_sdk
+  moduleName: pumble_keys
+  description: Unofficial Python SDK for the Pumble API Keys addon
+  authors:
+    - apet97
+  license: MIT
+  packageManager: uv
+  templateVersion: v2
+  clientServerStatusCodesAsErrors: true
+  defaultErrorName: PumbleSDKError
+  enumFormat: enum
+  forwardCompatibleEnumsByDefault: true
+  flattenGlobalSecurity: true
+  flattenRequests: true
+  flatteningOrder: parameters-first
+  inputModelSuffix: input
+  outputModelSuffix: output
+  maxMethodParams: 9
+  methodArguments: infer-optional-args
+  responseFormat: flat
+  useAsyncHooks: true
+  enableCustomCodeRegions: false
+  additionalDependencies:
+    main:
+      "mcp[cli]": "==2.0.0"
+    dev:
+      pytest: ">=8.3"
+      pytest-asyncio: ">=1.0"
+      respx: ">=0.22"
+      ruff: ">=0.12"
+      coverage: ">=7.6"
+      pyyaml: ">=6.0"
+  imports:
+    option: openapi
+    paths:
+      callbacks: models/callbacks
+      errors: models/errors
+      operations: models/operations
+      shared: models
+      webhooks: models/webhooks
