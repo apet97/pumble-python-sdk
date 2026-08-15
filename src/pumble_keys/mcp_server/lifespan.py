@@ -8,6 +8,7 @@ publisher seat. Everything closes exactly once on shutdown.
 
 from __future__ import annotations
 
+import hashlib
 import secrets
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
@@ -17,6 +18,7 @@ from typing import Any
 from pumble_keys.extensions.client import PumbleClient, create_pumble_client
 from pumble_keys.extensions.rate_limit import RateLimiter
 from pumble_keys.extensions.telemetry import JsonlAuditWriter
+from pumble_keys.extensions.write_plan import ReplayGuard
 from pumble_keys.mcp_server.config import McpConfig
 
 
@@ -42,6 +44,8 @@ class AppState:
     rate_limiter: RateLimiter | None
     confirmation_signer: ConfirmationSigner
     audit_writer: JsonlAuditWriter | None
+    workspace_fingerprint: str = ""
+    replay_guard: ReplayGuard | None = None
     subscription_publisher: Any = None
     close_count: int = 0
 
@@ -87,12 +91,26 @@ def build_state(
         JsonlAuditWriter(config.audit_log_path) if config.audit_log_path else None
     )
 
+    # Keyed per-process-independent fingerprint of the credential: binds
+    # confirmations to one workspace without ever exposing the key.
+    fingerprint = hashlib.sha256(
+        b"pumble-workspace-fingerprint:" + config.api_key.encode("utf-8")
+    ).hexdigest()[:16]
+
+    replay_guard = (
+        ReplayGuard(config.confirmation_replay_size)
+        if config.confirmation_replay_size
+        else None
+    )
+
     return AppState(
         config=config,
         client=client,
         rate_limiter=rate_limiter,
         confirmation_signer=signer,
         audit_writer=audit_writer,
+        workspace_fingerprint=fingerprint,
+        replay_guard=replay_guard,
     )
 
 

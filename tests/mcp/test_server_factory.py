@@ -121,6 +121,10 @@ class TestFactory:
             "search_messages",
             "get_channel_context",
             "get_thread_context",
+            "send_message_preview",
+            "send_message_confirmed",
+            "reply_to_thread_preview",
+            "reply_to_thread_confirmed",
         ]
         expected_tools = {
             Profile.CURATED: curated_tools,

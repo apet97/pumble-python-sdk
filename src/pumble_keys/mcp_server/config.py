@@ -37,6 +37,11 @@ class McpConfig(pydantic.BaseModel):
         default=None, exclude=True, repr=False
     )
 
+    # Bounded in-memory replay store for confirmation tokens (P28).
+    # Multi-worker write-enabled deployments need a shared store or one
+    # worker; this guard is per-process.
+    confirmation_replay_size: int | None = 1024
+
     resolver_cache_ttl_s: float | None = 300.0
     rate_limit_rps: float | None = None
     rate_limit_burst: float | None = None

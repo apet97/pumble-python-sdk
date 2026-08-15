@@ -34,7 +34,7 @@
 | P25 — Create MCP configuration, lifespan, and server factory | DONE | p25 | `pytest tests/mcp/test_server_factory.py` — PASS (18) | ruff + pytest (450) + mypy/pylint/pyright + boundaries — PASS | Official MCPServer v2; env/file key; readwrite gates in config. |
 | P26 — Implement MCP entry point, transports, and remote authorization | DONE | p26 | `pytest tests/mcp` — PASS (49) | ruff + pytest (481) + mypy/pylint/pyright + boundaries — PASS | stdio + stateless HTTP; 421/403/413/401 proven at HTTP level; sse rejected. |
 | P27 — Register the seven curated read tools | DONE | p27 | `pytest tests/mcp/test_curated_read_tools.py` — PASS (12) | ruff + pytest (493) + mypy/pylint/pyright + boundaries — PASS | Exact 7 tools; limits 10/50; failures as values via real client session. |
-| P28 — Implement signed preview/confirmed MCP writes | NOT_STARTED | — | — | — | — |
+| P28 — Implement signed preview/confirmed MCP writes | DONE | p28 | `pytest tests/mcp/test_write_plan.py test_curated_write_tools.py` — PASS (18) | ruff + pytest (511) + mypy/pylint/pyright + boundaries — PASS | HMAC-bound preview/confirm; expiry/workspace/request/text/replay checks. |
 | P29 — Register MCP resources with bounded payloads and safe paths | NOT_STARTED | — | — | — | — |
 | P30 — Port prompts and add argument completions | NOT_STARTED | — | — | — | — |
 | P31 — Implement readonly, raw readwrite, and dry-run profiles | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P28` (DONE)
+- Objective: Implement signed preview/confirmed MCP writes.
+- Allowed files: `src/pumble_keys/mcp_server/tools/write.py`, `src/pumble_keys/extensions/write_plan.py`, `tests/mcp/test_curated_write_tools.py`, `test_write_plan.py`
+- Exit condition: Default writes are inspectable and cryptographically bound to the confirmed request.
+- Started from commit: `02ab499` (p27)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_write_plan.py tests/mcp/test_curated_write_tools.py -q` → 18 passed; `pytest tests` → 511 passed.
+  - `write_plan.py` ports write-plan.ts (canonical JSON, 160-char redacted excerpt, full-text SHA-256, risk inference, `pumble-write-plan-v1.` HMAC-SHA256 base64url token, timing-safe verify) plus the plan-mandated hardening: previews carry `issued_at_ms`/`expires_at_ms` (default 5-minute TTL), the workspace fingerprint, and a canonical `request_sha256`. `validate_confirmation` checks signature→expiry→workspace→request→text, all failing closed. `ReplayGuard` is a bounded in-memory used-token store (FIFO eviction); the one-worker/shared-store requirement for multi-worker write deployments is documented on the class and in the config field.
+  - `tools/write.py` registers exactly `send_message_preview`, `send_message_confirmed`, `reply_to_thread_preview`, `reply_to_thread_confirmed`. Previews are read-only/idempotent and never write ("Nothing was sent" summaries; zero write calls asserted). Confirmed tools re-resolve the target (mismatch → `confirmation_target_mismatch`), verify the full plan, consume the replay guard, and perform ONE non-retried façade write with the direct-read receipt (`verification_state=verified`; exactly 1 write + 1 fetch asserted).
+  - Cross-instance proofs: two servers sharing `PUMBLE_CONFIRMATION_SECRET` verify each other's previews (stateless-HTTP contract); a different secret rejects. Tamper matrix through a real session: changed text → request_mismatch, changed channel → target_mismatch, edited preview or token → invalid_token, duplicate token → replayed; expiry proven via direct validation (an edited expiry breaks the signature by design). Ephemeral stdio secret behavior covered in P25.
+  - Workspace binding: `AppState.workspace_fingerprint` = keyed SHA-256 fingerprint of the credential (16 hex chars) — binds confirmations to one workspace without exposing the key.
+  - Fast gate: ruff + pytest + mypy/pylint(10.00)/pyright + boundaries + `git diff --check` — all PASS.
+- Deviations (narrow): `config.py` gains `confirmation_replay_size` (default 1024); `lifespan.py` gains `workspace_fingerprint` + `replay_guard` on AppState; `server.py` wires the write registrar; P25/P27 manifest snapshots updated for the four new tools.
 
 - Packet: `P27` (DONE)
 - Objective: Register the seven curated read tools.

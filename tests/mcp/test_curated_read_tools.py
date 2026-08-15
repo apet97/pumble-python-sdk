@@ -24,6 +24,10 @@ EXPECTED_TOOLS = [
     "search_messages",
     "get_channel_context",
     "get_thread_context",
+    "send_message_preview",
+    "send_message_confirmed",
+    "reply_to_thread_preview",
+    "reply_to_thread_confirmed",
 ]
 
 
@@ -169,6 +173,8 @@ async def test_manifest_names_order_and_annotations() -> None:
     tools = await server.list_tools()
     assert [tool.name for tool in tools] == EXPECTED_TOOLS
     for tool in tools:
+        if tool.name.endswith("_confirmed"):
+            continue  # write annotations proven in test_curated_write_tools
         assert tool.annotations.read_only_hint is True
         assert tool.annotations.idempotent_hint is True
         assert tool.annotations.open_world_hint is False
