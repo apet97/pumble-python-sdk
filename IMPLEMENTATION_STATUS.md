@@ -33,7 +33,7 @@
 | P24 — Port the one-shot SDK CLI | DONE | p24 | `pytest tests/cli` — PASS (20) | ruff + pytest (432) + mypy/pylint/pyright + boundaries — PASS | No plaintext key flag; file>stdin>env; exit 0/1/2; façade receipts. |
 | P25 — Create MCP configuration, lifespan, and server factory | DONE | p25 | `pytest tests/mcp/test_server_factory.py` — PASS (18) | ruff + pytest (450) + mypy/pylint/pyright + boundaries — PASS | Official MCPServer v2; env/file key; readwrite gates in config. |
 | P26 — Implement MCP entry point, transports, and remote authorization | DONE | p26 | `pytest tests/mcp` — PASS (49) | ruff + pytest (481) + mypy/pylint/pyright + boundaries — PASS | stdio + stateless HTTP; 421/403/413/401 proven at HTTP level; sse rejected. |
-| P27 — Register the seven curated read tools | NOT_STARTED | — | — | — | — |
+| P27 — Register the seven curated read tools | DONE | p27 | `pytest tests/mcp/test_curated_read_tools.py` — PASS (12) | ruff + pytest (493) + mypy/pylint/pyright + boundaries — PASS | Exact 7 tools; limits 10/50; failures as values via real client session. |
 | P28 — Implement signed preview/confirmed MCP writes | NOT_STARTED | — | — | — | — |
 | P29 — Register MCP resources with bounded payloads and safe paths | NOT_STARTED | — | — | — | — |
 | P30 — Port prompts and add argument completions | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P27` (DONE)
+- Objective: Register the seven curated read tools.
+- Allowed files: `src/pumble_keys/mcp_server/tools/read.py`, `models.py`, `tests/mcp/test_curated_read_tools.py`
+- Exit condition: Default model tool surface has compact workflow-first reads.
+- Started from commit: `c1f7912` (p26)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_curated_read_tools.py -q` → 12 passed; `pytest tests` → 493 passed.
+  - `tools/read.py` registers exactly `whoami`, `find_channel`, `find_user`, `list_channels`, `search_messages`, `get_channel_context`, `get_thread_context` in that order; every tool is read-only/idempotent/closed-world (`ToolAnnotations` asserted); handlers call the lifespan-owned curated client via `Context.request_context.lifespan_context` — no business logic fork.
+  - `models.py` holds the compact Pydantic surface (union returns `X | CuratedFailure`); limits `ge=1, le=50` with default 10 enforced in the input schema (bounds asserted from `tools/list`; limit 51 → schema validation error before any Pumble call).
+  - Behavior proven over the real in-memory client session (new `tests/mcp/harness.py`: lowlevel server run over memory streams — full initialize/lifespan/request-context path): compact whoami (no token in payload), find success + not-found/ambiguous as structured values (`is_error=False`), choices capped at 5 with labels, list filter + truncation flag (500 channels → 50 + `truncated`), search requires ≥1 filter and issues exactly one page call, channel context returns compact messages + explicit `next_cursor` (last id only when `hasMoreBefore`) + `pumble://channel/...` resource URI, thread context compact with participants/reply_count + thread URI, transport errors → `transport_error` value.
+  - SDK findings recorded: `MCPServer.call_tool` alone has no request context — the memory-stream harness is the correct in-process test path; union-typed tool returns wrap structured content as `{"result": ...}` (harness `structured()` unwraps); `Tool.input_schema` is the snake_case accessor.
+  - Fast gate: ruff + pytest + mypy/pylint(10.00)/pyright + boundaries + `git diff --check` — all PASS.
+- Deviations: `server.py` wires `_register_curated_reads` into the curated registrar seat (the seat was designed for exactly this); P25's snapshot test updated for the now-populated curated profiles; `tools/__init__.py` + `tests/mcp/harness.py` added as infrastructure.
 
 - Packet: `P26` (DONE)
 - Objective: Implement MCP entry point, transports, and remote authorization.

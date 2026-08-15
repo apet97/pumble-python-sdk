@@ -148,7 +148,7 @@ class TestHttpLevel:
             ) as client:
                 ok = await client.post("/mcp", json=LIST_TOOLS, headers=RPC_HEADERS)
                 assert ok.status_code == 200
-                assert '"tools":[]' in ok.text
+                assert '"tools":' in ok.text and '"whoami"' in ok.text
 
                 bad_host = await client.post(
                     "/mcp",

@@ -113,6 +113,20 @@ class TestFactory:
     async def test_snapshot_per_profile_is_deterministic(self, profile) -> None:
         server = create_server(config(profile=profile), client_factory=client_factory)
         assert server.name == SERVER_NAME
+        curated_tools = [
+            "whoami",
+            "find_channel",
+            "find_user",
+            "list_channels",
+            "search_messages",
+            "get_channel_context",
+            "get_thread_context",
+        ]
+        expected_tools = {
+            Profile.CURATED: curated_tools,
+            Profile.CURATED_INTERACTIVE: curated_tools,
+            Profile.READONLY: [],  # raw adapters arrive in P31
+        }
         snapshot = {
             "tools": [tool.name for tool in await server.list_tools()],
             "resources": [
@@ -120,8 +134,11 @@ class TestFactory:
             ],
             "prompts": [prompt.name for prompt in await server.list_prompts()],
         }
-        # Registrar seats are empty until P27+; the snapshot pins that.
-        assert snapshot == {"tools": [], "resources": [], "prompts": []}
+        assert snapshot == {
+            "tools": expected_tools[profile],
+            "resources": [],
+            "prompts": [],
+        }
 
         again = create_server(config(profile=profile), client_factory=client_factory)
         assert [t.name for t in await again.list_tools()] == snapshot["tools"]

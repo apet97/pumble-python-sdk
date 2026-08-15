@@ -34,7 +34,14 @@ SERVER_INSTRUCTIONS = (
 #   P36 app tools + Apps extension.
 Registrar = Callable[[MCPServer, McpConfig], None]
 
-_CURATED_REGISTRARS: list[Registrar] = []
+
+def _register_curated_reads(server: MCPServer, config: McpConfig) -> None:
+    from pumble_keys.mcp_server.tools import read
+
+    read.register(server, config)
+
+
+_CURATED_REGISTRARS: list[Registrar] = [_register_curated_reads]
 _INTERACTIVE_REGISTRARS: list[Registrar] = []
 _READONLY_REGISTRARS: list[Registrar] = []
 _READWRITE_REGISTRARS: list[Registrar] = []
