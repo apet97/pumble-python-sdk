@@ -141,7 +141,12 @@ class TestFactory:
         assert snapshot == {
             "tools": expected_tools[profile],
             "resources": ["pumble://me", "pumble://channels"],
-            "prompts": [],
+            "prompts": [
+                "summarize_thread",
+                "draft_reply",
+                "write_pumble_handler",
+                "debug_pumble_webhook",
+            ],
         }
 
         again = create_server(config(profile=profile), client_factory=client_factory)

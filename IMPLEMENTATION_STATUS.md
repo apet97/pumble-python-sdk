@@ -36,7 +36,7 @@
 | P27 — Register the seven curated read tools | DONE | p27 | `pytest tests/mcp/test_curated_read_tools.py` — PASS (12) | ruff + pytest (493) + mypy/pylint/pyright + boundaries — PASS | Exact 7 tools; limits 10/50; failures as values via real client session. |
 | P28 — Implement signed preview/confirmed MCP writes | DONE | p28 | `pytest tests/mcp/test_write_plan.py test_curated_write_tools.py` — PASS (18) | ruff + pytest (511) + mypy/pylint/pyright + boundaries — PASS | HMAC-bound preview/confirm; expiry/workspace/request/text/replay checks. |
 | P29 — Register MCP resources with bounded payloads and safe paths | DONE | p29 | `pytest tests/mcp/test_resources.py` — PASS (11) | ruff + pytest (522) + mypy/pylint/pyright + boundaries — PASS | 6 URIs; traversal/symlink/extension containment; bounded live payloads. |
-| P30 — Port prompts and add argument completions | NOT_STARTED | — | — | — | — |
+| P30 — Port prompts and add argument completions | DONE | p30 | `pytest tests/mcp/test_prompts.py test_completions.py` — PASS (12) | ruff + pytest (534) + mypy/pylint/pyright + boundaries — PASS | 4 prompts (Python guidance); bounded deterministic completions. |
 | P31 — Implement readonly, raw readwrite, and dry-run profiles | NOT_STARTED | — | — | — | — |
 | P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | NOT_STARTED | — | — | — | — |
 | P33 — Add optional MRTR interactive send/reply tools | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,18 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P30` (DONE)
+- Objective: Port prompts and add argument completions.
+- Allowed files: `src/pumble_keys/mcp_server/prompts.py`, `completions.py`, `tests/mcp/test_prompts.py`, `test_completions.py`
+- Exit condition: The MCP server preserves reusable workflows and improves target entry without extra model calls.
+- Started from commit: `ecd16eb` (p29)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_prompts.py tests/mcp/test_completions.py -q` → 12 passed; `pytest tests` → 534 passed.
+  - `prompts.py` ports the four curated prompts (`summarize_thread`, `draft_reply`, `write_pumble_handler`, `debug_pumble_webhook`) with deterministic text; `write_pumble_handler` is rewritten for Python (`PumbleApp`, Pydantic `Notification*` bodies, `asgi_app()`; no `ack()`, no TypeScript syntax — asserted); `draft_reply` states "do not claim it was sent" and routes sending through preview→explicit-confirm; `debug_pumble_webhook` embeds the user payload verbatim in a fenced block, rejects unparseable JSON, and instructs never to request secrets in chat.
+  - `completions.py` registers the completion handler: event names (sorted) and knowledge paths for the resource templates; channel names (API list order) and user names/emails for prompt arguments — all filtered by the partial value, bounded to 20 with `total`/`has_more`, empty on listing failure (never an error), zero secrets. All proven through real `session.complete` calls.
+  - Fast gate: ruff + pytest + mypy/pylint(10.00)/pyright + boundaries + `git diff --check` — all PASS.
+- Deviations: `server.py` wires the prompts/completions registrar into the curated and readonly seats; factory snapshot updated.
 
 - Packet: `P29` (DONE)
 - Objective: Register MCP resources with bounded payloads and safe paths.

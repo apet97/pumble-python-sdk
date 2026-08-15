@@ -53,13 +53,24 @@ def _register_resources(server: MCPServer, config: McpConfig) -> None:
     resources.register(server, config)
 
 
+def _register_prompts(server: MCPServer, config: McpConfig) -> None:
+    from pumble_keys.mcp_server import completions, prompts
+
+    prompts.register(server, config)
+    completions.register(server, config)
+
+
 _CURATED_REGISTRARS: list[Registrar] = [
     _register_curated_reads,
     _register_curated_writes,
     _register_resources,
+    _register_prompts,
 ]
 _INTERACTIVE_REGISTRARS: list[Registrar] = []
-_READONLY_REGISTRARS: list[Registrar] = [_register_resources]
+_READONLY_REGISTRARS: list[Registrar] = [
+    _register_resources,
+    _register_prompts,
+]
 _READWRITE_REGISTRARS: list[Registrar] = []
 
 
