@@ -307,3 +307,136 @@ def test_missing_key_is_usage_error(capsys, monkeypatch) -> None:
     captured = capsys.readouterr()
     assert code == 2
     assert "missing API key" in captured.err
+
+
+def test_json_variants_of_read_commands(capsys) -> None:
+    code, out, _err, _ = run_cli(["--json", "channels", "list"], capsys)
+    assert code == 0
+    parsed = json.loads(out)
+    assert parsed[0]["id"] == CHANNEL_ID
+
+    code, out, _err, _ = run_cli(["--json", "channels", "find", "engineering"], capsys)
+    assert code == 0
+    assert json.loads(out)["id"] == CHANNEL_ID
+
+    code, out, _err, _ = run_cli(
+        ["--json", "users", "find", "user-1@example.invalid"], capsys
+    )
+    assert code == 0
+    assert json.loads(out)["id"] == USER_ID
+
+    code, out, _err, _ = run_cli(["--json", "search", "alert"], capsys)
+    assert code == 0
+    parsed = json.loads(out)
+    assert isinstance(parsed, list) and parsed[0]["channel_id"] == CHANNEL_ID
+
+    code, out, _err, _ = run_cli(["--json", "messages", "#engineering"], capsys)
+    assert code == 0
+    parsed = json.loads(out)
+    assert isinstance(parsed, list) and parsed[0]["channel_id"] == CHANNEL_ID
+
+    code, out, _err, _ = run_cli(
+        ["--json", "thread", MESSAGE_ID, "--channel", CHANNEL_ID], capsys
+    )
+    assert code == 0
+    parsed = json.loads(out)
+    assert parsed["root"]["channel_id"] == CHANNEL_ID
+    assert len(parsed["replies"]) == 1
+
+    code, out, _err, _ = run_cli(["--json", "schedule", "list"], capsys)
+    assert code == 0
+    parsed = json.loads(out)
+    assert isinstance(parsed, list) and parsed[0]["id"] == SCHEDULED_ID
+
+
+def test_json_write_command_prints_receipt(capsys) -> None:
+    code, out, _err, _ = run_cli(["--json", "channels", "create", "fresh"], capsys)
+    assert code == 0
+    assert json.loads(out)  # machine-readable receipt on stdout
+
+
+def test_schedule_list_channel_filter_resolves_id(capsys) -> None:
+    code, _out, _err, r = run_cli(
+        ["schedule", "list", "--channel", "#engineering"], capsys
+    )
+    assert code == 0
+    assert r["fetch_scheduled_messages"].calls[0]["channel_id"] == CHANNEL_ID
+
+
+def test_bare_subcommands_are_usage_errors(capsys) -> None:
+    for argv in (["channels"], ["users"], ["status"], ["schedule"]):
+        code, _out, err, _ = run_cli(argv, capsys)
+        assert code == 2, argv
+        assert "pumble-keys: usage:" in err
+
+
+def test_unknown_command_in_run_is_usage_error() -> None:
+    import asyncio
+
+    import pytest
+
+    from pumble_keys.cli.main import UsageError, _run
+
+    with pytest.raises(UsageError, match="unknown command: bogus"):
+        asyncio.run(_run(SimpleNamespace(command="bogus"), SimpleNamespace()))
+
+
+def test_failure_choices_render_dict_and_object_shapes(capsys) -> None:
+    from pumble_keys.extensions.results import FacadeFailure
+
+    failure = FacadeFailure(
+        reason="ambiguous",
+        summary='Channel "eng" is ambiguous.',
+        choices=(
+            {"label": "#eng-a | PUBLIC | 1"},
+            {"id": "2"},  # dict without label falls back to the dict itself
+            SimpleNamespace(label="#eng-b | PUBLIC | 3"),
+            "bare-string",  # object without label falls back to str()
+        ),
+    )
+
+    async def find(_query):
+        return failure
+
+    client = SimpleNamespace(channels=SimpleNamespace(find=find))
+    code = main(["channels", "find", "eng"], client=client)
+    err = capsys.readouterr().err
+    assert code == 1
+    assert "Choices: #eng-a | PUBLIC | 1, " in err
+    assert "#eng-b | PUBLIC | 3" in err
+    assert "bare-string" in err
+
+
+def test_unexpected_exception_exits_1(capsys) -> None:
+    async def find(_query):
+        raise RuntimeError("boom")
+
+    client = SimpleNamespace(channels=SimpleNamespace(find=find))
+    code = main(["channels", "find", "eng"], client=client)
+    captured = capsys.readouterr()
+    assert code == 1
+    assert "pumble-keys: boom" in captured.err
+
+
+def test_client_construction_with_env_key(capsys, monkeypatch) -> None:
+    # No injected client: main builds the façade client from the env key.
+    monkeypatch.setenv("PUMBLE_API_KEY", KEY)
+    seen: dict = {}
+
+    def fake_factory(key, *, server_url, timeout_ms):
+        seen.update(key=key, server_url=server_url, timeout_ms=timeout_ms)
+        return create_pumble_client(raw=make_raw())
+
+    import sys
+
+    cli_main = sys.modules["pumble_keys.cli.main"]
+    monkeypatch.setattr(cli_main, "create_pumble_client", fake_factory)
+    code = main(["--base-url", "https://example.invalid", "whoami"])
+    captured = capsys.readouterr()
+    assert code == 0
+    assert seen == {
+        "key": KEY,
+        "server_url": "https://example.invalid",
+        "timeout_ms": None,
+    }
+    assert USER_ID in captured.out

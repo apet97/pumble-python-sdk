@@ -1,0 +1,19 @@
+# Coverage contract for the hand-written packages (FINAL_AUDIT.md §4).
+# The generated SDK is excluded: the generator's own compile gate covers
+# it, and its shape is pinned by tests/generated + the replay suites.
+# Hand-written file, survives regeneration; do not move into
+# pyproject.toml (generator-owned).
+[run]
+branch = True
+source =
+    src/pumble_keys/extensions
+    src/pumble_keys/pumble_app
+    src/pumble_keys/mcp_server
+    src/pumble_keys/cli
+    src/pumble_keys/testing
+    src/pumble_keys/knowledge
+
+[report]
+fail_under = 95
+precision = 2
+show_missing = True

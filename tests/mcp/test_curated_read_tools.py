@@ -336,3 +336,228 @@ async def test_no_oversized_payloads() -> None:
     payload = structured(result)
     assert payload["count"] == 50
     assert payload["truncated"] is True
+
+
+@pytest.mark.parametrize(
+    ("tool", "arguments", "overrides"),
+    [
+        ("whoami", {}, {"my_info": "error"}),
+        ("find_channel", {"query": "ghost"}, {}),
+        ("find_user", {"query": "ghost"}, {}),
+        ("list_channels", {}, {"list_channels": "error"}),
+        ("search_messages", {"text": "x"}, {"search_messages": "error"}),
+        ("get_channel_context", {"channel": "engineering"}, {"list_messages": "error"}),
+        (
+            "get_thread_context",
+            {"channel": "engineering", "message_id": MESSAGE_ID},
+            {"fetch_message": "error"},
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_every_read_tool_maps_facade_failure_to_curated_failure(
+    tool: str, arguments: dict, overrides: dict
+) -> None:
+    recorders = {name: Recorder(error=ConnectionError("down")) for name in overrides}
+    server, _ = make_server(**recorders)
+    async with mcp_session(server) as session:
+        result = await session.call_tool(tool, arguments)
+    assert result.is_error is False
+    payload = structured(result)
+    assert payload["ok"] is False
+    assert payload["reason"] in ("transport_error", "not_found")
+    assert payload["summary"]
+    assert payload["next_actions"]
+
+
+@pytest.mark.asyncio
+async def test_search_resolves_from_user_and_in_channel_filters() -> None:
+    server, recorders = make_server()
+    async with mcp_session(server) as session:
+        result = await session.call_tool(
+            "search_messages",
+            {"text": "alert", "from_user": "User 1", "in_channel": "engineering"},
+        )
+    payload = structured(result)
+    assert payload["count"] == 1
+    assert recorders["search_messages"].calls == [
+        {
+            "text": "alert",
+            "limit": 10,
+            "from_": [USER_ID],
+            "in_": [CHANNEL_ID],
+        }
+    ]
+
+
+@pytest.mark.asyncio
+async def test_search_from_user_resolve_failure_stops_the_search() -> None:
+    server, recorders = make_server()
+    async with mcp_session(server) as session:
+        result = await session.call_tool(
+            "search_messages", {"text": "alert", "from_user": "ghost"}
+        )
+    payload = structured(result)
+    assert payload["ok"] is False
+    assert payload["reason"] == "not_found"
+    assert recorders["search_messages"].calls == []
+
+
+@pytest.mark.asyncio
+async def test_search_in_channel_resolve_failure_stops_the_search() -> None:
+    server, recorders = make_server()
+    async with mcp_session(server) as session:
+        result = await session.call_tool(
+            "search_messages", {"text": "alert", "in_channel": "ghost"}
+        )
+    payload = structured(result)
+    assert payload["ok"] is False
+    assert payload["reason"] == "not_found"
+    assert recorders["search_messages"].calls == []
+
+
+@pytest.mark.asyncio
+async def test_search_by_sender_alone_sends_no_text() -> None:
+    server, recorders = make_server()
+    async with mcp_session(server) as session:
+        result = await session.call_tool("search_messages", {"from_user": "User 1"})
+    payload = structured(result)
+    assert payload["count"] == 1
+    assert recorders["search_messages"].calls == [{"limit": 10, "from_": [USER_ID]}]
+
+
+@pytest.mark.asyncio
+async def test_get_channel_context_forwards_cursor() -> None:
+    server, recorders = make_server()
+    async with mcp_session(server) as session:
+        result = await session.call_tool(
+            "get_channel_context",
+            {"channel": "engineering", "limit": 2, "cursor": "m-9"},
+        )
+    assert structured(result)["channel_id"] == CHANNEL_ID
+    assert recorders["list_messages"].calls == [
+        {"channel_id": CHANNEL_ID, "limit": 2, "cursor": "m-9"}
+    ]
+
+
+def make_server_with_client_patch(patch):
+    """Server whose façade client is patched at the seam.
+
+    The patched coroutines return a FacadeFailure without a real
+    suspension, so failure branches after resolver/gather awaits are
+    also traced under coverage. Observed on 3.11.11: lines after an
+    await were not traced when an exception was raised and caught below
+    the suspension point (mechanism not fully diagnosed).
+    """
+    from pumble_keys.extensions.client import create_pumble_client
+
+    def factory(_config):
+        client = create_pumble_client(raw=make_raw())
+        patch(client)
+        return client
+
+    return create_server(McpConfig(api_key=KEY), client_factory=factory)
+
+
+def facade_failure():
+    from pumble_keys.extensions.results import FacadeFailure
+
+    return FacadeFailure(
+        reason="api_error",
+        summary="Pumble API operation failed.",
+        next_actions=("Retry after correcting the request.",),
+    )
+
+
+async def _call_patched(patch, tool: str, arguments: dict):
+    server = make_server_with_client_patch(patch)
+    async with mcp_session(server) as session:
+        result = await session.call_tool(tool, arguments)
+    assert result.is_error is False
+    return structured(result)
+
+
+@pytest.mark.asyncio
+async def test_find_user_success_is_compact() -> None:
+    server, _ = make_server()
+    async with mcp_session(server) as session:
+        result = await session.call_tool("find_user", {"query": "User 1"})
+    payload = structured(result)
+    assert payload["ok"] is True
+    assert payload["user"] == {
+        "id": USER_ID,
+        "name": "User 1",
+        "email": "user-1@example.invalid",
+    }
+
+
+@pytest.mark.asyncio
+async def test_find_user_maps_facade_seam_failure() -> None:
+    async def find(_query, **_kwargs):
+        return facade_failure()
+
+    def patch(client):
+        client.users.find = find
+
+    payload = await _call_patched(patch, "find_user", {"query": "anyone"})
+    assert payload["ok"] is False
+    assert payload["reason"] == "api_error"
+
+
+@pytest.mark.asyncio
+async def test_get_channel_context_maps_channel_find_failure() -> None:
+    async def find(_query, **_kwargs):
+        return facade_failure()
+
+    def patch(client):
+        client.channels.find = find
+
+    payload = await _call_patched(patch, "get_channel_context", {"channel": "x"})
+    assert payload["ok"] is False
+    assert payload["reason"] == "api_error"
+
+
+@pytest.mark.asyncio
+async def test_get_thread_context_maps_channel_find_failure() -> None:
+    async def find(_query, **_kwargs):
+        return facade_failure()
+
+    def patch(client):
+        client.channels.find = find
+
+    payload = await _call_patched(
+        patch, "get_thread_context", {"channel": "x", "message_id": MESSAGE_ID}
+    )
+    assert payload["ok"] is False
+    assert payload["reason"] == "api_error"
+
+
+@pytest.mark.asyncio
+async def test_get_thread_context_maps_thread_failure() -> None:
+    async def get_context(**_kwargs):
+        return facade_failure()
+
+    def patch(client):
+        client.threads.get_context = get_context
+
+    payload = await _call_patched(
+        patch,
+        "get_thread_context",
+        {"channel": "engineering", "message_id": MESSAGE_ID},
+    )
+    assert payload["ok"] is False
+    assert payload["reason"] == "api_error"
+
+
+def test_to_failure_skips_non_dict_choices() -> None:
+    from pumble_keys.extensions.results import FacadeFailure
+    from pumble_keys.mcp_server.tools.read import to_failure
+
+    failure = FacadeFailure(
+        reason="ambiguous",
+        summary="ambiguous input",
+        choices=("junk-string", {"id": "1", "label": "keep me"}),
+        next_actions=("pick one",),
+    )
+    out = to_failure(failure)
+    assert [choice.label for choice in out.choices] == ["keep me"]

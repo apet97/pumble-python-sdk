@@ -64,6 +64,14 @@ def test_build_auth_settings_metadata() -> None:
     assert settings.client_registration_options is None
 
 
+NOT_A_VERIFIER = "just a module-level string"
+
+
+def make_verifier() -> StaticTokenVerifier:
+    """Zero-argument factory used by the factory-spec test."""
+    return StaticTokenVerifier()
+
+
 def test_load_token_verifier_dotted_path() -> None:
     verifier = load_token_verifier("pumble_keys.mcp_server.auth:StaticTokenVerifier")
     assert hasattr(verifier, "verify_token")
@@ -74,3 +82,20 @@ def test_load_token_verifier_bad_specs() -> None:
         load_token_verifier("no-colon")
     with pytest.raises(TypeError, match="TokenVerifier"):
         load_token_verifier("json:dumps")
+
+
+def test_load_token_verifier_zero_arg_factory() -> None:
+    verifier = load_token_verifier(f"{__name__}:make_verifier")
+    assert isinstance(verifier, StaticTokenVerifier)
+    assert hasattr(verifier, "verify_token")
+
+
+def test_load_token_verifier_factory_result_without_verify_token() -> None:
+    # ``time.time`` is callable and returns a float — no ``verify_token``.
+    with pytest.raises(TypeError, match="TokenVerifier"):
+        load_token_verifier("time:time")
+
+
+def test_load_token_verifier_non_callable_attribute() -> None:
+    with pytest.raises(TypeError, match="TokenVerifier"):
+        load_token_verifier(f"{__name__}:NOT_A_VERIFIER")

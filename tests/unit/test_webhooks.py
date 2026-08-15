@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 
 import pytest
@@ -193,3 +194,110 @@ async def test_typed_handler_map_receives_matching_event() -> None:
     result = await handler(EVENT_BODY, signed_headers(EVENT_BODY))
     assert result.status == 204
     assert seen[0].body.tx == "[redacted]"
+
+
+@pytest.mark.asyncio
+async def test_list_valued_headers_are_accepted() -> None:
+    handler, events = make_handler()
+    headers = {key: [value] for key, value in signed_headers(EVENT_BODY).items()}
+    result = await handler(EVENT_BODY, headers)
+    assert result.status == 204
+    assert len(events) == 1
+
+
+@pytest.mark.asyncio
+async def test_empty_list_header_rejected() -> None:
+    handler, _events = make_handler()
+    headers: dict[str, object] = dict(signed_headers(EVENT_BODY))
+    headers[PUMBLE_REQUEST_TIMESTAMP_HEADER] = []
+    result = await handler(EVENT_BODY, headers)
+    assert result.status == 401
+    assert "missing timestamp or signature" in result.body
+
+
+@pytest.mark.asyncio
+async def test_non_finite_timestamps_rejected() -> None:
+    handler, _events = make_handler()
+    for ts in ("nan", "inf"):
+        result = await handler(EVENT_BODY, signed_headers(EVENT_BODY, timestamp=ts))
+        assert result.status == 401
+        assert "bad timestamp" in result.body
+
+
+@pytest.mark.asyncio
+async def test_hex_signature_of_wrong_length_rejected() -> None:
+    handler, _events = make_handler()
+    headers = signed_headers(EVENT_BODY)
+    truncated = headers[PUMBLE_REQUEST_SIGNATURE_HEADER][:-2]
+    headers[PUMBLE_REQUEST_SIGNATURE_HEADER] = truncated
+    result = await handler(EVENT_BODY, headers)
+    assert result.status == 401
+
+
+def test_nonpositive_body_limit_rejected() -> None:
+    with pytest.raises(ValueError, match="max_body_bytes"):
+        create_webhook_handler(signing_secret=SECRET, max_body_bytes=0)
+
+
+@pytest.mark.asyncio
+async def test_cancelled_handler_propagates() -> None:
+    async def cancelling(event):
+        raise asyncio.CancelledError
+
+    handler = create_webhook_handler(
+        signing_secret=SECRET,
+        on_event=cancelling,
+        now_ms=lambda: NOW_MS,
+    )
+    with pytest.raises(asyncio.CancelledError):
+        await handler(EVENT_BODY, signed_headers(EVENT_BODY))
+
+
+@pytest.mark.asyncio
+async def test_handler_error_is_500_without_on_error() -> None:
+    async def failing(event):
+        raise RuntimeError("handler exploded")
+
+    handler = create_webhook_handler(
+        signing_secret=SECRET,
+        on_event=failing,
+        now_ms=lambda: NOW_MS,
+    )
+    result = await handler(EVENT_BODY, signed_headers(EVENT_BODY))
+    assert result.status == 500
+    assert result.body == "Webhook handler failed"
+
+
+@pytest.mark.asyncio
+async def test_raising_on_error_callback_still_returns_500() -> None:
+    async def failing(event):
+        raise RuntimeError("handler exploded")
+
+    def bad_on_error(error: BaseException) -> None:
+        raise ValueError("reporter exploded")
+
+    handler = create_webhook_handler(
+        signing_secret=SECRET,
+        on_event=failing,
+        on_error=bad_on_error,
+        now_ms=lambda: NOW_MS,
+    )
+    result = await handler(EVENT_BODY, signed_headers(EVENT_BODY))
+    assert result.status == 500
+
+
+@pytest.mark.asyncio
+async def test_plain_sync_on_event_is_awaited_free_and_returns_204() -> None:
+    seen = []
+
+    def on_event(event) -> None:
+        seen.append(event)
+
+    handler = create_webhook_handler(
+        signing_secret=SECRET,
+        on_event=on_event,
+        now_ms=lambda: NOW_MS,
+    )
+    result = await handler(EVENT_BODY, signed_headers(EVENT_BODY))
+    assert result.status == 204
+    assert seen[0].type == "NEW_MESSAGE"
