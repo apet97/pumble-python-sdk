@@ -25,7 +25,7 @@
 | P16 — Port scheduled-message façade | DONE | p16 | `pytest tests/unit/test_scheduled.py` — PASS (15) | ruff + pytest (293) + boundaries — PASS | Future-only integer send_at; verified create/edit; safe cancel. |
 | P17 — Add custom-status helpers and invalidate affected caches | DONE | p17 | `pytest tests/unit/test_status.py` — PASS (7) | ruff + pytest (300) + boundaries — PASS | myInfo read-proof once; users cache invalidated only when verified. |
 | P18 — Port telemetry and reusable testing helpers | DONE | p18 | `pytest tests/unit/test_telemetry.py test_testing_helpers.py` — PASS (24) | ruff + pytest (324) + boundaries — PASS | Attribute allowlist + canary leak scan; sanitizer/mock-transport port. |
-| P19 — Port typed Pumble webhook event models | NOT_STARTED | — | — | — | — |
+| P19 — Port typed Pumble webhook event models | DONE | p19 | `pytest tests/unit/test_webhook_events.py` — PASS (27) | ruff + pytest (351) + boundaries — PASS | 7 events, envelope+compact forms, unknown fields preserved. |
 | P20 — Port webhook signature verification and ASGI receiver | NOT_STARTED | — | — | — | — |
 | P21 — Port event router and `PumbleApp` convenience class | NOT_STARTED | — | — | — | — |
 | P22 — Port Pumble OAuth helpers and token store protocol | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P19` (DONE)
+- Objective: Port typed Pumble webhook event models.
+- Allowed files: `src/pumble_keys/pumble_app/events.py`, `tests/unit/test_webhook_events.py`
+- Exit condition: Webhook and socket transports share one event model.
+- Started from commit: `6a386f7` (p18)
+- Commands/results:
+  - `uv run pytest tests/unit/test_webhook_events.py -q` → 27 passed.
+  - `events.py` ports webhook-events.ts plus the normalizer from webhooks.ts (the normalizer is an event-model concern; P20 imports it): seven event types; Pydantic bodies with the compact wire fields (`aId`, `cId`, `tx`, `mId`, `eph`, …) exposed as snake_case attributes with wire-name aliases; `extra="allow"` preserves unknown fields through round-trip; `PumbleWebhookEvent` carries type/body/workspace_id/workspace_user_ids plus the raw payload excluded from serialization and repr.
+  - `normalize_webhook_event` supports the full envelope (`eventType` + dict-or-JSON-string `body` + `workspaceId`/`workspaceUserIds`, with workspace recovery from the body's `wId`/`workspace`) and the compact `ty` form. Unknown types and malformed payload shapes → `None`; a malformed JSON-string envelope body raises `ValueError` (TS parity; P20 maps to HTTP 400).
+  - Coverage: one sanitized fixture per event in both forms, wire-name access, unknown-field preservation, malformed cases, invalid workspaceUserIds dropped, raw exclusion.
+  - Fast gate: ruff — PASS; `pytest tests` → 351 passed; boundaries — PASS (pumble_app/** is a hand-written exception); `git diff --check` clean.
+- Deviations: added `pumble_app/__init__.py` (package infrastructure for the named module).
 
 - Packet: `P18` (DONE)
 - Objective: Port telemetry and reusable testing helpers.
