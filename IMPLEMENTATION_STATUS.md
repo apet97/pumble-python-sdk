@@ -50,10 +50,24 @@
 | P41 — Build the live sacrificial-workspace verification suite | DONE | p41 | live run: 8 passed, 1 skipped, zero residue | ruff + pytest (646+9 skipped) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | Gated on PUMBLE_LIVE=1 + workspace marker; probe-prefixed writes with direct-read proof; hashed receipt; found+fixed real dm request-wrapping bug. |
 | P42 — Write user and maintainer documentation | DONE | p42 | `pytest tests/unit/test_docs.py` — PASS (6) | ruff + pytest (652+9) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | 8 new docs + README map; examples compile + imports verified + links checked in CI. |
 | P43 — Harden packaging and fresh-environment smoke tests | DONE | p43 | `tools/pack_smoke.py` — PASS (build+twine+allowlist+fresh smoke) | ruff + pytest (657+9) + mypy/pylint(10.00)/pyright + boundaries(--generator-run for the documented patch) + scans — PASS | Wheel carries knowledge+app assets; allowlist rejects tests/secrets/maps; isolated fresh-venv smoke green. |
-| P44 — Implement CI, security gates, and release workflow | NOT_STARTED | — | — | — | — |
+| P44 — Implement CI, security gates, and release workflow | DONE | p44 | workflow validation (6 tests) + `uv build`+`twine check --strict` dry run — PASS | ruff + pytest (663+9) + mypy/pylint(10.00)/pyright + boundaries + both scans — PASS | SHA-pinned matrix CI; env-gated nightly live; trusted-publishing release with reviewed-commit gate. |
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P44` (DONE)
+- Objective: Implement CI, security gates, and release workflow.
+- Allowed files: `.github/workflows/ci.yml`, `live.yml`, `release.yml`, `dependabot.yml`
+- Exit condition: No human memory is required to enforce quality or safe publication.
+- Started from commit: `6224cd7` (p43)
+- Commands/results:
+  - `uv run pytest tests/unit/test_workflows.py -q` → 6 passed (YAML parse; every `uses:` SHA-pinned; CI gate coverage; live gating; release verification; no floating versions). Release dry run: `uv build` + `twine check --strict` → both artifacts PASSED (local-index equivalent of the fresh-install path already proven by `pack_smoke`).
+  - `ci.yml`: Python 3.11–3.14 matrix — ruff (hand-written paths), mypy (hand-written code), full pytest (unit/contract/parity/MCP/CLI/pack rules), fixture scan, repo-wide secret scan, generation drift (boundaries + inventory `--check`), app-asset freshness, `pip-audit`; separate Node 22.12.0 job (`npm ci`/typecheck/test/build); package-smoke job needs both.
+  - `live.yml`: nightly cron + `workflow_dispatch` only; runs in the protected `sacrificial-workspace` environment (secrets gated by environment rules); the in-suite workspace-marker guard still aborts before any write; hashed-ID receipt uploaded as an artifact.
+  - `release.yml`: tag push → verify job: the tag must be an ancestor of `origin/main` (no publish from an unreviewed generation PR), tag/version consistency, full offline checks + both scans, frontend build + `build_app --check` + pack smoke (build receipts), artifact upload; publish job: protected `pypi` environment, PyPI **trusted publishing** (OIDC `id-token: write`, `attestations: true` provenance, no password/API token anywhere — test-enforced).
+  - Pinning: all six action references pinned to full commit SHAs (fetched from the live tags: checkout v7.0.1, setup-python v7.0.0, setup-node v7.0.0, setup-uv v10.0.1, pypi-publish v1.14.2, upload-artifact v7.0.1); uv 0.9.9 and Node 22.12.0 pinned; dependabot (pip/npm/actions weekly) keeps them current via PRs.
+  - `tools/scan_secrets.py` implemented (the P40-recorded owner): repo-wide scan over git-tracked text files reusing the shape detectors; `--changed`/`--all`. Full scan clean over 429 files after extending the synthetic-ID conventions (the vendor's OpenAPI examples use `aaaa…0001`/`bbbb…0002` shapes, unit tests use cyclic/paired/sequential synthetic hex, `pumble.com` is the vendor's own contact domain) and de-literalizing the private markers so the scanner passes over itself. The sacrificial live IDs and key shapes remain detected (red tests unchanged).
+- Deviations: `tools/scan_secrets.py` (plan-required security gate, layout-listed, no packet owned it — recorded in P40's matrix note); `tests/unit/test_workflows.py` (the packet's required syntax-validation evidence); `tools/sanitize_fixture.py` detector refinement (shared scan core).
 
 - Packet: `P43` (DONE)
 - Objective: Harden packaging and fresh-environment smoke tests.

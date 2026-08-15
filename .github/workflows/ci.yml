@@ -1,0 +1,76 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.9.9"
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.9.9"
+      - name: Sync (locked)
+        run: uv sync --all-extras --dev --locked --python ${{ matrix.python-version }}
+      - name: Ruff (hand-written paths)
+        run: |
+          uv run ruff format --check src/pumble_keys/cli src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/testing src/pumble_keys/knowledge tests tools
+          uv run ruff check src/pumble_keys/cli src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/testing src/pumble_keys/knowledge tests tools
+      - name: mypy (hand-written code)
+        run: uv run mypy src/pumble_keys/extensions src/pumble_keys/pumble_app src/pumble_keys/mcp_server src/pumble_keys/cli src/pumble_keys/testing src/pumble_keys/knowledge
+      - name: Tests (unit/contract/parity/MCP/CLI/pack rules)
+        run: uv run pytest -q
+      - name: Fixture scan
+        run: uv run python tools/sanitize_fixture.py --check
+      - name: Secret scan
+        run: uv run python tools/scan_secrets.py --all
+      - name: Generation drift (boundaries + inventory)
+        run: |
+          uv run python tools/check_generated_boundaries.py
+          uv run python tools/inventory_generated_api.py --check
+      - name: App asset freshness
+        run: uv run python tools/build_app.py --check
+      - name: Dependency audit
+        run: uv run pip-audit
+
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22.12.0"
+      - name: Install (locked)
+        run: npm ci --prefix app
+      - name: Typecheck
+        run: npm run typecheck --prefix app
+      - name: Tests
+        run: npm test --prefix app
+      - name: Build
+        run: npm run build --prefix app
+
+  package:
+    runs-on: ubuntu-latest
+    needs: [python, app]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.9.9"
+      - name: Sync (locked)
+        run: uv sync --all-extras --dev --locked
+      - name: Package smoke
+        run: uv run python tools/pack_smoke.py
