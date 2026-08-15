@@ -58,6 +58,7 @@ function composerSection(state: ViewState, composer: Composer): HTMLElement {
 
   const channelInput = el("input", "composer-channel") as HTMLInputElement;
   channelInput.placeholder = "Channel";
+  channelInput.setAttribute("aria-label", "Target channel");
   channelInput.value = c.channel;
   channelInput.addEventListener("input", () => {
     composer.setChannel(channelInput.value);
@@ -66,6 +67,7 @@ function composerSection(state: ViewState, composer: Composer): HTMLElement {
 
   const textArea = document.createElement("textarea");
   textArea.className = "composer-text";
+  textArea.setAttribute("aria-label", "Message text");
   textArea.value = c.text;
   textArea.addEventListener("input", () => {
     composer.setText(textArea.value);
@@ -143,6 +145,7 @@ function composerSection(state: ViewState, composer: Composer): HTMLElement {
 
 function channelsPane(state: ViewState, flows: Flows): HTMLElement {
   const pane = el("section", "pane pane-channels");
+  pane.setAttribute("aria-label", "Channels");
   pane.append(el("h2", "pane-title", "Channels"));
   if (state.identity !== undefined) {
     pane.append(el("p", "identity", `Signed in as ${state.identity["name"]}`));
@@ -150,6 +153,7 @@ function channelsPane(state: ViewState, flows: Flows): HTMLElement {
   const filter = el("input", "channel-filter") as HTMLInputElement;
   filter.type = "search";
   filter.placeholder = "Filter channels";
+  filter.setAttribute("aria-label", "Filter channels");
   filter.value = state.channelFilter;
   pane.append(filter);
   const list = el("ul", "channel-list");
@@ -181,11 +185,13 @@ function messagesPane(
   composer: Composer,
 ): HTMLElement {
   const pane = el("section", "pane pane-messages");
+  pane.setAttribute("aria-label", "Messages and search");
   pane.append(el("h2", "pane-title", "Messages"));
 
   const searchBox = el("input", "search-input") as HTMLInputElement;
   searchBox.type = "search";
   searchBox.placeholder = "Search messages";
+  searchBox.setAttribute("aria-label", "Search messages");
   searchBox.value = state.search.query;
   const searchButton = el("button", "search-run", "Search");
   searchButton.addEventListener("click", () => {
@@ -247,6 +253,7 @@ function threadPane(
   composer: Composer,
 ): HTMLElement {
   const pane = el("section", "pane pane-thread");
+  pane.setAttribute("aria-label", "Thread");
   pane.append(el("h2", "pane-title", "Thread"));
   const thread = state.thread;
   if (thread.error !== undefined) {
@@ -279,6 +286,9 @@ export function render(
   root.dataset["theme"] = state.theme;
   root.dataset["pane"] = state.pane;
   root.dataset["narrow"] = state.narrow ? "true" : "false";
+  root.setAttribute("lang", state.locale);
+  const live = state.phase === "error" ? "assertive" : "polite";
+  root.setAttribute("aria-live", live);
 
   const shell = el("main", "shell");
 
@@ -305,6 +315,7 @@ export function render(
   if (state.narrow) {
     if (state.pane !== "channels") {
       const back = el("button", "back", "Back");
+      back.setAttribute("aria-label", "Back to the previous pane");
       back.addEventListener("click", () => flows.back());
       shell.append(back);
     }

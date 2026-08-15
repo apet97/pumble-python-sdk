@@ -45,7 +45,7 @@
 | P36 — Register the MCP App opening tool and UI resource | DONE | p36 | `pytest tests/mcp/test_app_registration.py` — PASS (5) | ruff + pytest (586) + mypy/pylint(10.00)/pyright + boundaries — PASS | One `Apps()` extension on app profiles; nested `_meta.ui` only; closed CSP; text/structured fallback. |
 | P37 — Implement App read/browse/search/thread flows | DONE | p37 | `npm test` — PASS (25) + `pytest tests/mcp/test_app_registration.py` — PASS (7) | app typecheck/test/build + pytest (588) + mypy/pylint(10.00)/pyright — PASS | Three-pane/narrow UI; cursor paging; bounded search; textContent-only rendering; typed error states. |
 | P38 — Implement App composer with preview and explicit confirmation | DONE | p38 | `npm test` — PASS (36) | app typecheck/test/build + pytest (588) — PASS | Preview-first composer; edit invalidation; no auto-retry; token never rendered or stored. |
-| P39 — Finish App accessibility, host integration, and packaging | NOT_STARTED | — | — | — | — |
+| P39 — Finish App accessibility, host integration, and packaging | DONE | p39 | `npm test` — PASS (43) + `pytest tests/pack` — PASS (5) | app typecheck/test + pytest (593) + build_app --check — PASS | Labeled landmarks/focus/reduced-motion/AA contrast; theme/locale live updates; hash-manifest packaging gate. |
 | P40 — Create sanitized replay corpus and TypeScript/Python parity tests | NOT_STARTED | — | — | — | — |
 | P41 — Build the live sacrificial-workspace verification suite | NOT_STARTED | — | — | — | — |
 | P42 — Write user and maintainer documentation | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P39` (DONE)
+- Objective: Finish App accessibility, host integration, and packaging.
+- Allowed files: `app/test/accessibility.test.ts`, `tools/build_app.py`, `tests/pack/test_app_asset.py`, `docs/MCP-APP.md`
+- Exit condition: The App is polished, host-adaptive, and reproducibly distributed.
+- Started from commit: `e822350` (p38)
+- Commands/results:
+  - `npm test --prefix app` → 43 passed (accessibility adds 7); `pytest tests/pack` → 5; full `pytest` → 593; `tools/build_app.py --check` → fresh.
+  - Accessibility (automated): every input/textarea carries an `aria-label`; all actions are native buttons (keyboard reachable, no click handlers on non-interactive elements); panes are labeled `<section>` landmarks; `:focus-visible` outline and `prefers-reduced-motion` rules in the stylesheet; WCAG AA contrast computed in-test for all six light/dark token pairs. Manual checklist recorded in `docs/MCP-APP.md` (requires a real host).
+  - Host integration: theme/locale changes re-render in place (`data-theme` + `lang`, no reload); `aria-live` polite/assertive by phase; narrow/wide layouts render from the same state (no fixed viewport).
+  - Packaging: `tools/build_app.py` runs the npm build and copies ONLY the final HTML plus `manifest.json` (asset sha256 + app source-tree sha256) into package data. `--check` fails when the packaged bytes drift from the manifest OR the app source changed without a rebuild — proven by the tampered-asset and stale-source tests; `tests/pack/test_app_asset.py` also proves the served resource is byte-identical to the packaged asset.
+  - Wheel install/read-resource evidence is deferred to the P43 pack smoke (which must also add `app_assets/*` and `knowledge/*.md` to package data via the documented pyproject patch — recorded there).
+- Deviations: `tests/pack/__init__.py` (package infrastructure); light aria/focus additions to `app/src/render.ts` and `styles.css` (the packet's required actions live in app sources); `app_assets/` regenerated via the new build tool (manifest.json added).
 
 - Packet: `P38` (DONE)
 - Objective: Implement App composer with preview and explicit confirmation.
