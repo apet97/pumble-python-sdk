@@ -72,3 +72,11 @@ so a regeneration that skips the patch cannot land silently.
   rewrite generator-owned files (a forbidden manual edit). Lint only
   the hand-written paths: `src/pumble_keys/extensions`, `pumble_app`,
   `testing`, `cli`, `mcp_server`.
+
+## Generator README usage snippets are invalid Python
+
+The pinned generator (1.763.6) emits README usage examples that do not
+parse (`list_channels(,` and `with` blocks with no body). They are
+generator-owned and left as emitted; the docs test suite checks only
+hand-written docs. Delete this entry when a generator upgrade produces
+valid snippets.

@@ -48,12 +48,24 @@
 | P39 — Finish App accessibility, host integration, and packaging | DONE | p39 | `npm test` — PASS (43) + `pytest tests/pack` — PASS (5) | app typecheck/test + pytest (593) + build_app --check — PASS | Labeled landmarks/focus/reduced-motion/AA contrast; theme/locale live updates; hash-manifest packaging gate. |
 | P40 — Create sanitized replay corpus and TypeScript/Python parity tests | DONE | p40 | `pytest tests/parity` — PASS (53) + `sanitize_fixture.py --check` — clean | ruff + pytest (646) + mypy/pylint(10.00)/pyright + boundaries + fixture scan + app-asset check — PASS | 45-fixture corpus; 26 ops + 7 webhooks completeness meta-tests; shape-based secret scanner; PARITY_MATRIX.md. |
 | P41 — Build the live sacrificial-workspace verification suite | DONE | p41 | live run: 8 passed, 1 skipped, zero residue | ruff + pytest (646+9 skipped) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | Gated on PUMBLE_LIVE=1 + workspace marker; probe-prefixed writes with direct-read proof; hashed receipt; found+fixed real dm request-wrapping bug. |
-| P42 — Write user and maintainer documentation | NOT_STARTED | — | — | — | — |
+| P42 — Write user and maintainer documentation | DONE | p42 | `pytest tests/unit/test_docs.py` — PASS (6) | ruff + pytest (652+9) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | 8 new docs + README map; examples compile + imports verified + links checked in CI. |
 | P43 — Harden packaging and fresh-environment smoke tests | NOT_STARTED | — | — | — | — |
 | P44 — Implement CI, security gates, and release workflow | NOT_STARTED | — | — | — | — |
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P42` (DONE)
+- Objective: Write user and maintainer documentation.
+- Allowed files: `README.md`, `docs/QUICKSTART.md`, `API-REFERENCE.md`, `MCP.md`, `MCP-SAFETY.md`, `MCP-APP.md`, `WEBHOOKS.md`, `PUMBLE-OAUTH.md`, `STABILITY.md`, `MIGRATING-FROM-TS.md`
+- Exit condition: A user can install, authenticate, call the SDK, run MCP, and understand safety without reading source.
+- Started from commit: `9a80e9f` (p41)
+- Commands/results:
+  - `uv run pytest tests/unit/test_docs.py -q` → 6 passed; full `pytest` → 652 (+9 live skips).
+  - Docs written: QUICKSTART (install/auth/façade/CLI/MCP entry), API-REFERENCE (raw SDK vs façade vs integration surfaces, contract highlights), MCP (profiles, EXACT stdio host JSON and Streamable HTTP command with 421/403/413 behavior, no-SSE statement, remote OAuth, routing headers, cache hints, subscriptions + the unmounted-webhook deployment note), MCP-SAFETY (preview/confirm binding chain, MRTR, raw double gate, no-retry + direct-read + single-workspace rules), WEBHOOKS (HMAC scheme, 7 events, `PumbleApp` example), PUMBLE-OAUTH (three-step helper flow, state rules), STABILITY (tiers; deliberate commitments; DEFERRED Tasks and client-credentials extension named explicitly), MIGRATING-FROM-TS (name map + behavioural equivalents), plus the README head now labels the three layers and links everything. Unofficial/no-endorsement wording kept in README and QUICKSTART (test-enforced).
+  - Evidence automation (`tests/unit/test_docs.py`): every python block in the hand-written docs must `ast.parse`; every `from pumble_keys…` import is resolved against the real modules (caught a wrong entry-point name in draft); JSON blocks parse; every relative link resolves; the unofficial notice is asserted.
+  - Generator finding (recorded): the pinned Speakeasy README usage snippets are syntactically INVALID Python (`list_channels(,` and empty `with` bodies) — generator-owned, excluded from the compile check, noted for GENERATOR_DEVIATIONS.
+- Deviations: `tests/unit/test_docs.py` added (the packet's required CI evidence); MCP-APP.md was already written in P39 and kept.
 
 - Packet: `P41` (DONE)
 - Objective: Build the live sacrificial-workspace verification suite.

@@ -4,6 +4,24 @@ Unofficial Python SDK, MCP server, and MCP App for the Pumble API Keys
 addon. This project is independent. Pumble and CAKE.com do not endorse or
 sponsor it.
 
+Three layers: a Speakeasy-generated raw SDK (26 operations), a
+value-typed async façade (no write retries, direct-read proof on every
+write), and integration surfaces — CLI (`pumble-keys`), MCP server
+(`pumble-keys-mcp`, stdio or Streamable HTTP, no SSE), an interactive
+MCP App, webhook/`PumbleApp` helpers, and Pumble OAuth. One workspace
+per deployment; the API key lives in the environment only.
+
+## Documentation
+
+- [Quickstart](docs/QUICKSTART.md) — install, authenticate, first calls
+- [API reference map](docs/API-REFERENCE.md) — raw SDK vs façade vs CLI
+- [MCP server](docs/MCP.md) — profiles, exact stdio/HTTP host configs
+- [MCP write safety](docs/MCP-SAFETY.md) — preview/confirm, MRTR, raw gates
+- [MCP App](docs/MCP-APP.md) — the one interactive app
+- [Webhooks](docs/WEBHOOKS.md) · [Pumble OAuth](docs/PUMBLE-OAUTH.md)
+- [Stability](docs/STABILITY.md) · [Migrating from TS](docs/MIGRATING-FROM-TS.md)
+- [Live testing](docs/LIVE-TESTING.md) · [Parity matrix](PARITY_MATRIX.md)
+
 Status: in development. See `IMPLEMENTATION_STATUS.md` for progress and
 `SOURCE_BASELINE.md` for the anchored sources.
 
