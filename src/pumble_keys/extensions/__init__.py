@@ -99,6 +99,13 @@ from pumble_keys.extensions.search import (
     search_all_messages,
 )
 from pumble_keys.extensions.status import StatusFacade
+from pumble_keys.extensions.telemetry import (
+    SPAN_ATTRIBUTE_ALLOWLIST,
+    JsonlAuditWriter,
+    NoopRecorder,
+    create_otel_span_recorder,
+    traced,
+)
 from pumble_keys.extensions.threads import (
     ThreadContext,
     ThreadContextMessage,
@@ -117,6 +124,7 @@ __all__ = [
     "OPERATION_FAILURE_NEXT_ACTION",
     "READ_OPERATION_IDS",
     "REDACTED",
+    "SPAN_ATTRIBUTE_ALLOWLIST",
     "CategorizedError",
     "ChannelCandidate",
     "ChannelId",
@@ -126,7 +134,9 @@ __all__ = [
     "FacadeFailure",
     "FacadeFailureReason",
     "FacadeWrites",
+    "JsonlAuditWriter",
     "MessageId",
+    "NoopRecorder",
     "PageCapExceededError",
     "PreflightResult",
     "PumbleClient",
@@ -161,6 +171,7 @@ __all__ = [
     "create_facade_failure",
     "create_facade_invalid_request",
     "create_facade_operation_failure",
+    "create_otel_span_recorder",
     "create_pumble_client",
     "display_channel",
     "display_user",
@@ -185,6 +196,7 @@ __all__ = [
     "resolve_channel",
     "resolve_user",
     "search_all_messages",
+    "traced",
     "unbrand",
     "with_retries",
 ]

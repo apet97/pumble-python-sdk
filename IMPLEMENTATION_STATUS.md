@@ -24,7 +24,7 @@
 | P15 — Port safe message/channel write façades | DONE | p15 | `pytest tests/unit/test_facade_writes.py` — PASS (14) | ruff + pytest (278) + boundaries — PASS | One attempt, direct-read proof, honest verification_failed. |
 | P16 — Port scheduled-message façade | DONE | p16 | `pytest tests/unit/test_scheduled.py` — PASS (15) | ruff + pytest (293) + boundaries — PASS | Future-only integer send_at; verified create/edit; safe cancel. |
 | P17 — Add custom-status helpers and invalidate affected caches | DONE | p17 | `pytest tests/unit/test_status.py` — PASS (7) | ruff + pytest (300) + boundaries — PASS | myInfo read-proof once; users cache invalidated only when verified. |
-| P18 — Port telemetry and reusable testing helpers | NOT_STARTED | — | — | — | — |
+| P18 — Port telemetry and reusable testing helpers | DONE | p18 | `pytest tests/unit/test_telemetry.py test_testing_helpers.py` — PASS (24) | ruff + pytest (324) + boundaries — PASS | Attribute allowlist + canary leak scan; sanitizer/mock-transport port. |
 | P19 — Port typed Pumble webhook event models | NOT_STARTED | — | — | — | — |
 | P20 — Port webhook signature verification and ASGI receiver | NOT_STARTED | — | — | — | — |
 | P21 — Port event router and `PumbleApp` convenience class | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P18` (DONE)
+- Objective: Port telemetry and reusable testing helpers.
+- Allowed files: `src/pumble_keys/extensions/telemetry.py`, `src/pumble_keys/testing/*`, `tests/unit/test_telemetry.py`, `test_testing_helpers.py`
+- Exit condition: Later MCP/CLI tests can share deterministic fixtures and safe observability.
+- Started from commit: `c20ebb6` (p17)
+- Commands/results:
+  - `uv run pytest tests/unit/test_telemetry.py tests/unit/test_testing_helpers.py -q` → 24 passed.
+  - `telemetry.py`: `create_otel_span_recorder` (real recorder when `opentelemetry-api` importable, `NoopRecorder` otherwise — proven both ways: poisoned `sys.modules` → noop; installed → real tracer); `filter_span_attributes` enforces the §10.7 allowlist (operation_id, http_method, status_class/code, retry_count, duration_ms, result_category, bounded counts, error_class) and redacts surviving strings; `JsonlAuditWriter` appends redacted JSONL, creates the file mode 0600, warns once on stderr and never raises; `traced(name, awaitable, ...)` — no-recorder/no-writer mode is a plain await; CancelledError propagates unrecorded; failures record error class, never the message.
+  - Finding: `opentelemetry-api` is present transitively via `mcp[cli]==2.0.0`. The "no required telemetry dependency" evidence is therefore asserted against this project's own `[project.dependencies]` (no opentelemetry entry) plus the poisoned-import no-op test.
+  - `testing/`: `fixtures.py` ports the TS sanitizer contract (sequential 24-zero ID placeholders, `user-N@example.invalid`, `User N`/`example-name-<sha8>`, avatar URL, `[redacted]` text fields, embedded ID/email scrubbing) and the canonical key-sorted SHA-256 body hash; `mock_transport.py` ports mock-fetch onto `httpx.MockTransport` (method + sorted path/query + sanitized body hash, FIFO, miss raises — proven against the real generated `PumbleSDK` sync and async); `clocks.FakeClock`; `factories.py` builds valid generated models with sanitized defaults.
+  - Canary leak scanner: pmb_ key, live email, 24-hex ID, and message text never survive span attributes or audit lines.
+  - Fast gate: ruff — PASS; `pytest tests` → 324 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P17` (DONE)
 - Objective: Add custom-status helpers and invalidate affected caches.
