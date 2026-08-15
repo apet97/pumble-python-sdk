@@ -1,7 +1,7 @@
 # Contributing
 
-This repository follows the execution plan in the project's implementation
-documents. Read `SOURCE_BASELINE.md` and `IMPLEMENTATION_STATUS.md` first.
+Read `SOURCE_BASELINE.md` (anchored sources) and
+`docs/GENERATOR_DEVIATIONS.md` (regeneration procedure) first.
 
 ## Generated versus hand-written code
 
@@ -23,13 +23,13 @@ Run before every commit:
 
 ```bash
 uv run python tools/check_generated_boundaries.py
-uv run python tools/check_status.py
+uv run coverage run -m pytest -q && uv run coverage report
 ```
 
 `check_generated_boundaries.py` rejects manual edits under generated
 ownership. Pass `--generator-run` only for an intentional regeneration
-commit. `check_status.py` enforces the packet table rules: one packet
-`IN_PROGRESS` at most, and no skipped packets.
+commit. The coverage gate (`.coveragerc`) requires ≥95% combined
+line+branch coverage over the hand-written packages.
 
 ## Safety rules
 
