@@ -28,12 +28,17 @@ Never use `latest`: it upgrades mid-run and pollutes the regeneration diff.
 ## Known generator gaps
 
 The pinned generator has no configuration key for these. They are applied
-by the documented idempotent patch in P05 and recorded in
+by the documented idempotent patch `tools/patch_generated.py` (run it
+after every generation, then `uv lock`) and recorded in
 `docs/GENERATOR_DEVIATIONS.md`:
 
 1. `[project.scripts]` console entry points (`pumble-keys`,
    `pumble-keys-mcp`).
 2. `requires-python`. The generator emits `>=3.10`; this project supports
    `>=3.11,<3.15`.
-3. Hand-written development tools that are not generator dependencies
-   (mypy, build, twine, pip-audit).
+
+Development tools (build, twine, pip-audit) turned out to be expressible
+in `additionalDependencies.dev`; they need no patch. The generator pins
+its own mypy. The generator's `versioningStrategy: automatic` bumps the
+version each run; restore the previous version after a regeneration with
+no intended release (see `docs/GENERATOR_DEVIATIONS.md`).

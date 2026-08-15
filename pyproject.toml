@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Unofficial Python SDK for the Pumble API Keys addon"
 authors = [{ name = "apet97" },]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.15"
 dependencies = [
     "httpcore >=1.0.9",
     "httpx >=0.28.1",
@@ -14,10 +14,16 @@ dependencies = [
 ]
 license = { text = "MIT" }
 
+[project.scripts]
+pumble-keys = "pumble_keys.cli.main:main"
+pumble-keys-mcp = "pumble_keys.mcp_server.cli:main"
+
 [dependency-groups]
 dev = [
+    "build >=1.2",
     "coverage >=7.6",
     "mypy ==1.15.0",
+    "pip-audit >=2.7",
     "pylint ==3.2.3",
     "pyright ==1.1.398",
     "pytest >=8.3",
@@ -25,6 +31,7 @@ dev = [
     "pyyaml >=6.0",
     "respx >=0.22",
     "ruff >=0.12",
+    "twine >=6.1",
 ]
 
 [tool.setuptools.packages.find]

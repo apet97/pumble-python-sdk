@@ -1,0 +1,60 @@
+# Generator deviations
+
+Every post-generation change to generator-owned output is recorded here.
+The only sanctioned mechanism is the documented idempotent patch
+`tools/patch_generated.py`. An entry that loses its reason must be
+deleted together with its patch code.
+
+Pinned generator: Speakeasy `1.763.6` (generation `2.928.0`).
+
+## Regeneration procedure
+
+```bash
+speakeasy run --pinned
+uv run python tools/patch_generated.py
+uv lock
+uv run pytest tests/generated -q
+```
+
+`tools/patch_generated.py` is a no-op on already-patched output;
+`tests/generated/test_pyproject_contract.py` fails on unpatched output,
+so a regeneration that skips the patch cannot land silently.
+
+## Active deviations
+
+### 1. `requires-python` bound
+
+- Defect: the generator hardcodes `requires-python = ">=3.10"` in
+  `pyproject.toml`. The project contract is `>=3.11,<3.15` (plan §3).
+  No `gen.yaml` key controls this field in the pinned version.
+- Failing test: `test_requires_python_matches_project_contract`.
+- Upstream: no public issue filed; the field is template-fixed in the
+  pinned Python template (`templateVersion: v2`).
+- Delete when: the pinned generator gains a supported-Python
+  configuration key, or a pinned upgrade emits the correct bound.
+
+### 2. `[project.scripts]` console entry points
+
+- Defect: the Python generator has no console-script configuration key
+  and drops the P01 `[project.scripts]` table when it overwrites
+  `pyproject.toml`. The project ships `pumble-keys` and
+  `pumble-keys-mcp`.
+- Failing test: `test_console_scripts_are_declared`.
+- Upstream: no public issue filed; scripts are outside the generator's
+  Python feature set at the pinned version.
+- Delete when: the pinned generator supports script entries, or the
+  CLIs move to a separate distribution.
+
+## Resolved without a patch
+
+- Development tools `build`, `twine`, `pip-audit`: expressed in
+  `.speakeasy/gen.yaml` `additionalDependencies.dev` (P05). The P03
+  note that these needed a patch was wrong; the config key carries
+  them. `mypy` is already a generator-pinned dev dependency.
+- The generator's `versioningStrategy: automatic` bumps the patch
+  version on every regeneration run. Release versioning is an explicit
+  decision in this project: after a regeneration with no intended
+  release, restore the previous version string in `gen.yaml`,
+  `pyproject.toml`, `src/pumble_keys/_version.py`, `uv.lock`, and
+  `releaseVersion` in `.speakeasy/gen.lock` (see P04/P05 status notes).
+  This is a version-metadata reset, not a code patch.

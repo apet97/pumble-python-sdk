@@ -11,7 +11,7 @@
 | P02 — Add repository rules, generated ownership, and status tracking | DONE | p02 | `pytest tests/unit/test_repo_rules.py` — PASS (6) | `check_status.py` + `check_generated_boundaries.py` — PASS | Boundary checker rejects synthetic generated-path edit. |
 | P03 — Configure a pinned Speakeasy Python target | DONE | p03 | scratch generation with this exact config — PASS | `check_generated_boundaries.py`, `check_status.py`, `pytest` (7) — PASS | Pin `1.763.6` works for Python. Two generator gaps recorded for P05. |
 | P04 — Generate and inventory the raw Python SDK | DONE | p04 | `pytest tests/unit/test_generated_api_inventory.py` — PASS (5); `inventory_generated_api.py --check` — PASS | ruff + pytest (12) + boundaries (`--generator-run`) + status — PASS | 26 ops sync+async; reads spec backoff; writes no retry. |
-| P05 — Burn down generator defects without contaminating generated code | NOT_STARTED | — | — | — | — |
+| P05 — Burn down generator defects without contaminating generated code | DONE | p05 | `pytest tests/generated` — PASS (5); patch second run — no-op | ruff + pytest (17) + inventory `--check` + boundaries (`--generator-run`) — PASS | 2 patch items (requires-python, scripts); dev tools moved to gen.yaml config. |
 | P06 — Lock OpenAPI and generated contract fidelity | NOT_STARTED | — | — | — | — |
 | P07 — Implement identifiers, display helpers, and redaction | NOT_STARTED | — | — | — | — |
 | P08 — Implement structured results and error categorization | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,21 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P05` (DONE)
+- Objective: Burn down generator defects without contaminating generated code.
+- Allowed files: `openapi/python-overlay.yaml` (not needed), `tools/patch_generated.py`, `docs/GENERATOR_DEVIATIONS.md`, tests under `tests/generated/`
+- Exit condition: Generated output passes contract tests with every deviation documented.
+- Started from commit: `ded28e3` (p04)
+- Commands/results:
+  - Red first: `tests/generated/test_pyproject_contract.py` failed 5/5 on unpatched output.
+  - Config route beats patch route for dev tools: added `build`, `pip-audit`, `twine` to `.speakeasy/gen.yaml` `additionalDependencies.dev` and regenerated (`speakeasy run --pinned`) — all three landed in `[dependency-groups].dev`. The P03 note claiming they needed a patch was wrong; corrected in `docs/GENERATOR_DEVIATIONS.md` and `.speakeasy/README.md`.
+  - `tools/patch_generated.py` covers the two true gaps: `requires-python >=3.11,<3.15` and `[project.scripts]` (`pumble-keys`, `pumble-keys-mcp`). First run patched; second run printed "already patched (no-op)". `uv lock` + `uv sync` clean.
+  - `uv run pytest tests -q` → 17 passed. Inventory `--check` PASS. Boundaries `--generator-run` PASS. `git diff --check` clean. No overlay needed (no OpenAPI-expressible defect found).
+- Deviations (narrow, documented):
+  - Touched `.speakeasy/gen.yaml` (P03 file) because plan §4 rule 1 prefers a generator-configuration fix over a patch; the dev-tools defect was expressible in config.
+  - Touched `.speakeasy/README.md` (P03 file) to keep its gap list truthful after the config fix.
+  - Regeneration auto-bumped the version again (0.1.0→0.1.1); restored 0.1.0 as documented in `docs/GENERATOR_DEVIATIONS.md` ("Resolved without a patch"). Because of this version counter, "fresh generation + patch equals committed tree" holds for all content except the five version-metadata strings; the reset procedure is documented.
 
 - Packet: `P04` (DONE)
 - Objective: Generate and inventory the raw Python SDK.
