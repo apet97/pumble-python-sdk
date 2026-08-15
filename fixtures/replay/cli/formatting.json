@@ -1,0 +1,49 @@
+{
+  "cases": {
+    "format_channel": {
+      "expected": "#engineering\t000000000000000000000001\tPUBLIC",
+      "fn": "format_channel",
+      "input": {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000001",
+        "name": "engineering"
+      }
+    },
+    "format_message_like": {
+      "expected": "2023-11-14T22:13:20Z\t000000000000000000000001\t000000000000000000000009: hello world",
+      "fn": "format_message_like",
+      "input": {
+        "author": "000000000000000000000009",
+        "channel_id": "000000000000000000000001",
+        "id": "000000000000000000000003",
+        "text": "hello world",
+        "timestamp_milli": 1700000000000
+      }
+    },
+    "format_user": {
+      "expected": "Probe User <probe@example.invalid>\t000000000000000000000009",
+      "fn": "format_user",
+      "input": {
+        "email": "probe@example.invalid",
+        "id": "000000000000000000000009",
+        "name": "Probe User"
+      }
+    },
+    "mask_key": {
+      "expected": "*********************0001",
+      "fn": "mask_key",
+      "input": "fixture-key-not-real-0001"
+    },
+    "normalise_emoji_code": {
+      "expected": ":+1:",
+      "fn": "normalise_emoji_code",
+      "input": "+1"
+    },
+    "one_line": {
+      "expected": "a b c",
+      "fn": "one_line",
+      "input": "a\nb\tc"
+    }
+  },
+  "ts_source": "sdk/src/extensions/display.ts@cc20de1"
+}

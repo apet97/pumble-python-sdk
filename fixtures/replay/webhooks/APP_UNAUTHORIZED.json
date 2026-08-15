@@ -1,0 +1,29 @@
+{
+  "expected": {
+    "body": {
+      "access_granted": null,
+      "app": null,
+      "app_installation": null,
+      "granted_scopes": [
+        "messages:read"
+      ],
+      "id": "000000000000000000000013",
+      "workspace": "000000000000000000000011",
+      "workspace_user": null
+    },
+    "type": "APP_UNAUTHORIZED",
+    "workspace_id": "000000000000000000000011",
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "body": {
+      "grantedScopes": [
+        "messages:read"
+      ],
+      "id": "000000000000000000000013",
+      "workspace": "000000000000000000000011"
+    },
+    "eventType": "APP_UNAUTHORIZED"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}

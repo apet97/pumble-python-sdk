@@ -1,0 +1,53 @@
+{
+  "directory": {
+    "channels": [
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000001",
+        "name": "engineering"
+      },
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000002",
+        "name": "Engineering-EU"
+      },
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000004",
+        "name": "general"
+      },
+      {
+        "channel_type": "PRIVATE",
+        "id": "000000000000000000000005",
+        "name": "GENERAL"
+      }
+    ],
+    "users": [
+      {
+        "email": "probe@example.invalid",
+        "id": "000000000000000000000009",
+        "name": "Probe User"
+      },
+      {
+        "email": "second@example.invalid",
+        "id": "000000000000000000000010",
+        "name": "Second User"
+      }
+    ]
+  },
+  "expected": {
+    "channel": {
+      "channel_type": "PUBLIC",
+      "id": "000000000000000000000001",
+      "name": "engineering"
+    },
+    "ids": {
+      "channel_id": "000000000000000000000001"
+    },
+    "ok": true,
+    "summary": "Found channel #engineering."
+  },
+  "kind": "channels",
+  "query": "000000000000000000000001",
+  "ts_source": "sdk/src/extensions/find.ts + resolve.ts + facade-failure.ts@cc20de1"
+}

@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "channel_id": "000000000000000000000001",
+    "scheduled_message_id": "000000000000000000000007",
+    "send_at": "2026-01-01T00:00:00Z",
+    "text": "hello world"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "editScheduledMessage"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "channel_id": "000000000000000000000001",
+      "scheduled_message_id": "000000000000000000000007",
+      "send_at": "2026-01-01T00:00:00Z",
+      "text": "hello world"
+    },
+    "method": "edit_scheduled_message_async",
+    "namespace": "scheduled_messages"
+  },
+  "operation_id": "editScheduledMessage",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "editScheduledMessage"
+  },
+  "tool_name": "raw_edit_scheduled_message",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

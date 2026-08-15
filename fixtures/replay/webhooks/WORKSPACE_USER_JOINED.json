@@ -1,0 +1,26 @@
+{
+  "expected": {
+    "body": {
+      "rid": null,
+      "ro": null,
+      "sts": null,
+      "ty": "WORKSPACE_USER_JOINED",
+      "tz": "UTC",
+      "u_e": "probe@example.invalid",
+      "u_id": "000000000000000000000009",
+      "u_n": "Probe User",
+      "w_id": null
+    },
+    "type": "WORKSPACE_USER_JOINED",
+    "workspace_id": null,
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "ty": "WORKSPACE_USER_JOINED",
+    "tz": "UTC",
+    "uE": "probe@example.invalid",
+    "uId": "000000000000000000000009",
+    "uN": "Probe User"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}

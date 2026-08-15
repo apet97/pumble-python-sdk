@@ -1,0 +1,35 @@
+{
+  "expected": {
+    "body": {
+      "a_id": "000000000000000000000009",
+      "bl": null,
+      "c_id": "000000000000000000000001",
+      "e": null,
+      "eph": false,
+      "l_id": null,
+      "m_id": "000000000000000000000003",
+      "rid": null,
+      "st": null,
+      "tr_id": null,
+      "ts": null,
+      "tsm": null,
+      "tx": "hello world",
+      "ty": "NEW_MESSAGE",
+      "w_id": "000000000000000000000011"
+    },
+    "type": "NEW_MESSAGE",
+    "workspace_id": "000000000000000000000011",
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "aId": "000000000000000000000009",
+    "cId": "000000000000000000000001",
+    "eph": false,
+    "mId": "000000000000000000000003",
+    "trId": null,
+    "tx": "hello world",
+    "ty": "NEW_MESSAGE",
+    "wId": "000000000000000000000011"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}

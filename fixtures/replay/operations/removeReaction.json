@@ -1,0 +1,32 @@
+{
+  "arguments": {
+    "channel_id": "000000000000000000000001",
+    "message_id": "000000000000000000000003",
+    "reaction": ":+1:"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "removeReaction"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "channel_id": "000000000000000000000001",
+      "message_id": "000000000000000000000003",
+      "reaction": ":+1:"
+    },
+    "method": "remove_reaction_async",
+    "namespace": "messages"
+  },
+  "operation_id": "removeReaction",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "removeReaction"
+  },
+  "tool_name": "raw_remove_reaction",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "channel_id": "000000000000000000000001",
+    "cursor": "000000000000000000000008",
+    "limit": 5,
+    "strategy": "BEFORE"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "listMessages"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "channel_id": "000000000000000000000001",
+      "cursor": "000000000000000000000008",
+      "limit": 5,
+      "strategy": "BEFORE"
+    },
+    "method": "list_messages_async",
+    "namespace": "messages"
+  },
+  "operation_id": "listMessages",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "listMessages"
+  },
+  "tool_name": "raw_list_messages",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

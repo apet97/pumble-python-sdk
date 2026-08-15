@@ -1,0 +1,30 @@
+{
+  "arguments": {
+    "channel_id": "000000000000000000000001",
+    "message_id": "000000000000000000000003"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "deleteMessage"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "channel_id": "000000000000000000000001",
+      "message_id": "000000000000000000000003"
+    },
+    "method": "delete_message_async",
+    "namespace": "messages"
+  },
+  "operation_id": "deleteMessage",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "deleteMessage"
+  },
+  "tool_name": "raw_delete_message",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

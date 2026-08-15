@@ -1,0 +1,32 @@
+{
+  "arguments": {
+    "description": "test channel",
+    "name": "engineering",
+    "type_": "PUBLIC"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "createChannel"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "description": "test channel",
+      "name": "engineering",
+      "type_": "PUBLIC"
+    },
+    "method": "create_channel_async",
+    "namespace": "channels"
+  },
+  "operation_id": "createChannel",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "createChannel"
+  },
+  "tool_name": "raw_create_channel",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

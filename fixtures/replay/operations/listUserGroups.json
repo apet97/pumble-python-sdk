@@ -1,0 +1,24 @@
+{
+  "arguments": {},
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "listUserGroups"
+    }
+  },
+  "expected_call": {
+    "kwargs": {},
+    "method": "list_user_groups_async",
+    "namespace": "users"
+  },
+  "operation_id": "listUserGroups",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "listUserGroups"
+  },
+  "tool_name": "raw_list_user_groups",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

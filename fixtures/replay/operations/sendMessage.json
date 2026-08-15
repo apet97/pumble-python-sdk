@@ -1,0 +1,36 @@
+{
+  "arguments": {
+    "as_bot": true,
+    "channel_id": "000000000000000000000001",
+    "text": "hello world",
+    "thread_root_id": "000000000000000000000003"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "sendMessage"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "request": {
+        "as_bot": true,
+        "channel_id": "000000000000000000000001",
+        "text": "hello world",
+        "thread_root_id": "000000000000000000000003"
+      }
+    },
+    "method": "send_message_async",
+    "namespace": "messages"
+  },
+  "operation_id": "sendMessage",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "sendMessage"
+  },
+  "tool_name": "raw_send_message",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

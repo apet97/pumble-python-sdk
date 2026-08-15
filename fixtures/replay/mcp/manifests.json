@@ -1,0 +1,156 @@
+{
+  "profiles": {
+    "curated": {
+      "prompts": [
+        "summarize_thread",
+        "draft_reply",
+        "write_pumble_handler",
+        "debug_pumble_webhook"
+      ],
+      "resources": [
+        "ui://pumble/workspace/v1/index.html",
+        "pumble://me",
+        "pumble://channels"
+      ],
+      "templates": [
+        "pumble://channel/{channel_id}",
+        "pumble://thread/{channel_id}/{message_id}",
+        "pumble://knowledge/{+path}",
+        "pumble://events/{name}"
+      ],
+      "tools": [
+        "open_pumble_workspace",
+        "pumble_ui_bootstrap",
+        "pumble_ui_channel_page",
+        "pumble_ui_thread",
+        "whoami",
+        "find_channel",
+        "find_user",
+        "list_channels",
+        "search_messages",
+        "get_channel_context",
+        "get_thread_context",
+        "send_message_preview",
+        "send_message_confirmed",
+        "reply_to_thread_preview",
+        "reply_to_thread_confirmed"
+      ]
+    },
+    "curated-interactive": {
+      "prompts": [
+        "summarize_thread",
+        "draft_reply",
+        "write_pumble_handler",
+        "debug_pumble_webhook"
+      ],
+      "resources": [
+        "ui://pumble/workspace/v1/index.html",
+        "pumble://me",
+        "pumble://channels"
+      ],
+      "templates": [
+        "pumble://channel/{channel_id}",
+        "pumble://thread/{channel_id}/{message_id}",
+        "pumble://knowledge/{+path}",
+        "pumble://events/{name}"
+      ],
+      "tools": [
+        "open_pumble_workspace",
+        "pumble_ui_bootstrap",
+        "pumble_ui_channel_page",
+        "pumble_ui_thread",
+        "whoami",
+        "find_channel",
+        "find_user",
+        "list_channels",
+        "search_messages",
+        "get_channel_context",
+        "get_thread_context",
+        "send_message_preview",
+        "send_message_confirmed",
+        "reply_to_thread_preview",
+        "reply_to_thread_confirmed",
+        "send_message_interactive",
+        "reply_to_thread_interactive"
+      ]
+    },
+    "readonly": {
+      "prompts": [
+        "summarize_thread",
+        "draft_reply",
+        "write_pumble_handler",
+        "debug_pumble_webhook"
+      ],
+      "resources": [
+        "pumble://me",
+        "pumble://channels"
+      ],
+      "templates": [
+        "pumble://channel/{channel_id}",
+        "pumble://thread/{channel_id}/{message_id}",
+        "pumble://knowledge/{+path}",
+        "pumble://events/{name}"
+      ],
+      "tools": [
+        "raw_list_channels",
+        "raw_get_channel",
+        "raw_fetch_message",
+        "raw_fetch_thread_replies",
+        "raw_search_messages",
+        "raw_list_messages",
+        "raw_fetch_scheduled_messages",
+        "raw_fetch_scheduled_message",
+        "raw_list_users",
+        "raw_list_user_groups",
+        "raw_my_info"
+      ]
+    },
+    "readwrite": {
+      "prompts": [
+        "summarize_thread",
+        "draft_reply",
+        "write_pumble_handler",
+        "debug_pumble_webhook"
+      ],
+      "resources": [
+        "pumble://me",
+        "pumble://channels"
+      ],
+      "templates": [
+        "pumble://channel/{channel_id}",
+        "pumble://thread/{channel_id}/{message_id}",
+        "pumble://knowledge/{+path}",
+        "pumble://events/{name}"
+      ],
+      "tools": [
+        "raw_list_channels",
+        "raw_get_channel",
+        "raw_fetch_message",
+        "raw_fetch_thread_replies",
+        "raw_search_messages",
+        "raw_list_messages",
+        "raw_fetch_scheduled_messages",
+        "raw_fetch_scheduled_message",
+        "raw_list_users",
+        "raw_list_user_groups",
+        "raw_my_info",
+        "raw_create_channel",
+        "raw_add_users_to_channel",
+        "raw_remove_user_from_channel",
+        "raw_send_message",
+        "raw_send_reply",
+        "raw_dm_user",
+        "raw_dm_group",
+        "raw_delete_message",
+        "raw_add_reaction",
+        "raw_remove_reaction",
+        "raw_edit_message",
+        "raw_create_scheduled_message",
+        "raw_edit_scheduled_message",
+        "raw_delete_scheduled_message",
+        "raw_custom_status"
+      ]
+    }
+  },
+  "ts_source": "python-only surface (no TS equivalent; intentional difference)"
+}

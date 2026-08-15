@@ -1,0 +1,32 @@
+{
+  "expected": {
+    "body": {
+      "a_id": null,
+      "bl": null,
+      "c_id": "000000000000000000000001",
+      "e": true,
+      "eph": null,
+      "l_id": null,
+      "m_id": "000000000000000000000003",
+      "rid": null,
+      "st": null,
+      "tr_id": null,
+      "ts": null,
+      "tsm": null,
+      "tx": "edited text",
+      "ty": "UPDATED_MESSAGE",
+      "w_id": null
+    },
+    "type": "UPDATED_MESSAGE",
+    "workspace_id": null,
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "cId": "000000000000000000000001",
+    "e": true,
+    "mId": "000000000000000000000003",
+    "tx": "edited text",
+    "ty": "UPDATED_MESSAGE"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}

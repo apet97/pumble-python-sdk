@@ -1,0 +1,44 @@
+{
+  "ts_source": "sdk/src/extensions/write-plan.ts@cc20de1",
+  "vectors": {
+    "canonical_json": {
+      "expected": "{\"action\":\"send_message\",\"channel_id\":\"000000000000000000000001\",\"text\":\"hello world\"}",
+      "input": {
+        "action": "send_message",
+        "channel_id": "000000000000000000000001",
+        "extra": null,
+        "text": "hello world"
+      }
+    },
+    "canonical_json_nested": {
+      "expected": "{\"a\":{\"x\":1},\"b\":[2,1]}",
+      "input": {
+        "a": {
+          "x": 1,
+          "y": null
+        },
+        "b": [
+          2,
+          1
+        ]
+      }
+    },
+    "excerpt_long": {
+      "expected": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx...",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "hash_request": {
+      "expected": "a4b7dccbe7a330267a36c4b27b6224ec22a8ade9efeabda0993d4384fd12d94e",
+      "input": {
+        "action": "send_message",
+        "channel_id": "000000000000000000000001",
+        "extra": null,
+        "text": "hello world"
+      }
+    },
+    "hash_text": {
+      "expected": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+      "input": "hello world"
+    }
+  }
+}

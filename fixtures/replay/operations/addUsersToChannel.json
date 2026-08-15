@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "channel_id": "000000000000000000000001",
+    "user_ids": [
+      "000000000000000000000009"
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "addUsersToChannel"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "channel_id": "000000000000000000000001",
+      "user_ids": [
+        "000000000000000000000009"
+      ]
+    },
+    "method": "add_users_to_channel_async",
+    "namespace": "channels"
+  },
+  "operation_id": "addUsersToChannel",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "addUsersToChannel"
+  },
+  "tool_name": "raw_add_users_to_channel",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

@@ -1,0 +1,25 @@
+{
+  "expected": {
+    "body": {
+      "c_id": "000000000000000000000001",
+      "m_id": "000000000000000000000003",
+      "mat": null,
+      "rc": ":+1:",
+      "rid": null,
+      "ty": "REACTION_ADDED",
+      "u_id": "000000000000000000000009",
+      "w_id": null
+    },
+    "type": "REACTION_ADDED",
+    "workspace_id": null,
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "cId": "000000000000000000000001",
+    "mId": "000000000000000000000003",
+    "rc": ":+1:",
+    "ty": "REACTION_ADDED",
+    "uId": "000000000000000000000009"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}

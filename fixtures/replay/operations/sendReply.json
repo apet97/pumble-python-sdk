@@ -1,0 +1,38 @@
+{
+  "arguments": {
+    "also_send_to_channel": true,
+    "as_bot": true,
+    "channel_id": "000000000000000000000001",
+    "message_id": "000000000000000000000003",
+    "text": "hello world"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "sendReply"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "request": {
+        "also_send_to_channel": true,
+        "as_bot": true,
+        "channel_id": "000000000000000000000001",
+        "message_id": "000000000000000000000003",
+        "text": "hello world"
+      }
+    },
+    "method": "send_reply_async",
+    "namespace": "messages"
+  },
+  "operation_id": "sendReply",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "sendReply"
+  },
+  "tool_name": "raw_send_reply",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

@@ -1,0 +1,36 @@
+{
+  "arguments": {
+    "as_bot": true,
+    "text": "hello world",
+    "user_ids": [
+      "000000000000000000000009"
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "dmGroup"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "as_bot": true,
+      "text": "hello world",
+      "user_ids": [
+        "000000000000000000000009"
+      ]
+    },
+    "method": "dm_group_async",
+    "namespace": "messages"
+  },
+  "operation_id": "dmGroup",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "dmGroup"
+  },
+  "tool_name": "raw_dm_group",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

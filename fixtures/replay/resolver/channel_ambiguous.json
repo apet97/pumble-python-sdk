@@ -1,0 +1,63 @@
+{
+  "directory": {
+    "channels": [
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000001",
+        "name": "engineering"
+      },
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000002",
+        "name": "Engineering-EU"
+      },
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000004",
+        "name": "general"
+      },
+      {
+        "channel_type": "PRIVATE",
+        "id": "000000000000000000000005",
+        "name": "GENERAL"
+      }
+    ],
+    "users": [
+      {
+        "email": "probe@example.invalid",
+        "id": "000000000000000000000009",
+        "name": "Probe User"
+      },
+      {
+        "email": "second@example.invalid",
+        "id": "000000000000000000000010",
+        "name": "Second User"
+      }
+    ]
+  },
+  "expected": {
+    "choices": [
+      {
+        "channel_type": "PUBLIC",
+        "id": "000000000000000000000004",
+        "label": "#general | PUBLIC | 000000000000000000000004",
+        "name": "general"
+      },
+      {
+        "channel_type": "PRIVATE",
+        "id": "000000000000000000000005",
+        "label": "#GENERAL | PRIVATE | 000000000000000000000005",
+        "name": "GENERAL"
+      }
+    ],
+    "next_actions": [
+      "Use a more exact Channel value or pass one returned channel id."
+    ],
+    "ok": false,
+    "reason": "ambiguous",
+    "summary": "Channel \"general\" is ambiguous."
+  },
+  "kind": "channels",
+  "query": "general",
+  "ts_source": "sdk/src/extensions/find.ts + resolve.ts + facade-failure.ts@cc20de1"
+}

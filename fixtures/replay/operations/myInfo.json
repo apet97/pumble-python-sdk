@@ -1,0 +1,24 @@
+{
+  "arguments": {},
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "myInfo"
+    }
+  },
+  "expected_call": {
+    "kwargs": {},
+    "method": "my_info_async",
+    "namespace": "users"
+  },
+  "operation_id": "myInfo",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "myInfo"
+  },
+  "tool_name": "raw_my_info",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

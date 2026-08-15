@@ -1,0 +1,28 @@
+{
+  "expected": {
+    "body": {
+      "c_id": "000000000000000000000002",
+      "c_n": "random",
+      "c_t": "PUBLIC",
+      "c_u": [
+        "000000000000000000000009"
+      ],
+      "rid": null,
+      "ty": "CHANNEL_CREATED",
+      "w_id": null
+    },
+    "type": "CHANNEL_CREATED",
+    "workspace_id": null,
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "cId": "000000000000000000000002",
+    "cN": "random",
+    "cT": "PUBLIC",
+    "cU": [
+      "000000000000000000000009"
+    ],
+    "ty": "CHANNEL_CREATED"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}

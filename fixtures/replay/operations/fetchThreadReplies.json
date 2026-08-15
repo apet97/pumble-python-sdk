@@ -1,0 +1,34 @@
+{
+  "arguments": {
+    "channel_id": "000000000000000000000001",
+    "cursor": "000000000000000000000008",
+    "limit": 5,
+    "root_message_id": "000000000000000000000003"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "fetchThreadReplies"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "channel_id": "000000000000000000000001",
+      "cursor": "000000000000000000000008",
+      "limit": 5,
+      "root_message_id": "000000000000000000000003"
+    },
+    "method": "fetch_thread_replies_async",
+    "namespace": "messages"
+  },
+  "operation_id": "fetchThreadReplies",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "fetchThreadReplies"
+  },
+  "tool_name": "raw_fetch_thread_replies",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

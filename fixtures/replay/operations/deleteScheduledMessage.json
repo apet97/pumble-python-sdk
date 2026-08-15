@@ -1,0 +1,28 @@
+{
+  "arguments": {
+    "scheduled_message_id": "000000000000000000000007"
+  },
+  "expected": {
+    "ok": true,
+    "result": {
+      "id": "000000000000000000000003",
+      "ok_marker": true,
+      "operation": "deleteScheduledMessage"
+    }
+  },
+  "expected_call": {
+    "kwargs": {
+      "scheduled_message_id": "000000000000000000000007"
+    },
+    "method": "delete_scheduled_message_async",
+    "namespace": "scheduled_messages"
+  },
+  "operation_id": "deleteScheduledMessage",
+  "raw": {
+    "id": "000000000000000000000003",
+    "ok_marker": true,
+    "operation": "deleteScheduledMessage"
+  },
+  "tool_name": "raw_delete_scheduled_message",
+  "ts_source": "sdk/src/extensions/client.ts@cc20de1 (raw namespace surface)"
+}

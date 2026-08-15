@@ -46,7 +46,7 @@
 | P37 — Implement App read/browse/search/thread flows | DONE | p37 | `npm test` — PASS (25) + `pytest tests/mcp/test_app_registration.py` — PASS (7) | app typecheck/test/build + pytest (588) + mypy/pylint(10.00)/pyright — PASS | Three-pane/narrow UI; cursor paging; bounded search; textContent-only rendering; typed error states. |
 | P38 — Implement App composer with preview and explicit confirmation | DONE | p38 | `npm test` — PASS (36) | app typecheck/test/build + pytest (588) — PASS | Preview-first composer; edit invalidation; no auto-retry; token never rendered or stored. |
 | P39 — Finish App accessibility, host integration, and packaging | DONE | p39 | `npm test` — PASS (43) + `pytest tests/pack` — PASS (5) | app typecheck/test + pytest (593) + build_app --check — PASS | Labeled landmarks/focus/reduced-motion/AA contrast; theme/locale live updates; hash-manifest packaging gate. |
-| P40 — Create sanitized replay corpus and TypeScript/Python parity tests | NOT_STARTED | — | — | — | — |
+| P40 — Create sanitized replay corpus and TypeScript/Python parity tests | DONE | p40 | `pytest tests/parity` — PASS (53) + `sanitize_fixture.py --check` — clean | ruff + pytest (646) + mypy/pylint(10.00)/pyright + boundaries + fixture scan + app-asset check — PASS | 45-fixture corpus; 26 ops + 7 webhooks completeness meta-tests; shape-based secret scanner; PARITY_MATRIX.md. |
 | P41 — Build the live sacrificial-workspace verification suite | NOT_STARTED | — | — | — | — |
 | P42 — Write user and maintainer documentation | NOT_STARTED | — | — | — | — |
 | P43 — Harden packaging and fresh-environment smoke tests | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P40` (DONE)
+- Objective: Create sanitized replay corpus and TypeScript/Python parity tests.
+- Allowed files: `fixtures/replay/*`, `tools/sanitize_fixture.py`, `tests/parity/*`, `PARITY_MATRIX.md`
+- Exit condition: Port completeness is evidence-based rather than inferred from file presence.
+- Started from commit: `54111cc` (p39)
+- Commands/results:
+  - `uv run pytest tests/parity -q` → 53 passed; `tools/sanitize_fixture.py --check` → clean over `fixtures/` + `tests/parity/`; full `pytest` → 646.
+  - Interpretation, stated in PARITY_MATRIX.md: the pinned TS reference ships without node_modules, so "replay through the TS contract" = checked-in expected outputs (canonical-JSON-normalized) with a per-fixture `ts_source` reference to cc20de1 — the corpus freezes the verified semantics and any Python drift breaks the suite. No execution of TypeScript.
+  - Corpus (45 fixtures): 26 operations (adapter routing, request wrapping for sendMessage/sendReply, kwargs cleaning, ok-envelope — completeness meta-test against the raw manifest so a missing op fails), 7 webhook types (envelope + compact forms; meta-test against `KNOWN_EVENT_TYPES`), 8 resolver cases (exact/case-insensitive/ambiguous-with-choices/not-found/24-hex passthrough/user-by-email/name), pagination boundary-overlap dedupe with the full request-cursor walk asserted, 6 CLI display goldens, frozen MCP catalogs for all four profiles, and 5 write-plan canonicalization vectors (sorted keys, None-drop, text/request sha256, excerpt bound).
+  - Sanitizer (`tools/sanitize_fixture.py --check`, now a mandatory gate alongside ruff/pytest/mypy for every later packet): detects live data by SHAPE, never by a denylist of real values (which would itself commit them) — API-key-shaped 32-hex, live-ID-shaped 24-hex outside the synthetic `0…0NNNN` convention, e-mails outside reserved test domains, private-content markers. Red-tested with runtime-assembled dirty literals in tmp_path (the test file stays clean under its own scanner).
+  - PARITY_MATRIX.md records coverage per area and the 8 intentional differences already logged across P09–P36 (receipt verification block, AbortSignal→cancellation, error-code mapping, ValueError vs TypeError, CLI schedule-create addition, Python prompt rewrite, Python-only MCP surface, synthetic-ID convention). It also records that `tools/scan_secrets.py` (repo-wide `--changed`/`--all`) is owned by P44 — not a phantom gate.
+- Deviations: `tests/parity/__init__.py` + `conftest.py` (package infrastructure/loaders — the plan's `tests/parity/*` covers them). Fixture generation ran via an uncommitted script; fixtures are the committed artifact and the suite re-verifies them from scratch.
 
 - Packet: `P39` (DONE)
 - Objective: Finish App accessibility, host integration, and packaging.

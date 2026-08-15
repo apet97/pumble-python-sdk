@@ -1,0 +1,24 @@
+{
+  "expected": {
+    "body": {
+      "app": null,
+      "bot_user": null,
+      "id": "000000000000000000000012",
+      "installed_by": null,
+      "uninstalled_at": null,
+      "workspace": "000000000000000000000011"
+    },
+    "type": "APP_UNINSTALLED",
+    "workspace_id": "000000000000000000000011",
+    "workspace_user_ids": null
+  },
+  "payload": {
+    "body": {
+      "id": "000000000000000000000012",
+      "workspace": "000000000000000000000011"
+    },
+    "eventType": "APP_UNINSTALLED",
+    "workspaceId": "000000000000000000000011"
+  },
+  "ts_source": "sdk/src/extensions/webhook-events.ts@cc20de1"
+}
