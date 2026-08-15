@@ -15,7 +15,7 @@
 | P06 — Lock OpenAPI and generated contract fidelity | DONE | p06 | `pytest tests/contract` — PASS (27, no network) | ruff + pytest (44) + boundaries + inventory `--check` — PASS | 26 ops, 32 schemas, ApiKey header, error union, retry policy locked. |
 | P07 — Implement identifiers, display helpers, and redaction | DONE | p07 | `pytest tests/unit/test_ids.py test_display.py test_redaction.py` — PASS (84) | ruff + pytest (128) + boundaries + inventory `--check` — PASS | NewType IDs; TS-exact labels; two redaction families. |
 | P08 — Implement structured results and error categorization | DONE | p08 | `pytest tests/unit/test_results.py test_errors.py` — PASS (33) | ruff + pytest (161) + boundaries — PASS | 5 failure reasons, 6 error categories; cause/raw excluded from serialization. |
-| P09 — Implement safe retry and in-process rate limiting primitives | NOT_STARTED | — | — | — | — |
+| P09 — Implement safe retry and in-process rate limiting primitives | DONE | p09 | `pytest tests/unit/test_retries.py test_rate_limit.py` — PASS (27) | ruff + pytest (188) + boundaries — PASS | Write callables rejected without explicit override; fake-clock bucket. |
 | P10 — Implement deterministic user/channel resolution | NOT_STARTED | — | — | — | — |
 | P11 — Implement optional resolver cache and preflight | NOT_STARTED | — | — | — | — |
 | P12 — Port defensive exhaustive search and message pagination | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P09` (DONE)
+- Objective: Implement safe retry and in-process rate limiting primitives.
+- Allowed files: `src/pumble_keys/extensions/retries.py`, `rate_limit.py`, `tests/unit/test_retries.py`, `test_rate_limit.py`
+- Exit condition: Network resilience exists without duplicate-creating write retries.
+- Started from commit: `c087346` (p08)
+- Commands/results:
+  - `uv run pytest tests/unit/test_retries.py tests/unit/test_rate_limit.py -q` → 27 passed.
+  - `retries.py` ports with-retries.ts (transient-only via `categorize_error`, jittered exponential backoff `base_ms*2^attempt*(0.5+rng())`, `max_attempts`/`max_delay_ms`, `Retry-After` delta-seconds and HTTP-date parsing capped at max delay, `on_retry` observer, injectable sleep/rng/wall-clock). Safety tightening per plan: `with_retries` refuses any callable that is not a manifest read (`operation_id` in `READ_OPERATION_IDS`, contract-tested equal to `contracts/operations.json`), not marked `mark_safe_to_retry`, and lacks `unsafe_allow_write_retry=True`. `asyncio.CancelledError` re-raises before categorization — never counted, categorized, or slept on.
+  - `rate_limit.py` ports rate-limiter.ts: bucket starts full at `burst`, fractional refill at `rps`, cap at burst, optional bounded queue with dedicated `RateLimitQueueFullError`, FIFO drain via injectable monotonic clock + timer, cancellation-safe waits (cancelled waiter leaves the queue; token passes to the next). A failing call still costs its token. Integration test proves the limiter inside the retry loop charges one token per attempt.
+  - Fast gate: ruff — PASS; `pytest tests` → 188 passed; boundaries — PASS; `git diff --check` clean.
+- Carry-forward note for P14 (from P04 finding): generated writes honor a client-wide `retry_config`; `create_pumble_client` must construct the generated client WITHOUT a global `retry_config`, and P14 needs a regression test for that.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P08` (DONE)
 - Objective: Implement structured results and error categorization.

@@ -39,6 +39,10 @@ from pumble_keys.extensions.operations import (
     operation_failure,
     operation_failure_reason,
 )
+from pumble_keys.extensions.rate_limit import (
+    RateLimiter,
+    RateLimitQueueFullError,
+)
 from pumble_keys.extensions.redaction import (
     REDACTED,
     redact_debug_headers,
@@ -55,9 +59,18 @@ from pumble_keys.extensions.results import (
     create_facade_operation_failure,
     is_facade_failure,
 )
+from pumble_keys.extensions.retries import (
+    DEFAULT_RETRY_STATUSES,
+    READ_OPERATION_IDS,
+    is_safe_to_retry,
+    mark_safe_to_retry,
+    with_retries,
+)
 
 __all__ = [
+    "DEFAULT_RETRY_STATUSES",
     "OPERATION_FAILURE_NEXT_ACTION",
+    "READ_OPERATION_IDS",
     "REDACTED",
     "CategorizedError",
     "ChannelId",
@@ -67,6 +80,8 @@ __all__ = [
     "FacadeFailureReason",
     "MessageId",
     "PumbleId",
+    "RateLimitQueueFullError",
+    "RateLimiter",
     "ScheduledMessageId",
     "UserGroupId",
     "UserId",
@@ -89,10 +104,13 @@ __all__ = [
     "is_facade_failure",
     "is_facade_operation_failure",
     "is_pumble_id_like",
+    "is_safe_to_retry",
+    "mark_safe_to_retry",
     "operation_failure",
     "operation_failure_reason",
     "redact_debug_headers",
     "redact_debug_value",
     "redact_sensitive_text",
     "unbrand",
+    "with_retries",
 ]
