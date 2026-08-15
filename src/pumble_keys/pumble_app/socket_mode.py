@@ -208,9 +208,8 @@ class PumbleSocketModeReceiver:
             context = context(event, frame)
             if isinstance(context, Awaitable):
                 context = await context
-        result = await self._router.dispatch(
-            event, context if context is not None else {}
-        )
+        active_context = context if isinstance(context, dict) else {}
+        result = await self._router.dispatch(event, active_context)
         return PumbleSocketModeDispatchResult(
             kind="event",
             handled=result.handled,

@@ -30,7 +30,7 @@
 | P21 — Port event router and `PumbleApp` convenience class | DONE | p21 | `pytest tests/unit/test_event_router.py test_pumble_app.py` — PASS (12) | ruff + pytest (383) + boundaries — PASS | Registration-order dispatch; first failure stops (TS parity). |
 | P22 — Port Pumble OAuth helpers and token store protocol | DONE | p22 | `pytest tests/unit/test_oauth.py test_token_store.py` — PASS (17) | ruff + pytest (400) + boundaries — PASS | Exact URLs/fields; constant-time state; in-memory store only. |
 | P23 — Port experimental Pumble Socket Mode as an optional extra | DONE | p23 | `pytest tests/unit/test_socket_mode.py` — PASS (12) | ruff + pytest (412) + mypy/pylint/pyright + boundaries + inventory — PASS | Injected transport; [socket] extra via gen.yaml; regen compile gate learned. |
-| P24 — Port the one-shot SDK CLI | NOT_STARTED | — | — | — | — |
+| P24 — Port the one-shot SDK CLI | DONE | p24 | `pytest tests/cli` — PASS (20) | ruff + pytest (432) + mypy/pylint/pyright + boundaries — PASS | No plaintext key flag; file>stdin>env; exit 0/1/2; façade receipts. |
 | P25 — Create MCP configuration, lifespan, and server factory | NOT_STARTED | — | — | — | — |
 | P26 — Implement MCP entry point, transports, and remote authorization | NOT_STARTED | — | — | — | — |
 | P27 — Register the seven curated read tools | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P24` (DONE)
+- Objective: Port the one-shot SDK CLI.
+- Allowed files: `src/pumble_keys/cli/main.py`, `formatting.py`, `tests/cli/test_cli.py`, `test_cli_quiet.py`
+- Exit condition: Packaged CLI covers the existing user workflows with safer secret handling.
+- Started from commit: `5392b61` (p23)
+- Commands/results:
+  - `uv run pytest tests/cli -q` → 20 passed.
+  - `main.py` ports pumble-keys-cli.mjs onto stdlib `argparse` (custom parser raises usage errors instead of exiting): commands `doctor`, `whoami`, `channels list|find|create`, `users find`, `send`, `dm`, `search`, `messages`, `thread`, `status set|clear`, `schedule list|create|cancel` (`schedule create` added per the plan's command list; the TS CLI lacked it). All commands run through the curated façade (`create_pumble_client`; injectable for tests) — writes get façade receipts with direct-read verification, no duplicated business logic. Explicit 24-hex IDs skip resolution.
+  - Safety improvement over TS (plan-mandated): NO plaintext API-key flag exists. Credential precedence proven: `--api-key-file` > `--api-key-stdin` > `PUMBLE_API_KEY`. `doctor` masks the key (last 4 only); no secret appears in any output.
+  - Output contract: `--json` writes machine JSON to stdout (`formatting.to_jsonable` handles generated pydantic models, receipts, dataclasses); human listings go to stdout; write success prose goes to stderr as a diagnostic; `--quiet` suppresses success prose but never JSON, read output, or errors (all four proven). Exit codes 0/1/2 (façade failure summaries → exit 1 with choices; argparse/usage → exit 2).
+  - Emoji-code normalization (`palm_tree` → `:palm_tree:`) lives only in the CLI (`formatting.normalise_emoji_code`), per P17.
+  - Fast gate: ruff (hand-written paths) — PASS; `pytest tests` → 432 passed; mypy/pylint(10.00)/pyright all clean (one pyright narrowing fix in `socket_mode.py` included); boundaries — PASS; `git diff --check` clean.
+- Deviations: `cli/__init__.py` added (package infrastructure); one-line pyright fix in `pumble_app/socket_mode.py` needed to keep the generator compile gate green.
 
 - Packet: `P23` (DONE)
 - Objective: Port experimental Pumble Socket Mode as an optional extra.
