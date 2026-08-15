@@ -1,0 +1,1936 @@
+openapi: 3.0.0
+info:
+  title: Pumble API Addon documentation
+  version: 1.1.0
+  description: |
+    Strongly-typed OpenAPI contract for the Pumble API-Keys add-on
+    (https://pumble.com/api). All response and request schemas in this
+    document were validated against the live API on 2026-05-21 against a
+    sacrificial workspace; field names, casing, and nullability reflect actual
+    server behavior.
+
+    ## Authentication
+    All endpoints expect the workspace API key in the `ApiKey` request header.
+    Keys are issued from the Pumble web app at *Workspace settings → API keys*.
+
+    ## Errors
+    The Pumble service emits **two** distinct error body shapes, depending on
+    which validation layer rejects the request:
+
+    1. `{ "error": "<string>" }` — legacy/free-form messages from path
+       handlers (most common).
+    2. `{ "message": "<string>", "localizedMessage": "<string>", "code": <int> }`
+       — structured validation errors from the framework layer.
+
+    Both are documented under the `Error` schema (a `oneOf` union). Generated
+    SDKs receive a single union type for typed error handling.
+  contact:
+    name: Pumble support
+    email: support@pumble.com
+
+servers:
+  - url: https://pumble-api-keys.addons.marketplace.cake.com
+    description: Pumble API-Keys add-on production endpoint
+
+security:
+  - ApiKeyAuth: []
+
+x-sdk-safe-read-retries: &safeReadRetries
+  strategy: backoff
+  backoff:
+    initialInterval: 500
+    maxInterval: 30000
+    maxElapsedTime: 60000
+    exponent: 1.5
+  statusCodes:
+    - 429
+    - 5XX
+  retryConnectionErrors: true
+
+tags:
+  - name: Channels
+    description: Channel discovery, creation, and membership management.
+  - name: Messages
+    description: Send, edit, delete, react to, search, and list messages.
+  - name: Scheduled Messages
+    description: Manage messages queued for future delivery, with optional recurrence.
+  - name: Users
+    description: User directory, user groups, and per-user state (status, identity).
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: ApiKey
+      description: Workspace API key issued from Pumble's API-keys settings page.
+
+  schemas:
+    # ───────────────────────── Errors ─────────────────────────
+
+    LegacyError:
+      type: object
+      description: Free-form error message from the request handler layer.
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Human-readable error message.
+          example: Could not find channel with that identifier
+      example:
+        error: Could not find channel with that identifier
+
+    StructuredError:
+      type: object
+      description: Structured validation error from the framework layer.
+      required: [message, localizedMessage, code]
+      properties:
+        message:
+          type: string
+          description: Raw error message.
+          example: "[Allowed values are PUBLIC|PRIVATE]"
+        localizedMessage:
+          type: string
+          description: Localized variant of `message` (often identical for English clients).
+          example: "[Allowed values are PUBLIC|PRIVATE]"
+        code:
+          type: integer
+          description: Internal error code.
+          example: 400000
+      example:
+        message: "[Allowed values are PUBLIC|PRIVATE]"
+        localizedMessage: "[Allowed values are PUBLIC|PRIVATE]"
+        code: 400000
+
+    Error:
+      description: |
+        Pumble returns one of two error body shapes; clients should be prepared
+        to parse either. See the parent operation description for context.
+      oneOf:
+        - $ref: '#/components/schemas/LegacyError'
+        - $ref: '#/components/schemas/StructuredError'
+      example:
+        error: Could not find channel with that identifier
+
+    # ───────────────────────── References ─────────────────────────
+
+    MessageRef:
+      type: object
+      description: Lightweight reference returned by write operations.
+      required: [id, channelId]
+      properties:
+        id:
+          type: string
+          description: Server-assigned message identifier (24-char hex).
+          example: cccccccccccccccccccc0001
+        channelId:
+          type: string
+          description: ID of the channel that contains the message.
+          example: bbbbbbbbbbbbbbbbbbbb0002
+      example:
+        id: cccccccccccccccccccc0001
+        channelId: bbbbbbbbbbbbbbbbbbbb0002
+
+    ChannelRef:
+      type: object
+      description: Lightweight reference returned by `createChannel`.
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          example: bbbbbbbbbbbbbbbbbbbb0002
+        name:
+          type: string
+          example: engineering
+      example:
+        id: bbbbbbbbbbbbbbbbbbbb0002
+        name: engineering
+
+    ScheduledMessageRef:
+      type: object
+      description: Lightweight reference returned by `createScheduledMessage`.
+      required: [id, channelId]
+      properties:
+        id:
+          type: string
+          example: dddddddddddddddddddd0001
+        channelId:
+          type: string
+          example: bbbbbbbbbbbbbbbbbbbb0002
+      example:
+        id: dddddddddddddddddddd0001
+        channelId: bbbbbbbbbbbbbbbbbbbb0002
+
+    # ───────────────────────── Enums ─────────────────────────
+
+    ChannelType:
+      type: string
+      enum: [PUBLIC, PRIVATE]
+      description: Visibility of a channel.
+      example: PUBLIC
+
+    UserStatus:
+      type: string
+      enum: [ACTIVATED, DEACTIVATED, INVITED]
+      description: Lifecycle state of a workspace user.
+      example: ACTIVATED
+
+    UserRole:
+      type: string
+      enum: [OWNER, ADMIN, MEMBER, GUEST]
+      description: Workspace role.
+      example: MEMBER
+
+    PostingPermissionsGroup:
+      type: string
+      enum: [EVERYONE, WORKSPACE_ADMINS, SPECIFIC_USERS]
+      example: EVERYONE
+
+    ListMessagesStrategy:
+      type: string
+      enum: [BEFORE, AFTER, AROUND]
+      description: |
+        Pagination direction relative to `cursor`. When `cursor` is omitted the
+        server returns the most-recent page regardless of `strategy`.
+      example: BEFORE
+
+    SearchStrategy:
+      type: string
+      enum: [MOST_RELEVANT, MOST_RECENT, NEWEST, OLDEST]
+      example: MOST_RECENT
+
+    RecurrenceType:
+      type: string
+      enum:
+        - DAILY
+        - BUSINESSDAYS
+        - WEEKLY
+        - BIWEEKLY
+        - MONTHLY_NTH_WEEKDAY
+        - MONTHLY_LAST_WEEKDAY
+        - QUARTERLY_NTH_WEEKDAY
+        - QUARTERLY_LAST_WEEKDAY
+        - ANNUALLY
+      example: WEEKLY
+
+    # ───────────────────────── Sub-objects ─────────────────────────
+
+    Avatar:
+      type: object
+      properties:
+        fullPath:
+          type: string
+          format: uri
+          example: https://avatar.example.com/defaults/avatar.jpg
+        scaledPath:
+          type: string
+          format: uri
+          example: https://avatar.example.com/defaults/avatar-scaled.jpg
+      example:
+        fullPath: https://avatar.example.com/defaults/avatar.jpg
+        scaledPath: https://avatar.example.com/defaults/avatar-scaled.jpg
+
+    CustomStatusObject:
+      type: object
+      description: A user's custom status (the value, not the update payload).
+      properties:
+        code:
+          type: string
+          description: Emoji code in `:emoji_name:` form.
+          example: ":beach_with_umbrella:"
+        status:
+          type: string
+          description: Free-form status text.
+          example: Time off
+        expiration:
+          type: string
+          description: Expiration mode (e.g. `custom`, `dont_clear`).
+          example: custom
+        expiresAt:
+          type: integer
+          format: int64
+          description: Epoch-ms moment the status auto-clears (0 if never).
+          example: 1893456000000
+        showUntil:
+          type: boolean
+          example: true
+      example:
+        code: ":beach_with_umbrella:"
+        status: Time off
+        expiration: custom
+        expiresAt: 1893456000000
+        showUntil: true
+
+    PostingPermissions:
+      type: object
+      properties:
+        allowThreads: { type: boolean, example: true }
+        allowMentions: { type: boolean, example: true }
+        postingPermissionsGroup:
+          $ref: '#/components/schemas/PostingPermissionsGroup'
+        workspaceUserIds:
+          type: array
+          items: { type: string }
+          example: [aaaaaaaaaaaaaaaaaaaa0001]
+      example:
+        allowThreads: true
+        allowMentions: true
+        postingPermissionsGroup: EVERYONE
+        workspaceUserIds: [aaaaaaaaaaaaaaaaaaaa0001]
+
+    Recurrence:
+      type: object
+      required: [recurrenceType]
+      properties:
+        recurrenceType:
+          $ref: '#/components/schemas/RecurrenceType'
+        endAfterOccurrences:
+          type: integer
+          minimum: 0
+          maximum: 9999
+          example: 10
+        endDate:
+          type: integer
+          format: int64
+          description: Epoch-ms after which the recurrence stops.
+          example: 1893459600000
+      example:
+        recurrenceType: WEEKLY
+        endAfterOccurrences: 10
+        endDate: 1893459600000
+
+    RichTextElement:
+      type: object
+      description: |
+        One node in Pumble's rich-text block structure. The full grammar is
+        large (Slack-like); only top-level fields are typed here.
+      properties:
+        type: { type: string, example: text }
+        text: { type: string, example: Hello world }
+        elements:
+          type: array
+          items:
+            $ref: '#/components/schemas/RichTextElement'
+        highlight:
+          type: string
+          description: Present on search-hit blocks to indicate matching text.
+          example: Hello
+      example:
+        type: text
+        text: Hello world
+
+    MessageBlock:
+      type: object
+      properties:
+        type:
+          type: string
+          example: rich_text
+        elements:
+          type: array
+          items:
+            $ref: '#/components/schemas/RichTextElement'
+      example:
+        type: rich_text
+        elements:
+          - type: rich_text_section
+            elements:
+              - type: text
+                text: Hello world
+
+    Reaction:
+      type: object
+      required: [user, code]
+      properties:
+        user:
+          type: string
+          description: User ID that added the reaction.
+          example: aaaaaaaaaaaaaaaaaaaa0001
+        code:
+          type: string
+          description: Emoji code in `:emoji_name:` form.
+          example: ":+1:"
+      example:
+        user: aaaaaaaaaaaaaaaaaaaa0001
+        code: ":+1:"
+
+    ThreadReplyInfo:
+      type: object
+      properties:
+        rootId: { type: string, example: cccccccccccccccccccc0001 }
+        replySentToChannel: { type: boolean, example: false }
+        rootText: { type: string, example: original thread message }
+      example:
+        rootId: cccccccccccccccccccc0001
+        replySentToChannel: false
+        rootText: original thread message
+
+    ThreadRootInfo:
+      type: object
+      properties:
+        replyCount: { type: integer, example: 3 }
+        lastReplyTimestampMilli: { type: integer, format: int64, example: 1893459600000 }
+      example:
+        replyCount: 3
+        lastReplyTimestampMilli: 1893459600000
+
+    # ───────────────────────── Domain objects ─────────────────────────
+
+    User:
+      type: object
+      required: [id, email, name, role, status, workspaceId]
+      properties:
+        id:
+          type: string
+          example: aaaaaaaaaaaaaaaaaaaa0001
+        email:
+          type: string
+          format: email
+          example: user-1@example.invalid
+        name:
+          type: string
+          example: Example User
+        phone:
+          type: string
+        title:
+          type: string
+          description: User's job title (empty string if unset).
+        role:
+          $ref: '#/components/schemas/UserRole'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        workspaceId:
+          type: string
+        avatar:
+          $ref: '#/components/schemas/Avatar'
+        customStatus:
+          allOf:
+            - $ref: '#/components/schemas/CustomStatusObject'
+          nullable: true
+        timeZoneId:
+          type: string
+          example: Europe/Belgrade
+        automaticallyTimeZone:
+          type: boolean
+        activeUntil:
+          type: integer
+          format: int64
+        isAddonBot:
+          type: boolean
+        isPumbleBot:
+          type: boolean
+        invitedBy:
+          type: string
+          nullable: true
+        broadcastWarningShownTs:
+          type: integer
+          format: int64
+          nullable: true
+      example:
+        id: aaaaaaaaaaaaaaaaaaaa0001
+        email: user-1@example.invalid
+        name: Example User
+        title: ""
+        role: OWNER
+        status: ACTIVATED
+        workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        timeZoneId: Europe/Belgrade
+        automaticallyTimeZone: true
+        activeUntil: 0
+        isAddonBot: false
+        isPumbleBot: false
+        invitedBy: null
+
+    UserGroup:
+      type: object
+      required: [id, name, handle, workspaceId]
+      properties:
+        id: { type: string, example: eeeeeeeeeeeeeeeeeeee0001 }
+        name: { type: string, example: engineering }
+        handle: { type: string, example: eng }
+        description:
+          type: string
+          nullable: true
+        disabled: { type: boolean }
+        createdBy: { type: string }
+        workspaceId: { type: string }
+        workspaceUserIds:
+          type: array
+          items: { type: string }
+      example:
+        id: eeeeeeeeeeeeeeeeeeee0001
+        name: engineering
+        handle: eng
+        description: null
+        disabled: false
+        createdBy: aaaaaaaaaaaaaaaaaaaa0001
+        workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        workspaceUserIds: [aaaaaaaaaaaaaaaaaaaa0001]
+
+    Channel:
+      type: object
+      required: [id, name, channelType, workspaceId]
+      properties:
+        id: { type: string, example: bbbbbbbbbbbbbbbbbbbb0001 }
+        name: { type: string, example: general }
+        description:
+          type: string
+          description: Optional channel description (empty string if unset).
+        channelType:
+          $ref: '#/components/schemas/ChannelType'
+        creatorId: { type: string }
+        addedById:
+          type: string
+          nullable: true
+          description: User ID that added the current user to the channel (`null` for channels the current user created or that pre-date this tracking).
+        workspaceId: { type: string, example: aaaaaaaaaaaaaaaaaaaa0000 }
+        sectionId:
+          type: string
+          description: Section the channel belongs to (empty if none).
+        isArchived: { type: boolean }
+        isHidden: { type: boolean }
+        isMember: { type: boolean }
+        isMuted: { type: boolean }
+        isMain: { type: boolean }
+        isInitial: { type: boolean }
+        isAddonBot: { type: boolean }
+        isPumbleBot: { type: boolean }
+        notifyAboutRepliesInThreads: { type: boolean }
+        lastMessageTimestamp:
+          type: string
+          format: date-time
+        lastMessageTimestampMilli:
+          type: integer
+          format: int64
+        lastMarkTimestamp:
+          type: string
+          format: date-time
+        lastMarkTimestampMilli:
+          type: integer
+          format: int64
+        timestamp:
+          type: string
+          format: date-time
+        timestampMilli:
+          type: integer
+          format: int64
+        postingPermissions:
+          $ref: '#/components/schemas/PostingPermissions'
+        desktopNotificationPreferences:
+          type: string
+          nullable: true
+          description: Notification preference for this channel on desktop (e.g. `EVERYTHING`, `MENTIONS`, `NONE`); `null` if no per-channel override.
+        mobileNotificationPreferences:
+          type: string
+          nullable: true
+          description: Notification preference for this channel on mobile; `null` if no per-channel override.
+      example:
+        id: bbbbbbbbbbbbbbbbbbbb0001
+        name: general
+        channelType: PUBLIC
+        workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        isArchived: false
+        isHidden: false
+        isMember: true
+        isMuted: false
+        isMain: true
+        isInitial: true
+        addedById: null
+        desktopNotificationPreferences: EVERYTHING
+        mobileNotificationPreferences: MENTIONS
+
+    ChannelListEntry:
+      type: object
+      description: |
+        `listChannels` returns each channel as a tuple of the channel itself
+        plus its pinned messages and member-ID list.
+      required: [channel]
+      properties:
+        channel:
+          $ref: '#/components/schemas/Channel'
+        pinnedMessages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        users:
+          type: array
+          description: IDs of members of the channel.
+          items: { type: string }
+          example: [aaaaaaaaaaaaaaaaaaaa0001, aaaaaaaaaaaaaaaaaaaa0002]
+      example:
+        channel:
+          id: bbbbbbbbbbbbbbbbbbbb0001
+          name: general
+          channelType: PUBLIC
+          workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        pinnedMessages: []
+        users: [aaaaaaaaaaaaaaaaaaaa0001, aaaaaaaaaaaaaaaaaaaa0002]
+
+    Message:
+      type: object
+      required: [id, channelId, workspaceId, text, author, timestamp, timestampMilli]
+      properties:
+        id: { type: string, example: cccccccccccccccccccc0001 }
+        channelId: { type: string }
+        workspaceId: { type: string }
+        author:
+          type: string
+          description: ID of the user (or addon) that sent the message.
+        authorAppId:
+          type: string
+          nullable: true
+          description: ID of the addon app that authored the message (null for human-authored).
+        text: { type: string }
+        blocks:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/MessageBlock'
+        attachments:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        files:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        reactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reaction'
+        linkPreviews:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        threadRootInfo:
+          allOf:
+            - $ref: '#/components/schemas/ThreadRootInfo'
+          nullable: true
+        threadReplyInfo:
+          allOf:
+            - $ref: '#/components/schemas/ThreadReplyInfo'
+          nullable: true
+        deleted: { type: boolean }
+        edited: { type: boolean }
+        isFollowing: { type: boolean }
+        subtype:
+          type: string
+          description: Message subtype (empty string for normal messages).
+        localId: { type: string }
+        meta:
+          type: object
+          nullable: true
+          additionalProperties: true
+        savedTimestampMilli:
+          type: integer
+          format: int64
+        timestamp:
+          type: string
+          format: date-time
+        timestampMilli:
+          type: integer
+          format: int64
+      example:
+        id: cccccccccccccccccccc0001
+        channelId: bbbbbbbbbbbbbbbbbbbb0002
+        workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        author: aaaaaaaaaaaaaaaaaaaa0001
+        text: Hello world
+        timestamp: '2026-05-21T21:23:04Z'
+        timestampMilli: 1779398584000
+        deleted: false
+        edited: false
+        isFollowing: true
+        reactions: []
+        attachments: []
+        files: []
+        blocks:
+          - type: rich_text
+            elements:
+              - type: rich_text_section
+                elements:
+                  - type: text
+                    text: Hello world
+
+    MessageList:
+      type: object
+      description: |
+        Paginated message list. `hasMoreBefore` / `hasMoreAfter` are nullable —
+        the server returns `null` for the side that's irrelevant to the chosen
+        `strategy` (e.g. `strategy=AFTER` yields `hasMoreBefore=null`).
+      required: [messages]
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        hasMoreBefore:
+          type: boolean
+          nullable: true
+        hasMoreAfter:
+          type: boolean
+          nullable: true
+      example:
+        messages: []
+        hasMoreBefore: false
+        hasMoreAfter: null
+
+    ScheduledMessage:
+      type: object
+      required: [id, channelId, workspaceId, text, sendAt, author]
+      properties:
+        id: { type: string, example: dddddddddddddddddddd0001 }
+        channelId: { type: string }
+        workspaceId: { type: string }
+        author: { type: string }
+        text: { type: string }
+        sendAt:
+          type: integer
+          format: int64
+          description: Delivery moment (epoch ms).
+          example: 1893459600000
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageBlock'
+        attachments:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        files:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        alsoSendToChannel:
+          type: boolean
+          description: For threaded scheduled messages, whether to also broadcast to the parent channel on send.
+        threadRootId:
+          type: string
+          nullable: true
+        rootText:
+          type: string
+          nullable: true
+        quotedMessage:
+          type: object
+          nullable: true
+          additionalProperties: true
+        recurrence:
+          allOf:
+            - $ref: '#/components/schemas/Recurrence'
+          nullable: true
+      example:
+        id: dddddddddddddddddddd0001
+        channelId: bbbbbbbbbbbbbbbbbbbb0002
+        workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        author: aaaaaaaaaaaaaaaaaaaa0001
+        text: Reminder
+        sendAt: 1893459600000
+        alsoSendToChannel: false
+        threadRootId: null
+        rootText: null
+        quotedMessage: null
+        recurrence: null
+
+    ScheduledMessageList:
+      type: object
+      required: [scheduledMessages, hasMore]
+      properties:
+        scheduledMessages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduledMessage'
+        hasMore: { type: boolean, example: false }
+      example:
+        scheduledMessages: []
+        hasMore: false
+
+    SearchHit:
+      allOf:
+        - $ref: '#/components/schemas/Message'
+        - type: object
+          properties:
+            highlightedBlocks:
+              type: array
+              description: Same as `blocks`, with `highlight` annotations on matching text segments.
+              items:
+                $ref: '#/components/schemas/MessageBlock'
+      example:
+        id: cccccccccccccccccccc0001
+        channelId: bbbbbbbbbbbbbbbbbbbb0002
+        workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+        author: aaaaaaaaaaaaaaaaaaaa0001
+        text: Hello world
+        timestamp: '2026-05-21T21:23:04Z'
+        timestampMilli: 1779398584000
+        highlightedBlocks: []
+
+    SearchMessagesResult:
+      type: object
+      required: [content, totalElements, hasMore]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+        totalElements:
+          type: integer
+          description: Total matches across all pages.
+          example: 0
+        hasMore:
+          type: boolean
+          example: false
+      example:
+        content: []
+        totalElements: 0
+        hasMore: false
+
+  responses:
+    Error403:
+      description: |
+        Pumble returns 403 for both auth/permission failures *and* validation
+        failures. Inspect the body shape (legacy `error` vs structured
+        `message` / `localizedMessage` / `code`) to disambiguate.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Not found
+            localizedMessage: Not found
+            code: 404100
+
+paths:
+
+  # ─────────────────────────── CHANNELS ───────────────────────────
+
+  /listChannels:
+    get:
+      operationId: listChannels
+      tags: [Channels]
+      x-speakeasy-retries: *safeReadRetries
+      summary: List all channels
+      description: Returns every channel visible to the API key.
+      responses:
+        "200":
+          description: A list of channels retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelListEntry'
+              example:
+                - channel:
+                    id: bbbbbbbbbbbbbbbbbbbb0001
+                    name: general
+                    channelType: PUBLIC
+                    workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                  pinnedMessages: []
+                  users: [aaaaaaaaaaaaaaaaaaaa0001, aaaaaaaaaaaaaaaaaaaa0002]
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /getChannel:
+    get:
+      operationId: getChannel
+      tags: [Channels]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Get channel details by ID or name
+      description: |
+        Provide **either** `channelId` (preferred) **or** `channel` (by name).
+        The response wraps the channel in `{ channel: ... }` (mirroring
+        `listChannels`), without the `pinnedMessages` / `users` fields.
+      parameters:
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channel
+          in: query
+          required: false
+          schema: { type: string }
+          example: general
+      responses:
+        "200":
+          description: Channel details.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [channel]
+                properties:
+                  channel:
+                    $ref: '#/components/schemas/Channel'
+              example:
+                channel:
+                  id: bbbbbbbbbbbbbbbbbbbb0001
+                  name: general
+                  channelType: PUBLIC
+                  workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                  isArchived: false
+                  isHidden: false
+                  isMember: true
+                  isMuted: false
+                  isMain: true
+                  isInitial: true
+                  addedById: null
+                  desktopNotificationPreferences: EVERYTHING
+                  mobileNotificationPreferences: MENTIONS
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /createChannel:
+    post:
+      operationId: createChannel
+      x-sdk-no-write-retries: true
+      tags: [Channels]
+      summary: Create a new channel
+      description: |
+        Creates a new public or private channel. The caller becomes the
+        channel creator and is added as a member.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type]
+              properties:
+                name:
+                  type: string
+                  description: |
+                    Channel name. Pumble normalizes this server-side
+                    (lower-cases, replaces spaces with `-`).
+                  example: project-updates
+                type:
+                  $ref: '#/components/schemas/ChannelType'
+                description:
+                  type: string
+                  description: Optional channel description.
+            example:
+              name: project-updates
+              type: PUBLIC
+              description: integration testing channel - safe to delete
+      responses:
+        "200":
+          description: Channel created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelRef'
+              example:
+                id: bbbbbbbbbbbbbbbbbbbb0002
+                name: engineering
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /addUsersToChannel:
+    post:
+      operationId: addUsersToChannel
+      x-sdk-no-write-retries: true
+      tags: [Channels]
+      summary: Add users to a channel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channelId, userIds]
+              properties:
+                channelId: { type: string }
+                userIds:
+                  type: array
+                  items: { type: string }
+            example:
+              channelId: bbbbbbbbbbbbbbbbbbbb0001
+              userIds: [aaaaaaaaaaaaaaaaaaaa0002]
+      responses:
+        "200":
+          description: Users added to channel.
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /removeUserFromChannel:
+    post:
+      operationId: removeUserFromChannel
+      x-sdk-no-write-retries: true
+      tags: [Channels]
+      summary: Remove a user from a channel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channelId, userId]
+              properties:
+                channelId: { type: string }
+                userId: { type: string }
+            example:
+              channelId: bbbbbbbbbbbbbbbbbbbb0001
+              userId: aaaaaaaaaaaaaaaaaaaa0002
+      responses:
+        "200":
+          description: User removed from channel.
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  # ─────────────────────────── MESSAGES ───────────────────────────
+
+  /sendMessage:
+    post:
+      operationId: sendMessage
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Send a message to a channel
+      description: |
+        Sends a text (or rich-text) message. Provide **either** `channelId`
+        (preferred) **or** `channel` (by name). If `threadRootId` is set, the
+        message is posted as a reply in that thread (equivalent to
+        `sendReply`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              anyOf:
+                - required: [channelId]
+                - required: [channel]
+              properties:
+                channelId: { type: string, minLength: 1 }
+                channel:
+                  type: string
+                  minLength: 1
+                  description: Channel name; ignored if `channelId` is provided.
+                text: { type: string, minLength: 1 }
+                threadRootId:
+                  type: string
+                  description: If set, post as a reply in this thread.
+                asBot:
+                  type: boolean
+                  description: If true, the message is authored by the addon's bot identity instead of the API-key owner.
+                blocks:
+                  type: array
+                  description: Pumble rich-text blocks. If provided, takes precedence over `text` for rendering.
+                  items:
+                    $ref: '#/components/schemas/MessageBlock'
+            example:
+              channelId: bbbbbbbbbbbbbbbbbbbb0002
+              text: Hello world
+      responses:
+        "200":
+          description: Message sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRef'
+              example:
+                id: cccccccccccccccccccc0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /sendReply:
+    post:
+      operationId: sendReply
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Reply to a message in a channel (thread)
+      description: |
+        Posts `text` as a reply in the thread rooted at `messageId`. Provide
+        **either** `channelId` (preferred) **or** `channel` (by name).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageId, text]
+              anyOf:
+                - required: [channelId]
+                - required: [channel]
+              properties:
+                channelId: { type: string, minLength: 1 }
+                channel: { type: string, minLength: 1 }
+                messageId:
+                  type: string
+                  minLength: 1
+                  description: ID of the message to reply to (the thread root).
+                text: { type: string, minLength: 1 }
+                alsoSendToChannel:
+                  type: boolean
+                  description: If true, also broadcast the reply to the parent channel.
+                asBot:
+                  type: boolean
+            example:
+              channelId: bbbbbbbbbbbbbbbbbbbb0002
+              messageId: cccccccccccccccccccc0001
+              text: thread reply 1
+      responses:
+        "200":
+          description: Reply sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRef'
+              example:
+                id: cccccccccccccccccccc0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /dmUser:
+    post:
+      operationId: dmUser
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Send a direct message to a user
+      description: |
+        Opens (or reuses) a 1-to-1 DM channel and posts a message. The
+        response's `channelId` is the DM channel — useful for follow-up
+        operations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, text]
+              properties:
+                userId: { type: string, minLength: 1 }
+                text: { type: string, minLength: 1 }
+                asBot: { type: boolean }
+            example:
+              userId: aaaaaaaaaaaaaaaaaaaa0002
+              text: Hi
+      responses:
+        "200":
+          description: DM sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRef'
+              example:
+                id: cccccccccccccccccccc0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /dmGroup:
+    post:
+      operationId: dmGroup
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Send a direct message to a group of users
+      description: Opens (or reuses) a multi-party DM channel and posts a message.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userIds, text]
+              properties:
+                userIds:
+                  type: array
+                  items: { type: string, minLength: 1 }
+                  minItems: 1
+                text: { type: string, minLength: 1 }
+                asBot: { type: boolean }
+            example:
+              userIds:
+                - aaaaaaaaaaaaaaaaaaaa0002
+                - aaaaaaaaaaaaaaaaaaaa0003
+              text: Hi team
+      responses:
+        "200":
+          description: Group DM sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageRef'
+              example:
+                id: cccccccccccccccccccc0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /fetchMessage:
+    get:
+      operationId: fetchMessage
+      tags: [Messages]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Fetch a single message by ID
+      parameters:
+        - name: messageId
+          in: query
+          required: true
+          schema: { type: string }
+          example: cccccccccccccccccccc0001
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channel
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+      responses:
+        "200":
+          description: Message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                id: cccccccccccccccccccc0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+                workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                author: aaaaaaaaaaaaaaaaaaaa0001
+                text: Hello world
+                timestamp: '2026-05-21T21:23:04Z'
+                timestampMilli: 1779398584000
+                deleted: false
+                edited: false
+                isFollowing: true
+                reactions: []
+                attachments: []
+                files: []
+                blocks:
+                  - type: rich_text
+                    elements:
+                      - type: rich_text_section
+                        elements:
+                          - type: text
+                            text: Hello world
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /fetchThreadReplies:
+    get:
+      operationId: fetchThreadReplies
+      tags: [Messages]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Fetch the replies of a thread
+      description: |
+        Returns the replies posted in the thread rooted at `rootMessageId`,
+        as a flat array. Supports cursor pagination via the last reply's `id`.
+      x-speakeasy-pagination:
+        type: cursor
+        inputs:
+          - name: cursor
+            in: parameters
+            type: cursor
+        outputs:
+          nextCursor: $[-1].id
+      parameters:
+        - name: rootMessageId
+          in: query
+          required: true
+          schema: { type: string }
+          example: cccccccccccccccccccc0001
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channel
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+          description: ID of the last reply on the previous page.
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+          example: 100
+      responses:
+        "200":
+          description: Thread replies.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+              example:
+                - id: cccccccccccccccccccc0001
+                  channelId: bbbbbbbbbbbbbbbbbbbb0002
+                  workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                  author: aaaaaaaaaaaaaaaaaaaa0001
+                  text: Hello world
+                  timestamp: '2026-05-21T21:23:04Z'
+                  timestampMilli: 1779398584000
+                  deleted: false
+                  edited: false
+                  isFollowing: true
+                  reactions: []
+                  attachments: []
+                  files: []
+                  blocks:
+                    - type: rich_text
+                      elements:
+                        - type: rich_text_section
+                          elements:
+                            - type: text
+                              text: Hello world
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /searchMessages:
+    post:
+      operationId: searchMessages
+      tags: [Messages]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Search messages
+      description: |
+        Searches messages by free text, sender, channel, and/or time window.
+        At least one of `text`, `from`, or `in` is required.
+
+        ## Pagination
+        Cursor input is `beforeTs` (epoch ms); the next cursor is the
+        `timestampMilli` of the oldest hit in the current page. **Edge case**:
+        Pumble returns timestamps truncated to seconds, so messages sharing
+        the same `timestampMilli` that straddle a page boundary can be
+        skipped. For low-volume channels or `limit >= 10`, this is rarely
+        observed; for high-volume bursts use a smaller search window via
+        `afterTs` to bound the result set.
+      x-speakeasy-pagination:
+        type: cursor
+        inputs:
+          - name: beforeTs
+            in: requestBody
+            type: cursor
+        outputs:
+          nextCursor: $.content[-1].timestampMilli
+          results: $.content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  maxLength: 1000
+                from:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: { type: string }
+                  description: Filter by sender user IDs.
+                in:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: { type: string }
+                  description: Filter by channel IDs or names.
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 20
+                  default: 10
+                strategy:
+                  $ref: '#/components/schemas/SearchStrategy'
+                beforeTs:
+                  type: integer
+                  format: int64
+                  description: Restrict to messages with `timestampMilli` strictly less than this value (also the pagination cursor).
+                afterTs:
+                  type: integer
+                  format: int64
+                  description: Restrict to messages with `timestampMilli` strictly greater than this value.
+            example:
+              text: project update
+              limit: 10
+      responses:
+        "200":
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchMessagesResult'
+              example:
+                content: []
+                totalElements: 0
+                hasMore: false
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /deleteMessage:
+    delete:
+      operationId: deleteMessage
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Delete a message by ID
+      parameters:
+        - name: messageId
+          in: query
+          required: true
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channel
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+      responses:
+        "200":
+          description: Message deleted.
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /listMessages:
+    get:
+      operationId: listMessages
+      tags: [Messages]
+      x-speakeasy-retries: *safeReadRetries
+      summary: List messages in a channel
+      description: |
+        Retrieves a paginated list of messages from a channel. Pagination is
+        cursor-based: pass the `id` of the last returned message as the next
+        `cursor`. `hasMoreBefore` / `hasMoreAfter` indicate which direction
+        still has messages relative to the cursor.
+      x-speakeasy-pagination:
+        type: cursor
+        inputs:
+          - name: cursor
+            in: parameters
+            type: cursor
+        outputs:
+          nextCursor: $.messages[-1].id
+          results: $.messages
+      parameters:
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channel
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+          description: ID of the last message on the previous page.
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+          example: 100
+        - name: strategy
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ListMessagesStrategy'
+          example: BEFORE
+      responses:
+        "200":
+          description: Paginated message list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageList'
+              example:
+                messages: []
+                hasMoreBefore: false
+                hasMoreAfter: null
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /addReaction:
+    post:
+      operationId: addReaction
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Add a reaction (emoji) to a message
+      description: |
+        Adds a reaction code in `:emoji_name:` form. Pumble enforces the
+        colon-wrapped form server-side; bare names (e.g. `+1`) return 403.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageId, reaction]
+              properties:
+                messageId: { type: string }
+                channelId: { type: string }
+                reaction:
+                  type: string
+                  pattern: '^:[a-zA-Z0-9_+\-]+:$'
+                  minLength: 3
+                  maxLength: 100
+                  description: Emoji code in `:emoji_name:` form (e.g. `:+1:`).
+                skinTone:
+                  type: integer
+                  minimum: 1
+                  maximum: 6
+            example:
+              messageId: cccccccccccccccccccc0001
+              channelId: bbbbbbbbbbbbbbbbbbbb0002
+              reaction: ":+1:"
+      responses:
+        "200":
+          description: Reaction added.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+              example:
+                status: ok
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /removeReaction:
+    delete:
+      operationId: removeReaction
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Remove a reaction from a message
+      parameters:
+        - name: messageId
+          in: query
+          required: true
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: reaction
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^:[a-zA-Z0-9_+\-]+:$'
+            minLength: 3
+            maxLength: 100
+            example: ":+1:"
+          description: Emoji code in `:emoji_name:` form to remove.
+          example: ":+1:"
+      responses:
+        "200":
+          description: Reaction removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+              example:
+                status: ok
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /editMessage:
+    post:
+      operationId: editMessage
+      x-sdk-no-write-retries: true
+      tags: [Messages]
+      summary: Edit a message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [messageId, channelId, text]
+              properties:
+                messageId: { type: string }
+                channelId: { type: string }
+                text: { type: string }
+                blocks:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MessageBlock'
+            example:
+              messageId: cccccccccccccccccccc0001
+              channelId: bbbbbbbbbbbbbbbbbbbb0002
+              text: edited text
+      responses:
+        "200":
+          description: Message edited (empty body).
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  # ─────────────────────────── SCHEDULED MESSAGES ───────────────────────────
+
+  /createScheduledMessage:
+    post:
+      operationId: createScheduledMessage
+      x-sdk-no-write-retries: true
+      tags: [Scheduled Messages]
+      summary: Create a scheduled (future) message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channelId, text, sendAt]
+              properties:
+                channelId: { type: string, minLength: 1 }
+                text: { type: string, minLength: 1 }
+                sendAt:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  description: Delivery moment (epoch ms). Must be in the future.
+                blocks:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MessageBlock'
+                threadRootId:
+                  type: string
+                  description: If set, the scheduled message will be sent as a thread reply.
+                alsoSendToChannel:
+                  type: boolean
+                recurrence:
+                  $ref: '#/components/schemas/Recurrence'
+            example:
+              channelId: bbbbbbbbbbbbbbbbbbbb0002
+              text: Daily standup reminder
+              sendAt: 1893459600000
+              recurrence:
+                recurrenceType: BUSINESSDAYS
+      responses:
+        "200":
+          description: Scheduled message created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledMessageRef'
+              example:
+                id: dddddddddddddddddddd0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /fetchScheduledMessages:
+    get:
+      operationId: fetchScheduledMessages
+      tags: [Scheduled Messages]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Fetch a list of scheduled messages
+      description: |
+        Returns scheduled messages for the workspace (optionally filtered to
+        a single channel). Cursor pagination uses the last scheduled
+        message's `id`.
+      x-speakeasy-pagination:
+        type: cursor
+        inputs:
+          - name: cursor
+            in: parameters
+            type: cursor
+        outputs:
+          nextCursor: $.scheduledMessages[-1].id
+          results: $.scheduledMessages
+      parameters:
+        - name: channelId
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: cursor
+          in: query
+          required: false
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 200, default: 100 }
+          example: 100
+      responses:
+        "200":
+          description: Paginated scheduled-message list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledMessageList'
+              example:
+                scheduledMessages: []
+                hasMore: false
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /fetchScheduledMessage:
+    get:
+      operationId: fetchScheduledMessage
+      tags: [Scheduled Messages]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Fetch a single scheduled message by ID
+      parameters:
+        - name: scheduledMessageId
+          in: query
+          required: true
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+      responses:
+        "200":
+          description: Scheduled message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledMessage'
+              example:
+                id: dddddddddddddddddddd0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+                workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                author: aaaaaaaaaaaaaaaaaaaa0001
+                text: Reminder
+                sendAt: 1893459600000
+                alsoSendToChannel: false
+                threadRootId: null
+                rootText: null
+                quotedMessage: null
+                recurrence: null
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /editScheduledMessage:
+    post:
+      operationId: editScheduledMessage
+      x-sdk-no-write-retries: true
+      tags: [Scheduled Messages]
+      summary: Edit a scheduled message
+      description: |
+        Updates a queued scheduled message. **All of** `scheduledMessageId`,
+        `channelId`, `text`, and `sendAt` are required server-side — omitting
+        any of them returns 403 with `[must not be null]`. Pass the existing
+        `sendAt` value verbatim if you don't want to reschedule.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scheduledMessageId, channelId, text, sendAt]
+              properties:
+                scheduledMessageId: { type: string }
+                channelId: { type: string }
+                text: { type: string }
+                sendAt:
+                  type: integer
+                  format: int64
+                  description: Delivery moment (epoch ms). Required even if unchanged.
+                blocks:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/MessageBlock'
+                recurrence:
+                  $ref: '#/components/schemas/Recurrence'
+            example:
+              scheduledMessageId: dddddddddddddddddddd0001
+              channelId: bbbbbbbbbbbbbbbbbbbb0002
+              text: edited reminder
+              sendAt: 1893459600000
+      responses:
+        "200":
+          description: Updated scheduled message.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduledMessage'
+              example:
+                id: dddddddddddddddddddd0001
+                channelId: bbbbbbbbbbbbbbbbbbbb0002
+                workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                author: aaaaaaaaaaaaaaaaaaaa0001
+                text: Reminder
+                sendAt: 1893459600000
+                alsoSendToChannel: false
+                threadRootId: null
+                rootText: null
+                quotedMessage: null
+                recurrence: null
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /deleteScheduledMessage:
+    delete:
+      operationId: deleteScheduledMessage
+      x-sdk-no-write-retries: true
+      tags: [Scheduled Messages]
+      summary: Delete a scheduled message
+      parameters:
+        - name: scheduledMessageId
+          in: query
+          required: true
+          schema: { type: string }
+          example: bbbbbbbbbbbbbbbbbbbb0001
+      responses:
+        "200":
+          description: Scheduled message deleted.
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  # ─────────────────────────── USERS ───────────────────────────
+
+  /listUsers:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      x-speakeasy-retries: *safeReadRetries
+      summary: List all workspace users
+      description: Returns every user in the workspace as a flat array.
+      responses:
+        "200":
+          description: Workspace user directory.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              example:
+                - id: aaaaaaaaaaaaaaaaaaaa0001
+                  email: user-1@example.invalid
+                  name: Example User
+                  title: ""
+                  role: OWNER
+                  status: ACTIVATED
+                  workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                  timeZoneId: Europe/Belgrade
+                  automaticallyTimeZone: true
+                  activeUntil: 0
+                  isAddonBot: false
+                  isPumbleBot: false
+                  invitedBy: null
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /listUserGroups:
+    get:
+      operationId: listUserGroups
+      tags: [Users]
+      x-speakeasy-retries: *safeReadRetries
+      summary: List workspace user groups
+      responses:
+        "200":
+          description: User groups.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserGroup'
+              example:
+                - id: eeeeeeeeeeeeeeeeeeee0001
+                  name: engineering
+                  handle: eng
+                  description: null
+                  disabled: false
+                  createdBy: aaaaaaaaaaaaaaaaaaaa0001
+                  workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                  workspaceUserIds: [aaaaaaaaaaaaaaaaaaaa0001]
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /myInfo:
+    get:
+      operationId: myInfo
+      tags: [Users]
+      x-speakeasy-retries: *safeReadRetries
+      summary: Get info about the authenticated user
+      description: Returns the user record for whichever account owns the API key.
+      responses:
+        "200":
+          description: Current user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: aaaaaaaaaaaaaaaaaaaa0001
+                email: user-1@example.invalid
+                name: Example User
+                title: ""
+                role: OWNER
+                status: ACTIVATED
+                workspaceId: aaaaaaaaaaaaaaaaaaaa0000
+                timeZoneId: Europe/Belgrade
+                automaticallyTimeZone: true
+                activeUntil: 0
+                isAddonBot: false
+                isPumbleBot: false
+                invitedBy: null
+        "403":
+          $ref: '#/components/responses/Error403'
+
+  /customStatus:
+    post:
+      operationId: customStatus
+      x-sdk-no-write-retries: true
+      tags: [Users]
+      summary: Update the custom status of the authenticated user
+      description: |
+        Sets or clears the user's custom status. **Both** `code` and
+        `expiresAt` are required server-side. Pass an `expiresAt` far in the
+        future for a "don't auto-clear" effect; pass a past timestamp to
+        immediately clear.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code, expiresAt]
+              properties:
+                code:
+                  type: string
+                  pattern: '^:[a-zA-Z0-9_+\-]+:$'
+                  description: Emoji code in `:emoji_name:` form.
+                  example: ":beach_with_umbrella:"
+                status:
+                  type: string
+                  description: Free-form status text.
+                  example: Time off
+                expiresAt:
+                  type: integer
+                  format: int64
+                  description: Epoch-ms moment to clear the status (0 = never).
+            example:
+              code: ":beach_with_umbrella:"
+              status: Time off
+              expiresAt: 1893456000000
+      responses:
+        "200":
+          description: Status updated.
+        "403":
+          $ref: '#/components/responses/Error403'

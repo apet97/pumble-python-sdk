@@ -1,0 +1,236 @@
+[
+  {
+    "operationId": "listChannels",
+    "method": "GET",
+    "path": "/listChannels",
+    "tag": "Channels",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "getChannel",
+    "method": "GET",
+    "path": "/getChannel",
+    "tag": "Channels",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "createChannel",
+    "method": "POST",
+    "path": "/createChannel",
+    "tag": "Channels",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "addUsersToChannel",
+    "method": "POST",
+    "path": "/addUsersToChannel",
+    "tag": "Channels",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "removeUserFromChannel",
+    "method": "POST",
+    "path": "/removeUserFromChannel",
+    "tag": "Channels",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "sendMessage",
+    "method": "POST",
+    "path": "/sendMessage",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "sendReply",
+    "method": "POST",
+    "path": "/sendReply",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "dmUser",
+    "method": "POST",
+    "path": "/dmUser",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "dmGroup",
+    "method": "POST",
+    "path": "/dmGroup",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "fetchMessage",
+    "method": "GET",
+    "path": "/fetchMessage",
+    "tag": "Messages",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "fetchThreadReplies",
+    "method": "GET",
+    "path": "/fetchThreadReplies",
+    "tag": "Messages",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "searchMessages",
+    "method": "POST",
+    "path": "/searchMessages",
+    "tag": "Messages",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "deleteMessage",
+    "method": "DELETE",
+    "path": "/deleteMessage",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "listMessages",
+    "method": "GET",
+    "path": "/listMessages",
+    "tag": "Messages",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "addReaction",
+    "method": "POST",
+    "path": "/addReaction",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "removeReaction",
+    "method": "DELETE",
+    "path": "/removeReaction",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "editMessage",
+    "method": "POST",
+    "path": "/editMessage",
+    "tag": "Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "createScheduledMessage",
+    "method": "POST",
+    "path": "/createScheduledMessage",
+    "tag": "Scheduled Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "fetchScheduledMessages",
+    "method": "GET",
+    "path": "/fetchScheduledMessages",
+    "tag": "Scheduled Messages",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "fetchScheduledMessage",
+    "method": "GET",
+    "path": "/fetchScheduledMessage",
+    "tag": "Scheduled Messages",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "editScheduledMessage",
+    "method": "POST",
+    "path": "/editScheduledMessage",
+    "tag": "Scheduled Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "deleteScheduledMessage",
+    "method": "DELETE",
+    "path": "/deleteScheduledMessage",
+    "tag": "Scheduled Messages",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  },
+  {
+    "operationId": "listUsers",
+    "method": "GET",
+    "path": "/listUsers",
+    "tag": "Users",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "listUserGroups",
+    "method": "GET",
+    "path": "/listUserGroups",
+    "tag": "Users",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "myInfo",
+    "method": "GET",
+    "path": "/myInfo",
+    "tag": "Users",
+    "class": "read",
+    "noWriteRetries": false,
+    "specBackoff": true
+  },
+  {
+    "operationId": "customStatus",
+    "method": "POST",
+    "path": "/customStatus",
+    "tag": "Users",
+    "class": "write",
+    "noWriteRetries": true,
+    "specBackoff": false
+  }
+]

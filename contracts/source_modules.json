@@ -1,0 +1,39 @@
+{
+  "reference": {
+    "repository": "apet97/psdk",
+    "commit": "cc20de10a6f0ce1efa9a57eb9509ff8e2324fe1e",
+    "root": "sdk/src/extensions"
+  },
+  "modules": [
+    {"source": "branded-ids.ts", "python": "extensions/ids.py"},
+    {"source": "categorize-error.ts", "python": "extensions/errors.py"},
+    {"source": "client.ts", "python": "extensions/client.py"},
+    {"source": "debug-redaction.ts", "python": "extensions/redaction.py"},
+    {"source": "display.ts", "python": "extensions/display.py"},
+    {"source": "facade-failure.ts", "python": "extensions/results.py"},
+    {"source": "facade-operation.ts", "python": "extensions/operations.py"},
+    {"source": "facade-writes.ts", "python": "extensions/writes.py"},
+    {"source": "find.ts", "python": "extensions/find.py"},
+    {"source": "list-all-messages.ts", "python": "extensions/pagination.py"},
+    {"source": "rate-limiter.ts", "python": "extensions/rate_limit.py"},
+    {"source": "resolve.ts", "python": "extensions/resolve.py"},
+    {"source": "resolver-cache.ts", "python": "extensions/resolver_cache.py"},
+    {"source": "resolver-preflight.ts", "python": "extensions/preflight.py"},
+    {"source": "scheduled.ts", "python": "extensions/scheduled.py"},
+    {"source": "search-all.ts", "python": "extensions/search.py"},
+    {"source": "telemetry.ts", "python": "extensions/telemetry.py"},
+    {"source": "thread-context.ts", "python": "extensions/threads.py"},
+    {"source": "webhook-events.ts", "python": "pumble_app/events.py"},
+    {"source": "webhooks.ts", "python": "pumble_app/webhooks.py"},
+    {"source": "with-retries.ts", "python": "extensions/retries.py"},
+    {"source": "write-plan.ts", "python": "extensions/write_plan.py"},
+    {"source": "app/event-router.ts", "python": "pumble_app/router.py"},
+    {"source": "app/http-receiver.ts", "python": "pumble_app/asgi.py"},
+    {"source": "app/oauth.ts", "python": "pumble_app/oauth.py"},
+    {"source": "app/pumble-app.ts", "python": "pumble_app/app.py"},
+    {"source": "app/socket-mode.ts", "python": "pumble_app/socket_mode.py"},
+    {"source": "app/token-store.ts", "python": "pumble_app/token_store.py"},
+    {"source": "testing/fixtures.ts", "python": "testing/fixtures.py"},
+    {"source": "testing/mock-fetch.ts", "python": "testing/mock_transport.py"}
+  ]
+}
