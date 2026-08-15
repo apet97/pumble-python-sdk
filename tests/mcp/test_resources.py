@@ -117,7 +117,11 @@ async def test_resource_lists_are_deterministic() -> None:
     server = make_server()
     static = [str(r.uri) for r in await server.list_resources()]
     templates = [t.uri_template for t in await server.list_resource_templates()]
-    assert static == ["pumble://me", "pumble://channels"]
+    assert static == [
+        "ui://pumble/workspace/v1/index.html",  # P36 Apps extension
+        "pumble://me",
+        "pumble://channels",
+    ]
     assert templates == [
         "pumble://channel/{channel_id}",
         "pumble://thread/{channel_id}/{message_id}",

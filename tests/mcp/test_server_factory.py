@@ -113,7 +113,13 @@ class TestFactory:
     async def test_snapshot_per_profile_is_deterministic(self, profile) -> None:
         server = create_server(config(profile=profile), client_factory=client_factory)
         assert server.name == SERVER_NAME
-        curated_tools = [
+        app_tools = [
+            "open_pumble_workspace",
+            "pumble_ui_bootstrap",
+            "pumble_ui_channel_page",
+            "pumble_ui_thread",
+        ]
+        curated_tools = app_tools + [
             "whoami",
             "find_channel",
             "find_user",
@@ -136,6 +142,11 @@ class TestFactory:
             + ["send_message_interactive", "reply_to_thread_interactive"],
             Profile.READONLY: [op.tool_name for op in RAW_READ_OPERATIONS],
         }
+        app_resources = (
+            ["ui://pumble/workspace/v1/index.html"]
+            if profile is not Profile.READONLY
+            else []
+        )
         snapshot = {
             "tools": [tool.name for tool in await server.list_tools()],
             "resources": [
@@ -145,7 +156,7 @@ class TestFactory:
         }
         assert snapshot == {
             "tools": expected_tools[profile],
-            "resources": ["pumble://me", "pumble://channels"],
+            "resources": app_resources + ["pumble://me", "pumble://channels"],
             "prompts": [
                 "summarize_thread",
                 "draft_reply",

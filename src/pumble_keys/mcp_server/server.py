@@ -119,8 +119,13 @@ def create_server(
     through to ``MCPServer``.
     """
     from pumble_keys.mcp_server.cache_policy import CACHE_HINTS
+    from pumble_keys.mcp_server.profiles import APP_ENABLED_PROFILES
 
     server_kwargs.setdefault("cache_hints", CACHE_HINTS)
+    if config.profile in APP_ENABLED_PROFILES and "extensions" not in server_kwargs:
+        from pumble_keys.mcp_server.app import create_apps_extension
+
+        server_kwargs["extensions"] = [create_apps_extension(config)]
     server = MCPServer(
         name=SERVER_NAME,
         instructions=SERVER_INSTRUCTIONS,

@@ -17,6 +17,12 @@ MESSAGE_ID = "0" * 20 + "0003"
 KEY = "test-key-not-real"
 
 EXPECTED_TOOLS = [
+    # P36 Apps extension tools register first (extension consumption
+    # happens at server construction, before the profile registrars).
+    "open_pumble_workspace",
+    "pumble_ui_bootstrap",
+    "pumble_ui_channel_page",
+    "pumble_ui_thread",
     "whoami",
     "find_channel",
     "find_user",

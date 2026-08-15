@@ -42,7 +42,7 @@
 | P33 — Add optional MRTR interactive send/reply tools | DONE | p33 | `pytest tests/mcp/test_mrtr_writes.py` — PASS (11) | ruff + pytest (568) + mypy/pylint(10.00)/pyright + boundaries — PASS | Curated-interactive only; Resolve/Elicit MRTR; accept = one write; decline/cancel = none. |
 | P34 — Bridge Pumble webhooks to modern MCP subscriptions | DONE | p34 | `pytest tests/mcp/test_subscriptions.py` — PASS (13) | ruff + pytest (581) + mypy/pylint(10.00)/pyright + boundaries — PASS | Signature-gated `/webhooks/pumble`; URI-only refetch cues on the shared bus; in-process bus documented as single-process. |
 | P35 — Scaffold the single MCP App frontend | DONE | p35 | `npm run typecheck && npm test` — PASS (12) | app typecheck/test/build + pytest (581) — PASS | Plain TS + Vite + ext-apps 1.7.5; single-file deterministic build; value-typed bridge; memory-only state enforced by test. |
-| P36 — Register the MCP App opening tool and UI resource | NOT_STARTED | — | — | — | — |
+| P36 — Register the MCP App opening tool and UI resource | DONE | p36 | `pytest tests/mcp/test_app_registration.py` — PASS (5) | ruff + pytest (586) + mypy/pylint(10.00)/pyright + boundaries — PASS | One `Apps()` extension on app profiles; nested `_meta.ui` only; closed CSP; text/structured fallback. |
 | P37 — Implement App read/browse/search/thread flows | NOT_STARTED | — | — | — | — |
 | P38 — Implement App composer with preview and explicit confirmation | NOT_STARTED | — | — | — | — |
 | P39 — Finish App accessibility, host integration, and packaging | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,24 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P36` (DONE)
+- Objective: Register the MCP App opening tool and UI resource.
+- Allowed files: `src/pumble_keys/mcp_server/app.py`, `app_tools.py`, `app_assets/index.html` (generated from `app/dist`), `tests/mcp/test_app_registration.py`
+- Exit condition: Exactly one interactive MCP App is discoverable and has a non-UI fallback.
+- Started from commit: `732f38a` (p35)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_app_registration.py -q` → 5 passed (red-first: collection failed before implementation); `pytest` → 586 passed.
+  - Extension: `create_apps_extension` builds the official `mcp.server.apps.Apps()`; `create_server` passes it via `extensions=[...]` for `APP_ENABLED_PROFILES` only. Discover proves `io.modelcontextprotocol/ui` advertised on curated and absent on readonly (no app tools/resource there either).
+  - Opening tool `open_pumble_workspace`: model-visible, read-only annotations, bound to `ui://pumble/workspace/v1/index.html` via the modern nested `_meta.ui.resourceUri` — asserted that the pre-GA flat `ui/resourceUri` key is absent. Returns a structured payload (identity id+name — no email, channel count, `capabilities.apps` from `client_supports_apps(ctx)`, `writes: preview_confirm`) whose JSON doubles as the text fallback; proven against a client that did NOT negotiate Apps.
+  - App-only helpers `pumble_ui_bootstrap` / `pumble_ui_channel_page` / `pumble_ui_thread`: `visibility: ["app"]` stamped in `_meta.ui`; all go through the same façade layer as the curated tools (no second read path, no writes). Bootstrap bounds the author map (200) and channel catalog (200).
+  - Resource: served as `text/html;profile=mcp-app`; `_meta.ui.csp = {connectDomains: [], resourceDomains: []}` (closed) and no `permissions` key; `resources/read` returns the packaged HTML byte-for-byte.
+  - Packaged asset: `app_assets/index.html` copied from the P35 deterministic build; test compares sha256 against `app/dist/index.html` when present (`72aa1a8c…404af`).
+- Deviations:
+  - `server.py`: extension wiring in `create_server` (the P25 comment reserved this seat for P36); `extensions` remains override-able via server kwargs.
+  - `app_assets/__init__.py` added (importlib.resources package anchor — the P24 knowledge precedent).
+  - Catalog snapshots updated for the extension surface: `tests/mcp/test_server_factory.py`, `test_curated_read_tools.py`, `test_resources.py` (extension tools/resource list first — extension consumption precedes the profile registrars).
+  - Known for P43: `[tool.setuptools.package-data]` does not yet include `app_assets/*.html` (or `knowledge/*.md`); the packaging packet must extend the documented pyproject patch.
 
 - Packet: `P35` (DONE)
 - Objective: Scaffold the single MCP App frontend.
