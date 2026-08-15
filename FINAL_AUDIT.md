@@ -79,17 +79,25 @@ the P25–P39 suites.
 
 ## 4. Coverage (target: ≥95% line / ≥90% branch; security modules 100% branch)
 
-`coverage run --branch` over the hand-written packages: **92% combined
-(3697 statements, 976 branches)**. Security-critical modules:
-`redaction.py` 100%, `oauth.py` 100%, `profiles.py` 100%,
-`write_plan.py` 99% (one unreached defensive branch),
-`webhooks.py` 91%, `auth.py` 88% (lines 87–89).
+At p45 audit time, `coverage run --branch` over the hand-written
+packages measured **92% combined (3697 statements, 976 branches)**,
+and W1 was opened as a pre-release blocker. Two corrections to the
+p45 text: the binding axis was branch coverage (82.99% vs the ≥90%
+target, not just the aggregate), and `write_plan.py`'s uncovered line
+82 was not "one unreached defensive branch" — `excerpt_text(None)` is
+trivially testable.
 
-**OPEN WAIVER W1:** the 95% aggregate target and the 100%-branch bar
-for `webhooks.py`/`auth.py` are not met. The uncovered paths are
-defensive (header-shape edge cases, verifier-import failure arms).
-This must be closed or explicitly re-waived before the first release
-tag; P45's allowed files cannot add tests.
+**W1 CLOSED (pre-release follow-up, 2026-08-15):** targeted test
+batches over `webhooks.py`, `auth.py`, `write_plan.py`, the MCP App
+tools, the curated read tools, the CLI, and completions brought the
+suite to **95.31% combined (line 96.67%, branch 90.78%)**, with the
+security modules `redaction.py`, `oauth.py`, `profiles.py`,
+`write_plan.py`, `webhooks.py`, and `auth.py` all at **100% line and
+branch**. The threshold is now enforced mechanically: `.coveragerc`
+sets `fail_under = 95` and both `ci.yml` and `release.yml` run the
+suite under `coverage` — the gate can no longer silently reopen. The
+only intentionally uncovered paths left are the two self-described
+belt-and-braces guards in `extensions/search.py` (lines 210, 217).
 
 ## 5. Gate deltas (documented, not silently substituted)
 
@@ -108,10 +116,10 @@ tag; P45's allowed files cannot add tests.
 
 | # | Item | State |
 |---|---|---|
-| W1 | Coverage below target (see §4) | OPEN — pre-release blocker |
+| W1 | Coverage below target (see §4) | CLOSED — 95.31% combined, security modules 100% branch, CI-enforced via `.coveragerc` |
 | W2 | `/webhooks/pumble` mount is a proven seam but the stock CLI does not mount it; manual ASGI assembly required (documented in MCP.md); no `McpConfig` signing-secret field; lifespan `subscription_publisher` seat unused | Documented limitation |
 | W3 | Live suite skips: self-DM and expired-status clear rejected by the live API; webhook/subscription live check needs ingress; channel create/membership ops untestable without residue (no channel delete exists) | Truthful skips in the receipt |
-| W4 | `test_duplicate_cues_collapse` paces with `anyio.sleep(0.2)` — flake candidate on slow CI | Documented; lengthen if it flakes |
+| W4 | `test_duplicate_cues_collapse` paces with `anyio.sleep(0.2)` — flake candidate on slow CI. A deterministic drain was evaluated and declined: the collapse dedup runs in the mcp SDK's client-side backlog, which our in-process bus has no visibility into; a bus-level `drain()` would be a fake guarantee | Documented; lengthen if it flakes |
 | W5 | Pre-audit generator README snippets were invalid Python; the audit regeneration emits valid ones — the GENERATOR_DEVIATIONS entry stays until confirmed on the next routine regeneration | Narrowed |
 | W6 | dmUser/dmGroup request-wrapping bug found by the live run (P41), fixed with regressions | CLOSED |
 | W7 | Node engines pin is `22.x`; local builds ran on Node 26 (engine-strict off); CI pins 22.12.0 | Documented |
@@ -121,8 +129,17 @@ tag; P45's allowed files cannot add tests.
 All 46 packets are `DONE`. Every mandatory offline gate passes twice
 from clean clones of the pushed commit; the live suite passes with
 zero residue against the sacrificial workspace; no secret finding; no
-undocumented waiver. The candidate is **defensible and reproducible**,
-and is ready for a separate, explicit release action **after W1 is
-closed** (and the pre-launch credential rotation noted in the
-repository's security policy is performed). Release evidence:
-`RELEASE_EVIDENCE.json`.
+undocumented waiver. The candidate is **defensible and reproducible**.
+W1 is closed (see §4), so the release blocker is lifted; the
+pre-launch credential rotation required by `SECURITY.md` remains an
+operator action. Release evidence: `RELEASE_EVIDENCE.json`.
+
+Post-p45 follow-up (same date) also retired the internal packet log
+(`IMPLEMENTATION_STATUS.md` + `tools/check_status.py`), added
+`CHANGELOG.md` and `SECURITY.md`, fixed the generator's README
+install placeholders and PyPI metadata via documented patch entries
+4–6, deleted the token-based `scripts/publish.sh`, switched
+`versioningStrategy` to `manual`, and hardened `release.yml`
+(publish consumes the verified artifact instead of rebuilding; gate
+set aligned with `ci.yml`; a GitHub Release is created from the
+CHANGELOG).

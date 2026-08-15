@@ -2,7 +2,7 @@
   "project": "pumble-python-sdk",
   "release_candidate_version": "0.1.0",
   "audited_commit": "0321cc74669df0b5953f1271b32d3270c1738b14",
-  "audit_note": "p45 commit adds only audit documents and the regeneration-normalization drift (gen.lock metadata, README ToC line)",
+  "audit_note": "p45 commit adds only audit documents and the regeneration-normalization drift (gen.lock metadata, README ToC line); the post-p45 release-preparation commits close W1 (coverage 95.31% combined, security modules 100% branch, CI-enforced), retire the packet log, add CHANGELOG.md and SECURITY.md, apply generator patch entries 4-6 (PyPI metadata, README install section, publish.sh removal), and harden release.yml (publish consumes the verified artifact; GitHub Release added)",
   "openapi_spec_sha256": "a9c3af3cc5de074b7112b63203ec6e1b686afebfe8751bc75df630efd2906a43",
   "generator": {
     "speakeasy_pin": "1.763.6",
@@ -21,7 +21,8 @@
   "artifacts": {
     "app_bundle_sha256": "7dd83c2d181163e2303c42b2e4a06f339767bb75c3ca3af8dbfbea4a54f4a2a5",
     "wheel_content_digest": "68d1ed121d1a28cc (sorted per-file sha256, RECORD excluded, SOURCE_DATE_EPOCH pinned)",
-    "wheel_entries": 179
+    "wheel_entries": 179,
+    "wheel_entries_note": "the released wheel has 180 entries: the post-p45 PyPI metadata patch adds dist-info/licenses/LICENSE; digests above describe the p45 audited wheel"
   },
   "tests": {
     "offline": "663 passed, 9 skipped (live gating) locally; 662 passed, 10 skipped in each clean clone",
@@ -31,10 +32,11 @@
       "result": "8 passed, 1 skipped, zero residue",
       "receipt_commit": "0321cc74669df0b5953f1271b32d3270c1738b14"
     },
-    "coverage_combined_percent": 92
+    "coverage_combined_percent": 95.31,
+    "coverage_line_percent": 96.67,
+    "coverage_branch_percent": 90.78,
+    "coverage_note": "post-p45 close-out of W1; enforced by .coveragerc fail_under=95 in ci.yml and release.yml"
   },
-  "open_waivers": [
-    "W1: coverage below the 95%/100%-branch targets (see FINAL_AUDIT.md \u00a74) \u2014 close before tagging a release"
-  ],
+  "open_waivers": [],
   "packets_done": "46/46"
 }
