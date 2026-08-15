@@ -27,7 +27,7 @@
 | P18 — Port telemetry and reusable testing helpers | DONE | p18 | `pytest tests/unit/test_telemetry.py test_testing_helpers.py` — PASS (24) | ruff + pytest (324) + boundaries — PASS | Attribute allowlist + canary leak scan; sanitizer/mock-transport port. |
 | P19 — Port typed Pumble webhook event models | DONE | p19 | `pytest tests/unit/test_webhook_events.py` — PASS (27) | ruff + pytest (351) + boundaries — PASS | 7 events, envelope+compact forms, unknown fields preserved. |
 | P20 — Port webhook signature verification and ASGI receiver | DONE | p20 | `pytest tests/unit/test_webhooks.py tests/integration` — PASS (20) | ruff + pytest (371) + boundaries — PASS | Raw-body HMAC, ±300 s window, 1 MiB limit, 401/400/413/204/500. |
-| P21 — Port event router and `PumbleApp` convenience class | NOT_STARTED | — | — | — | — |
+| P21 — Port event router and `PumbleApp` convenience class | DONE | p21 | `pytest tests/unit/test_event_router.py test_pumble_app.py` — PASS (12) | ruff + pytest (383) + boundaries — PASS | Registration-order dispatch; first failure stops (TS parity). |
 | P22 — Port Pumble OAuth helpers and token store protocol | NOT_STARTED | — | — | — | — |
 | P23 — Port experimental Pumble Socket Mode as an optional extra | NOT_STARTED | — | — | — | — |
 | P24 — Port the one-shot SDK CLI | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P21` (DONE)
+- Objective: Port event router and `PumbleApp` convenience class.
+- Allowed files: `src/pumble_keys/pumble_app/router.py`, `app.py`, `tests/unit/test_event_router.py`, `test_pumble_app.py`
+- Exit condition: Python users can build Pumble webhook applications without MCP.
+- Started from commit: `e5905d8` (p20)
+- Commands/results:
+  - `uv run pytest tests/unit/test_event_router.py tests/unit/test_pumble_app.py -q` → 12 passed.
+  - `router.py` ports event-router.ts: `on(type, handler)` chains; `dispatch(event, context)` runs handlers in registration order (sync or async), returns `DispatchResult(handled=n)`. Failure semantics preserved from TS: the first failing handler stops dispatch and raises `PumbleEventHandlerError` with the exact `Pumble event handler failed for <TYPE>: <message>` text and `__cause__` chained; `CancelledError` propagates raw.
+  - `app.py` ports pumble-app.ts: `PumbleApp(signing_secret=...)` wires P20 verification to the router via `on_event`; `.event(type)` works as decorator or direct call; `handle_webhook(raw_body, headers)` is the framework-neutral entry; `asgi_app()`/`starlette_route(path)` expose the P20 adapters. Docstrings state this is the integration helper, not the MCP App.
+  - Coverage: zero/one/multiple handlers, order, async handlers, shared context, error callback (`on_error` receives `PumbleEventHandlerError`, response 500), all seven events routed independently, type isolation, invalid signature never reaches the router, ASGI end-to-end.
+  - Fast gate: ruff — PASS; `pytest tests` → 383 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `pumble_app/__init__.py` re-exports (continuation).
 
 - Packet: `P20` (DONE)
 - Objective: Port webhook signature verification and ASGI receiver.

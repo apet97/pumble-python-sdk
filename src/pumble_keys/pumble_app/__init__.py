@@ -5,6 +5,7 @@ This is the Pumble *integration* helper package (webhooks in, events
 out). It is not the interactive MCP App.
 """
 
+from pumble_keys.pumble_app.app import PumbleApp
 from pumble_keys.pumble_app.asgi import create_asgi_webhook_app, starlette_route
 from pumble_keys.pumble_app.events import (
     KNOWN_EVENT_TYPES,
@@ -17,6 +18,11 @@ from pumble_keys.pumble_app.events import (
     PumbleWebhookEvent,
     PumbleWebhookEventType,
     normalize_webhook_event,
+)
+from pumble_keys.pumble_app.router import (
+    DispatchResult,
+    PumbleEventHandlerError,
+    PumbleEventRouter,
 )
 from pumble_keys.pumble_app.webhooks import (
     PUMBLE_REQUEST_SIGNATURE_HEADER,
@@ -31,12 +37,16 @@ __all__ = [
     "KNOWN_EVENT_TYPES",
     "PUMBLE_REQUEST_SIGNATURE_HEADER",
     "PUMBLE_REQUEST_TIMESTAMP_HEADER",
+    "DispatchResult",
     "NotificationAppUnauthorized",
     "NotificationAppUninstalled",
     "NotificationChannel",
     "NotificationMessage",
     "NotificationReaction",
     "NotificationWorkspaceUserJoined",
+    "PumbleApp",
+    "PumbleEventHandlerError",
+    "PumbleEventRouter",
     "PumbleWebhookEvent",
     "PumbleWebhookEventType",
     "WebhookResult",
