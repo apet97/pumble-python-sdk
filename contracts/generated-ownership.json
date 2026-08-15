@@ -1,7 +1,19 @@
 {
-  "comment": "Paths owned by the pinned Speakeasy generator. Never edit them by hand. P04 records the exact emitted paths after first generation.",
+  "comment": "Paths owned by the pinned Speakeasy generator. Never edit them by hand. Recorded from the first P04 generation (Speakeasy 1.763.6 pinned, gen 2.928.0).",
   "generated_patterns": [
-    "src/pumble_keys/**"
+    "src/pumble_keys/**",
+    "py.typed",
+    "pylintrc",
+    "pyproject.toml",
+    "uv.lock",
+    "USAGE.md",
+    ".gitattributes",
+    ".vscode/**",
+    "scripts/**",
+    "docs/models/**",
+    "docs/sdks/**",
+    ".speakeasy/gen.lock",
+    ".speakeasy/workflow.lock"
   ],
   "handwritten_exceptions": [
     "src/pumble_keys/extensions/**",

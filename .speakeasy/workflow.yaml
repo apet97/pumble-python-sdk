@@ -1,12 +1,11 @@
 workflowVersion: 1.0.0
-# Pinned deliberately. The reference TypeScript repository pins the same
-# generator version. "latest" silently upgrades mid-run and pollutes a
-# regeneration diff with unrelated generator-version noise.
 speakeasyVersion: 1.763.6
 sources:
     pumble-openapi:
         inputs:
             - location: ./PumbleOpenApi.yaml
+        registry:
+            location: registry.speakeasyapi.dev/apet115/apet115-wt/pumble-openapi
 targets:
     pumble-keys-python:
         target: python

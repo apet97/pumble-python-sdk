@@ -1,55 +1,61 @@
 [project]
 name = "pumble_keys_sdk"
 version = "0.1.0"
-description = "Unofficial Python SDK, MCP server, and MCP App for the Pumble API Keys addon"
-authors = [{ name = "apet97" }]
+description = "Unofficial Python SDK for the Pumble API Keys addon"
+authors = [{ name = "apet97" },]
 readme = "README.md"
-license = "MIT"
-requires-python = ">=3.11,<3.15"
+requires-python = ">=3.10"
 dependencies = [
-    "mcp[cli]==2.0.0",
+    "httpcore >=1.0.9",
+    "httpx >=0.28.1",
+    "jsonpath-python >=1.0.6",
+    "mcp[cli] ==2.0.0",
+    "pydantic >=2.11.2",
 ]
-
-[project.scripts]
-pumble-keys = "pumble_keys.cli.main:main"
-pumble-keys-mcp = "pumble_keys.mcp_server.cli:main"
-
-[project.urls]
-Repository = "https://github.com/apet97/pumble-python-sdk"
+license = { text = "MIT" }
 
 [dependency-groups]
 dev = [
-    "ruff>=0.12",
-    "mypy>=1.15",
-    "pytest>=8.3",
-    "pytest-asyncio>=1.0",
-    "coverage[toml]>=7.6",
-    "respx>=0.22",
-    "build>=1.2",
-    "twine>=6.1",
-    "pip-audit>=2.8",
-    "pyyaml>=6.0",
+    "coverage >=7.6",
+    "mypy ==1.15.0",
+    "pylint ==3.2.3",
+    "pyright ==1.1.398",
+    "pytest >=8.3",
+    "pytest-asyncio >=1.0",
+    "pyyaml >=6.0",
+    "respx >=0.22",
+    "ruff >=0.12",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.setuptools.packages.find]
+where = ["src"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/pumble_keys"]
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[build-system]
+requires = ["setuptools>=80", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-
-[tool.ruff]
-line-length = 88
-src = ["src", "tests", "tools"]
+pythonpath = ["src"]
 
 [tool.mypy]
-strict = true
+disable_error_code = "misc"
+explicit_package_bases = true
+mypy_path = "src"
 
-[tool.coverage.run]
-branch = true
-source = ["src/pumble_keys"]
+[[tool.mypy.overrides]]
+module = "typing_inspect"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "jsonpath"
+ignore_missing_imports = true
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+

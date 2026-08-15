@@ -1,0 +1,991 @@
+lockVersion: 2.0.0
+id: dcace2b6-7c37-499f-8b95-e67c54674b10
+management:
+  docChecksum: 4f7964807b6f57a433c2b095b4993de8
+  docVersion: 1.1.0
+  speakeasyVersion: 1.793.0
+  generationVersion: 2.928.0
+  releaseVersion: 0.1.0
+  configChecksum: dc8c177ec56d9dfc040ad66dc8d06174
+persistentEdits:
+  generation_id: 57af3496-baa1-4d45-82d1-c582cc106af7
+  pristine_commit_hash: 6d19023d89dd2566c4810ea668729e690146b2b0
+  pristine_tree_hash: d722dd9cc7c1261687774f25b974ab199ad97853
+features:
+  python:
+    additionalDependencies: 1.1.0
+    configurableModuleName: 0.2.0
+    constsAndDefaults: 1.0.7
+    core: 6.0.35
+    defaultEnabledRetries: 0.2.0
+    enumUnions: 0.1.1
+    envVarSecurityUsage: 0.3.3
+    errorUnions: 1.0.2
+    flatRequests: 1.0.1
+    flattening: 3.1.1
+    globalSecurity: 3.0.7
+    globalSecurityCallbacks: 1.0.0
+    globalSecurityFlattening: 1.0.0
+    globalServerURLs: 3.2.1
+    methodArguments: 1.1.1
+    nullables: 1.0.2
+    pagination: 3.0.10
+    responseFormat: 1.1.0
+    retries: 3.0.7
+    sdkHooks: 1.3.0
+    unions: 3.1.8
+trackedFiles:
+  .gitattributes:
+    id: 24139dae6567
+    last_write_checksum: sha1:53134de3ada576f37c22276901e1b5b6d85cd2da
+    pristine_git_object: 4d75d59008e4d8609876d263419a9dc56c8d6f3a
+  .vscode/settings.json:
+    id: 89aa447020cd
+    last_write_checksum: sha1:f84632c81029fcdda8c3b0c768d02b836fc80526
+    pristine_git_object: 8d79f0abb72526f1fb34a4c03e5bba612c6ba2ae
+  USAGE.md:
+    id: 3aed33ce6e6f
+    last_write_checksum: sha1:96ed92f0b22529ca192b20ea0177c2a11dacbefb
+    pristine_git_object: 9ea7335fc5cb6a48c46bab511641f74b26685c62
+  docs/models/avatar.md:
+    id: d39d609cd5b2
+    last_write_checksum: sha1:6d1564be95a1a636ccceac12a6132a47201ef14a
+    pristine_git_object: a0246a4fe64f71e218b21a84c36cacef871ad501
+  docs/models/channel.md:
+    id: 198e8dc7e370
+    last_write_checksum: sha1:7fc05b42fcda618126c8670bc8f0c2869f1b6ce2
+    pristine_git_object: 324e927dd2edce2ecbc0ea0d9c6e208879b37bf3
+  docs/models/channellistentry.md:
+    id: b10071bb17af
+    last_write_checksum: sha1:1c6f9f167a47da185228690281b0c9cba3169b23
+    pristine_git_object: 80434129d21571e5135ad12148feafadcbede1bf
+  docs/models/channelref.md:
+    id: e76bc14546ea
+    last_write_checksum: sha1:bf30cddb88598360bd293d7fdd1d9e638b6ed272
+    pristine_git_object: 793d9312f3b2056072f4b06f20af0df8d7451af2
+  docs/models/channeltype.md:
+    id: fa127dd8aba4
+    last_write_checksum: sha1:e180ec7b900ebbc8065b87a452c3922029cd356d
+    pristine_git_object: 21effe557d3f9113bc9293aea2dbe2bb3a5e0600
+  docs/models/customstatus.md:
+    id: 795e0785c38a
+    last_write_checksum: sha1:be033ee2345fa8b45fd1023983774683e4b16d95
+    pristine_git_object: 1b38bf5b1b02d060ece6f4ea8cc55b8f3df3c95f
+  docs/models/errors/error.md:
+    id: 4e35d085761e
+    last_write_checksum: sha1:3bc49bd47cfbfb49a78d095a6318547407690598
+    pristine_git_object: 9ceca21b6d06bee89d611fb884a4b9664f160b75
+  docs/models/errors/legacyerror.md:
+    id: 57f3e39a92c1
+    last_write_checksum: sha1:a4aea7e30c06f708aac9a8930de102d601f3f264
+    pristine_git_object: 9615040c3ba269789e9b7b2e16a9567f69e94510
+  docs/models/errors/structurederror.md:
+    id: d57433443096
+    last_write_checksum: sha1:c7cae063ce9a9cab8ad6b91d1956b2faacd304d4
+    pristine_git_object: d9550e306ca62503db3a7f34ae6c5bf9b9b1c512
+  docs/models/listmessagesstrategy.md:
+    id: d74275744ac9
+    last_write_checksum: sha1:157f24b3b3305e09a46487818b163c170350d425
+    pristine_git_object: 89f3061dfeba45e2289aa1180ad0236a9babac19
+  docs/models/message.md:
+    id: a9614076792b
+    last_write_checksum: sha1:a019e53896c8ebecd3c08efc1f7df45e99db410f
+    pristine_git_object: 665e19eee5afc4efbda23e87930d37b288ee6597
+  docs/models/messageblock.md:
+    id: 81f103664238
+    last_write_checksum: sha1:409f1b90cb2ca0930bec4880991fb25383c28da8
+    pristine_git_object: 76e345f46f9e70dda47e85e312a7b1d62ddb2c69
+  docs/models/messagelist.md:
+    id: afa72fa47a9d
+    last_write_checksum: sha1:ed2dfa762319ebeaff4652aa65bfa1786022d6f1
+    pristine_git_object: 0514dc4a21a868edb9d6d45970d1b13939149542
+  docs/models/messageref.md:
+    id: 7f190702bc1b
+    last_write_checksum: sha1:52088aa728cf57c20e0c62d13b8260cfdd12082e
+    pristine_git_object: 3c24688bd2ec1350e6c12af044a219d164d69144
+  docs/models/messagethreadreplyinfo.md:
+    id: b732ec4aee39
+    last_write_checksum: sha1:617fe03de6a1c8bc308ceba2546949381dd9a16a
+    pristine_git_object: 41de9cc2f0c7c980123d4ffa18d51e8a06f06443
+  docs/models/messagethreadrootinfo.md:
+    id: 8f900256dcc2
+    last_write_checksum: sha1:e4d15e4401386cde961d4d7c701c4756dc0b3acf
+    pristine_git_object: 326d01804f408013952d257fccdd4876fd56a4c7
+  docs/models/operations/addreactionrequest.md:
+    id: d99af172ddbc
+    last_write_checksum: sha1:a09c8fb42dbee62085606cba9bf8503b2f2e1375
+    pristine_git_object: 86b5b5f1c6905410899759c5e93724919477f809
+  docs/models/operations/addreactionresponse.md:
+    id: 400c9cef6884
+    last_write_checksum: sha1:6f94afb9b57e4e60f80d9075c634c3efc93deb91
+    pristine_git_object: c582b2118e8ca9301fb3327c39a523dd13bf387a
+  docs/models/operations/adduserstochannelrequest.md:
+    id: 3e140323dedd
+    last_write_checksum: sha1:1ff2763326d2fdd4eb21b59c9e48c968e890e492
+    pristine_git_object: 4c35883da863dbbd86b55753b5c525f26738b508
+  docs/models/operations/createchannelrequest.md:
+    id: 381155eb576e
+    last_write_checksum: sha1:7d52a8d4f9d85d34087e1109ba71d6300c627c07
+    pristine_git_object: 6a6dc853191e4bcada9312ce1329afb2afdd755f
+  docs/models/operations/createscheduledmessagerequest.md:
+    id: 2dd7a4723546
+    last_write_checksum: sha1:115250885bfc5afd66dbd752bfb0026b86bfb177
+    pristine_git_object: e1d4b29a5c99d01223db7aacf273a1afe027667e
+  docs/models/operations/customstatusrequest.md:
+    id: 5982b953be97
+    last_write_checksum: sha1:397e0448547a2f121e3a52ab0daf549e6e1eb8eb
+    pristine_git_object: fc2d1ce41ce24dd4f04fcfef37fe406218d84a54
+  docs/models/operations/deletemessagerequest.md:
+    id: 16ef27874c31
+    last_write_checksum: sha1:231f6c10b7a9bc5d0d39fd9748f52e3c98e7ac4f
+    pristine_git_object: 17e29ec67eb37e421bd11c5eb04ea44d34d7b574
+  docs/models/operations/deletescheduledmessagerequest.md:
+    id: 04b247c0d9a1
+    last_write_checksum: sha1:49b1edcd135b84d9b1bcbbdf22ce534ad7e5e86a
+    pristine_git_object: 8e6db49cdd21848bdc98db26b4a05619ab0a1a1e
+  docs/models/operations/dmgrouprequest.md:
+    id: 398dbbf52661
+    last_write_checksum: sha1:3e15086713173d011e58cecaf87952b32048b1f6
+    pristine_git_object: 75f145d1f7cd1f68dc0a7d40bf4da827e83fa833
+  docs/models/operations/dmuserrequest.md:
+    id: f82e4bd362c6
+    last_write_checksum: sha1:c90c5a9da8d38c2931d0084ce034c408469606ae
+    pristine_git_object: 8612563893243e487ba455edd3caffda0343f3b5
+  docs/models/operations/editmessagerequest.md:
+    id: 54983d9f8c31
+    last_write_checksum: sha1:f02499c72344109e006c98fc8c633ff1c9b0e6e1
+    pristine_git_object: a5850739b67acefde25084efbad61ce031d54619
+  docs/models/operations/editscheduledmessagerequest.md:
+    id: 83d6e03b7b0b
+    last_write_checksum: sha1:162fc0eb65291a37c8b4e35871eedc2caa458c61
+    pristine_git_object: df7d48623e6d7e5065372e2bc2ea7f04c05cbd70
+  docs/models/operations/fetchmessagerequest.md:
+    id: deecb4dda49b
+    last_write_checksum: sha1:0478dc988c8138627bae020e7f4f68208bf161ba
+    pristine_git_object: c9d73ce14b9cc53610be7f6a59e49e3e91a98452
+  docs/models/operations/fetchscheduledmessagerequest.md:
+    id: 2cb3fa6f7d3d
+    last_write_checksum: sha1:644ca80b894678f8ea8d6da8d5ad7d2860bc529c
+    pristine_git_object: b655825c4b1f9c0a8f4c45c0c5b40784f5b91507
+  docs/models/operations/fetchscheduledmessagesrequest.md:
+    id: 2c107894f566
+    last_write_checksum: sha1:d33c0a00d9a0c5a45c8c28abf2c41e94bbb027c5
+    pristine_git_object: 65d1979a34edef037f514d22b533136775fea1bb
+  docs/models/operations/fetchscheduledmessagesresponse.md:
+    id: bdd937a2e85d
+    last_write_checksum: sha1:ecc016e746643c020e29626c14bba0bba0458475
+    pristine_git_object: 38a104545185014956260f7821f523ffd7c427c6
+  docs/models/operations/fetchthreadrepliesrequest.md:
+    id: 3b45ce1d3ad0
+    last_write_checksum: sha1:d69996678e7fd3ea68a1c9a6d76b7358f1a44d1f
+    pristine_git_object: 12f66b8c21fcd1c9c0231f46c577dd44db5fafaf
+  docs/models/operations/fetchthreadrepliesresponse.md:
+    id: d14ea8110089
+    last_write_checksum: sha1:2218bf3d52cb0752c9c25b8cd3782acff3b183ad
+    pristine_git_object: 0005d2076221478f9665a08302ac69e30a5379c9
+  docs/models/operations/getchannelrequest.md:
+    id: 526393e5bdad
+    last_write_checksum: sha1:16c515f564af6aadcd5ceb16389097e9f05bb12d
+    pristine_git_object: 01431a996ab6f6676f7ae039af64a6d03fe044e2
+  docs/models/operations/getchannelresponse.md:
+    id: 423bc207deb3
+    last_write_checksum: sha1:66653c41ed919484ce367ac050123d9a516f1d70
+    pristine_git_object: 9bbe26d71ece1f799182f16255030559df1e93cf
+  docs/models/operations/listmessagesrequest.md:
+    id: 2304e9129f41
+    last_write_checksum: sha1:ce46b711228b3963ea5e5bb9adae42d71c0a8183
+    pristine_git_object: 928001f6b948bdc86c7b1436fa42d8f0a3fbe999
+  docs/models/operations/listmessagesresponse.md:
+    id: 0ebf55575232
+    last_write_checksum: sha1:e5d6b9628d8725d8ec7456fae2bb1cfb5a7782aa
+    pristine_git_object: 888ecc780edcf83e81a1a8abb8f1d88bf0f40a3f
+  docs/models/operations/removereactionrequest.md:
+    id: 319691b7fade
+    last_write_checksum: sha1:da46ca9899ef4398b92dbd1c17ec62dab2db695a
+    pristine_git_object: 5dc54120fe5cf7f50e61bd5b40df8924038bc93d
+  docs/models/operations/removereactionresponse.md:
+    id: 4216c36ca013
+    last_write_checksum: sha1:dc02f4f151dcfae160e6c17a6aabef5776420a30
+    pristine_git_object: 9101d34febfed67ac8cfb2b16dfd7f20b0809992
+  docs/models/operations/removeuserfromchannelrequest.md:
+    id: 42cb467329d3
+    last_write_checksum: sha1:b14d6a10af84641e10ac5c698125f1170193b3aa
+    pristine_git_object: 8d9c8f8ab1c63bed1d8919ede91dae034313cb8a
+  docs/models/operations/searchmessagesrequest.md:
+    id: 68173745b06a
+    last_write_checksum: sha1:49f1d4cb95156f50356d614ab74864acfea1b8c7
+    pristine_git_object: 25c6aa5631b75ee6bb7f3c3481efe7c5b7671fdc
+  docs/models/operations/searchmessagesresponse.md:
+    id: 151b0167a508
+    last_write_checksum: sha1:e32677c7862aff373c266be931dc2dfdd1d9cd1f
+    pristine_git_object: b8284e0102e2c6f947b3bf923dfcb30310228b65
+  docs/models/operations/sendmessagerequest.md:
+    id: 354b8c11ee26
+    last_write_checksum: sha1:904ea026494c289ac1851d152667a4118ea48b84
+    pristine_git_object: 99772799a45011b9c1858d835c30792e506d51a4
+  docs/models/operations/sendmessagerequestbody1.md:
+    id: 37177b4c242d
+    last_write_checksum: sha1:cbc1527918105cb82db4eaafa78c19f402a16364
+    pristine_git_object: ff1cde4cfb5f9f2e802eb2dddfe0060a48a99cc7
+  docs/models/operations/sendmessagerequestbody2.md:
+    id: 86d158ffcb57
+    last_write_checksum: sha1:4270f9e7d086066034ac5b967adfe9c000a5d3a3
+    pristine_git_object: c36469b8346f3036ede03479824792d885d97e13
+  docs/models/operations/sendreplyrequest.md:
+    id: c091af63bf14
+    last_write_checksum: sha1:9354dceb853627ff92a7705eed8017a027ced897
+    pristine_git_object: fc2993313262178bdeb1bded524c39332271f55c
+  docs/models/operations/sendreplyrequestbody1.md:
+    id: 572c84319255
+    last_write_checksum: sha1:6cd3ad5a9a647ef3ccb66fc911dd575829cdeb3d
+    pristine_git_object: efe12dda7151c5a284cbbcda429059863ed35f6b
+  docs/models/operations/sendreplyrequestbody2.md:
+    id: 7383abbca024
+    last_write_checksum: sha1:a75443f7d27777395476cde60bfd6c9c9ab5c6e0
+    pristine_git_object: f048c0d2bbd5f97a47e20ba82182fc58773a38a0
+  docs/models/postingpermissions.md:
+    id: a2b2958fa7a2
+    last_write_checksum: sha1:eee8b0366b68cb5b00aaf6f198ac1c3219b7403b
+    pristine_git_object: 70f5cafecaa04b839d0ca6d5b0abadd25ac088ec
+  docs/models/postingpermissionsgroup.md:
+    id: f0b9be33983e
+    last_write_checksum: sha1:4e8c20b4fcdc83e60525849499447979d65c2ed5
+    pristine_git_object: 7f913bcd9bfb6a2a0ea8f62d209bc4c8e597ff4e
+  docs/models/reaction.md:
+    id: 2e98084a9945
+    last_write_checksum: sha1:63da50438e069ce45462b85c6c9683cfd7dea438
+    pristine_git_object: f233c7c289da12bc709c2bd6c79488aeea6b62e1
+  docs/models/recurrence.md:
+    id: e90b790a4ebc
+    last_write_checksum: sha1:ce031a3078ee1540ff7724d6e823ad2c32c764ca
+    pristine_git_object: c2cee499a906dd294484f109af2d75e6e96b7879
+  docs/models/recurrencetype.md:
+    id: df63e63677dd
+    last_write_checksum: sha1:7398c2e3c21bb25fc6861f99ef6128bafa76f68f
+    pristine_git_object: 14f7b8e45a1009d4b62b145e3fafc60338007c3e
+  docs/models/richtextelement.md:
+    id: a15ec899209c
+    last_write_checksum: sha1:6c6dcada4c822f6c955c194e8bd6cff427ad6f43
+    pristine_git_object: 41ec21b858161217dc0fffad192473e0a60055f4
+  docs/models/scheduledmessage.md:
+    id: 12a46f1a143e
+    last_write_checksum: sha1:aeae218f46b4c67dc1f0dbc21d8c7aabc76ac94e
+    pristine_git_object: fefd70c33f3b6f2a78aa3436385b83775ea6b162
+  docs/models/scheduledmessagelist.md:
+    id: 7e3487956a88
+    last_write_checksum: sha1:378467633b286347fdd3ab4f2f43b0fd5a2f993e
+    pristine_git_object: 8ef7d356aebac53ffc4ddae49ba17b0386ec7982
+  docs/models/scheduledmessagerecurrence.md:
+    id: b6d122541fe7
+    last_write_checksum: sha1:9ef03c104e4069c65e92cfa5de0b6f16348b89c2
+    pristine_git_object: 191bcc79adb3b0c0ba35f8da56ca7076e416a600
+  docs/models/scheduledmessageref.md:
+    id: 80f9eba95b1e
+    last_write_checksum: sha1:a0b4b961daa2174c3ee1e5a5caeda9021841eb56
+    pristine_git_object: 0e8b221fcd5e9b4cc6815698a40feecd8437716a
+  docs/models/searchhit.md:
+    id: 2a696de1e46e
+    last_write_checksum: sha1:c8c9a4b4880960cc8b727471b193ad35949b2afc
+    pristine_git_object: f9231d66b72ee7cd4db37e444aee865fda312371
+  docs/models/searchhitthreadreplyinfo.md:
+    id: 39d4168ab84c
+    last_write_checksum: sha1:1af59f39a023bb6b4b62bc67b6e01fa482c42e24
+    pristine_git_object: dde8b7812a94e71e1e4ebaaff51b8268edc61e1c
+  docs/models/searchhitthreadrootinfo.md:
+    id: 2b1e5e49e7ca
+    last_write_checksum: sha1:3d45b828ea6b72c40947d13fe734cbbe3994f3f0
+    pristine_git_object: c0d09aad82ff42fc8ef537545c0c86d6bbf32120
+  docs/models/searchmessagesresult.md:
+    id: e7cc340b2975
+    last_write_checksum: sha1:f714da85a2aa6e6ed2288aa78816f106d9af00d0
+    pristine_git_object: 4c8cb3acc325c1c33afe22f6a84fb499404d240a
+  docs/models/searchstrategy.md:
+    id: 1b9c164a2950
+    last_write_checksum: sha1:f2a043356341f1f0090f34df1b516179baa2916c
+    pristine_git_object: b94f746073ce005d952566ffb30c216c1e830605
+  docs/models/security.md:
+    id: 452e4d4eb67a
+    last_write_checksum: sha1:4aa216a35d3065cef571e5d86dac6671fac0b47f
+    pristine_git_object: 056b871eea7f9da4313e98e1c82691ee879dac28
+  docs/models/user.md:
+    id: 8306f1e41187
+    last_write_checksum: sha1:c513b94047242d05896bd2c1697db213d9e26a27
+    pristine_git_object: aea794cf0ae0792270887d5bcc3acdbb17a8f9ef
+  docs/models/usergroup.md:
+    id: 13db2a14c9ec
+    last_write_checksum: sha1:89cd43794a5eb750d7289bec0f3302555a0d5a23
+    pristine_git_object: 7c3235ffcbd8a9fb2ebdebfdce3c139e0556506e
+  docs/models/userrole.md:
+    id: 63aa1e945a21
+    last_write_checksum: sha1:9374f738b6f61a077e4a62a24366d9d61701044f
+    pristine_git_object: 4054a050bfabfeb81e01450cc450680f3a77d978
+  docs/models/userstatus.md:
+    id: 84a111b6d4d0
+    last_write_checksum: sha1:0832f14e846dc6f33226b0b72426a2860dad5339
+    pristine_git_object: 7e20a9527dff4fd6aefd8aacebdc740823710cc9
+  docs/models/utils/retryconfig.md:
+    id: 4343ac43161c
+    last_write_checksum: sha1:562c0f21e308ad10c27f85f75704c15592c6929d
+    pristine_git_object: 69dd549ec7f5f885101d08dd502e25748183aebf
+  docs/sdks/channels/README.md:
+    id: 721bbf4c03d7
+    last_write_checksum: sha1:566d16c2045ccb346c74223bacf1fb0cb951e802
+    pristine_git_object: c75179812a0979aa20c2a8003d43d832acdc75c1
+  docs/sdks/messages/README.md:
+    id: 3f1f6d38fc33
+    last_write_checksum: sha1:3b76983c5f04cad34edab59c9c35135047e09474
+    pristine_git_object: e9e5578f4a021b5c3ff961514fc09fded503f5cf
+  docs/sdks/scheduledmessages/README.md:
+    id: 3392c55d1438
+    last_write_checksum: sha1:f5f2c16c1e92488d559d2e15f842843b45f28580
+    pristine_git_object: 0ef48af4e15ed9d21f7041a228d1424fb01c8cf9
+  docs/sdks/users/README.md:
+    id: 5d80027045fe
+    last_write_checksum: sha1:d02c610e2e9b881608e56bb74b9e09b08e1b8ea7
+    pristine_git_object: 87977432dbdfef3fd5f5fb47d7a39f6cfdda0316
+  py.typed:
+    id: 258c3ed47ae4
+    last_write_checksum: sha1:8efc425ffe830805ffcc0f3055871bdcdc542c60
+    pristine_git_object: 3e38f1a929f7d6b1d6de74604aa87e3d8f010544
+  pylintrc:
+    id: 7ce8b9f946e6
+    last_write_checksum: sha1:cb40e5fd2885dcf20f7c572a590b2656efe282a0
+    pristine_git_object: c00200cfd072e9febac5d6be783da1925d11dac0
+  pyproject.toml:
+    id: 5d07e7d72637
+    last_write_checksum: sha1:7e242bd9fc3cef6d486faac77539d7ff73f4ac04
+    pristine_git_object: 0ff6ffddfaf11b665642f05b2a9cb0246875cfca
+  scripts/publish.sh:
+    id: fe273b08f514
+    last_write_checksum: sha1:adc9b741c12ad1591ab4870eabe20f0d0a86cd1a
+    pristine_git_object: ef28dc10c60d7d6a4bac0c6a1e9caba36b471861
+  src/pumble_keys/__init__.py:
+    id: 46fcd9ede8cd
+    last_write_checksum: sha1:da077c0bdfcef64a4a5aea91a17292f72fa2b088
+    pristine_git_object: 833c68cd526fe34aab2b7e7c45f974f7f4b9e120
+  src/pumble_keys/_hooks/__init__.py:
+    id: e3fb536cf4d2
+    last_write_checksum: sha1:0a696e51492dddd1571e49445946ef27bcca76a5
+    pristine_git_object: a7c9626b4a71b266587347b51d03604504119fe3
+  src/pumble_keys/_hooks/adapters.py:
+    id: e5d30f6760fb
+    last_write_checksum: sha1:8bdf61ea038d9ac1039c0a1420f1b331706b060e
+    pristine_git_object: a3432579ea2b2979ebe373d6b6f56301a60c4141
+  src/pumble_keys/_hooks/asyncsdkhooks.py:
+    id: 42d9bc7319a0
+    last_write_checksum: sha1:3b20442a2e2b46a86c44e000cb563ce0f224b9b5
+    pristine_git_object: 1482917d3ffddbcf542a17eabbf9abdeb9a3d885
+  src/pumble_keys/_hooks/asynctypes.py:
+    id: 477aeb608b61
+    last_write_checksum: sha1:34d182786d1548b548ec646d9710619c32d06376
+    pristine_git_object: 8e56ef043d74a0f85ab6a8515e8ceabf87642f5e
+  src/pumble_keys/_hooks/sdkhooks.py:
+    id: 09c5b3cd2f57
+    last_write_checksum: sha1:b4ff810dad381e50793917cd75806ae8a6abbe4c
+    pristine_git_object: d7d2bb1ea0dc1519556088221c93b5a77f25defa
+  src/pumble_keys/_hooks/types.py:
+    id: c89ba19f3620
+    last_write_checksum: sha1:d527828babb24812d074bdb9cd83a035e46d6e0e
+    pristine_git_object: 05ad1d85c188f6e0f0efc82516042b8c45161cc0
+  src/pumble_keys/_version.py:
+    id: "184347066042"
+    last_write_checksum: sha1:dce4c47201483ff15b293cf1299610ae5ffdd49a
+    pristine_git_object: 14d57d4d942199a4ddc3f2e0e9ef295b8a9b0f8f
+  src/pumble_keys/basesdk.py:
+    id: 2734e8265658
+    last_write_checksum: sha1:553b94da5172b11ff47baa30612686b3ef7d6cf3
+    pristine_git_object: b0b56ca3d82579794bde27097e5c95a9b7377fc7
+  src/pumble_keys/channels.py:
+    id: a050406d248f
+    last_write_checksum: sha1:8d39b1e1633d5cdebf327d04b47777f915c3225b
+    pristine_git_object: 4e890d8a3c63b9e22a74844c595fe10cf6194a4c
+  src/pumble_keys/httpclient.py:
+    id: 5c88aba800ca
+    last_write_checksum: sha1:5e55338d6ee9f01ab648cad4380201a8a3da7dd7
+    pristine_git_object: 89560b566073785535643e694c112bedbd3db13d
+  src/pumble_keys/messages.py:
+    id: 05e996bbdb8a
+    last_write_checksum: sha1:caa7811e9e9384a9aa5d54e21031c33e096ab331
+    pristine_git_object: 653c6555909a9bbb3abcc730178846aea63eac2d
+  src/pumble_keys/models/__init__.py:
+    id: dc10d04c9a68
+    last_write_checksum: sha1:81e7086c96f069771b02862747dc099c0f9209ed
+    pristine_git_object: cd9aef9730dd7a52959c36378244a1d3cae5867b
+  src/pumble_keys/models/avatar.py:
+    id: 58c5244b644b
+    last_write_checksum: sha1:6d8245bb087a43495d48d0be1b28c6dda3f7af9b
+    pristine_git_object: 1d0473389f4fc4893db2d8d6bfdcc87101f6b43b
+  src/pumble_keys/models/channel.py:
+    id: 582b49e6ff11
+    last_write_checksum: sha1:9f9c421a4da85647341c5db6041be0ed50f5caf4
+    pristine_git_object: e53b95dca85bda5bd07ede8d3e6816c4f752ec75
+  src/pumble_keys/models/channellistentry.py:
+    id: c3540d52145a
+    last_write_checksum: sha1:47308bfd64c9539c47d5e6569bd59524df5c42cc
+    pristine_git_object: 8863a26bde49c057e7f83ce6dffcf782da7f50cc
+  src/pumble_keys/models/channelref.py:
+    id: 73a40fc94b6f
+    last_write_checksum: sha1:b56d72d57ccd302637ed2193242f0384fa583dd1
+    pristine_git_object: e61e6bc60c69286fa40b85ec214ec86ba83db0c8
+  src/pumble_keys/models/channeltype.py:
+    id: 753b6d7d2fc4
+    last_write_checksum: sha1:381e1615a4cfb3cae1a8799b252efb330a6ac10e
+    pristine_git_object: 23ee095afc3df3770eb4e76561fdd0aaa19a50c5
+  src/pumble_keys/models/errors/__init__.py:
+    id: 908fbb6dde3c
+    last_write_checksum: sha1:4a20e1b342d94dd9c2a51c662c3f905910408f45
+    pristine_git_object: 699be04cbfb1df5bd69b562dd10c5f562ebf2002
+  src/pumble_keys/models/errors/error.py:
+    id: a975528e5952
+    last_write_checksum: sha1:f270c4f4ece3a02213f92780b3618262adaa254f
+    pristine_git_object: 7e1c91a651994e4ff3222399bd15fa530bff9812
+  src/pumble_keys/models/errors/legacyerror.py:
+    id: a88164a2dbff
+    last_write_checksum: sha1:cf2f05325276a8d10c6fa18b5127dfc05f60b3fd
+    pristine_git_object: c0510e8c1ff7442e51d7b3638506080fc65c2d9d
+  src/pumble_keys/models/errors/no_response_error.py:
+    id: 9c770f3386e3
+    last_write_checksum: sha1:7f326424a7d5ae1bcd5c89a0d6b3dbda9138942f
+    pristine_git_object: 1deab64bc43e1e65bf3c412d326a4032ce342366
+  src/pumble_keys/models/errors/pumblesdkbaseerror.py:
+    id: e21d79dda4c7
+    last_write_checksum: sha1:8374ff598b2d30b675a0303e282f05bc8f7f62cc
+    pristine_git_object: b1c279b8f49c863a569e09487ff28a5bc0739d6f
+  src/pumble_keys/models/errors/pumblesdkerror.py:
+    id: d27e40730305
+    last_write_checksum: sha1:d56a68f5abbf97d7e8a9c7baac6d15ce227e30cf
+    pristine_git_object: 3925daab133f9f4804124d889ef4a1cd682adcf0
+  src/pumble_keys/models/errors/responsevalidationerror.py:
+    id: 48eeb71455c9
+    last_write_checksum: sha1:ae9f39c0c3d9e48ac7d2d3759fec18e741e49187
+    pristine_git_object: 6f79657727963a7b4e509ca38168a32aad70a21c
+  src/pumble_keys/models/errors/structurederror.py:
+    id: 38f34dd73f17
+    last_write_checksum: sha1:1b0dd25a7797d3e6e1b0e784742da1722e2c06cb
+    pristine_git_object: bd290106db3e4135523d7a55fe6a07fd0f191982
+  src/pumble_keys/models/listmessagesstrategy.py:
+    id: 383d641a0941
+    last_write_checksum: sha1:49b0bd4787626e3b53bccc58c48840bcbf893cf4
+    pristine_git_object: 644b21821499b447f087bedecba7b4cf22562732
+  src/pumble_keys/models/message.py:
+    id: 07c6a59029ad
+    last_write_checksum: sha1:f3d08fd2c16eb8c66508da3f3270325ce9879396
+    pristine_git_object: 63dbfbe6ef5ef125f49927f92e638c6cfd31e112
+  src/pumble_keys/models/messageblock.py:
+    id: b47c88c2d6bc
+    last_write_checksum: sha1:7c1f272a80b2b95e1efdb39b021c97bb0653e228
+    pristine_git_object: 64e74479e34828630352792e9c23994c56752763
+  src/pumble_keys/models/messagelist.py:
+    id: 297c5c7b1428
+    last_write_checksum: sha1:3f649af23eb22bd21785a4e3111718b29e17c6c9
+    pristine_git_object: 5cac9988e18c3a4d7edb3dcf5edb15d0eb4e0bbd
+  src/pumble_keys/models/messageref.py:
+    id: 4a64d5fb97fd
+    last_write_checksum: sha1:496c9b9eabf13720e628a31b878a21558dd334b1
+    pristine_git_object: 7ac22df96e744e5a5a8e9f1a025dc64cd619424d
+  src/pumble_keys/models/operations/__init__.py:
+    id: 7923e3f56baa
+    last_write_checksum: sha1:b6f34d1de57f48f65081444d04804c5b3207fbb0
+    pristine_git_object: 5e40e89859c6e46ddfda7ca2c162a43fef25ffc2
+  src/pumble_keys/models/operations/addreaction.py:
+    id: 632574e5e776
+    last_write_checksum: sha1:0c0af44c2c7f7ef0106cd066fa0ce0fb30ff2cf7
+    pristine_git_object: 808ff09d32406d9ae360dd4d20a58cb622d2da96
+  src/pumble_keys/models/operations/adduserstochannel.py:
+    id: a73d34ce61b6
+    last_write_checksum: sha1:29108237a8fafe89e54672d04381d863c25f21bd
+    pristine_git_object: 1b8b95d8155ccc1fc3738245ad97bb8ed0784b8b
+  src/pumble_keys/models/operations/createchannel.py:
+    id: eeef574965ff
+    last_write_checksum: sha1:9ab54ceed60c45c2c600db90f85cf4bd736e307a
+    pristine_git_object: 401e17564600996a8730bc4a904e36f26357a934
+  src/pumble_keys/models/operations/createscheduledmessage.py:
+    id: c6f4d16da7fd
+    last_write_checksum: sha1:0b83aaf46faa36f166a01c7cac6b450cbd0c924d
+    pristine_git_object: ecaa50a0d63a2b022ddb109626bd82483347c884
+  src/pumble_keys/models/operations/customstatus.py:
+    id: a33e77aaa1e6
+    last_write_checksum: sha1:f801b729f6d0098f48afc80e8788114ce387f64f
+    pristine_git_object: deb56372c6b13f24137d14e3e41fa2106f6e9489
+  src/pumble_keys/models/operations/deletemessage.py:
+    id: 44c2e45c58fa
+    last_write_checksum: sha1:e3100a804a3a694d59b07aff7a879d48fb43e3d9
+    pristine_git_object: 47dd8131e07bbb88460277d32a260b6a810371fb
+  src/pumble_keys/models/operations/deletescheduledmessage.py:
+    id: aacf09b67183
+    last_write_checksum: sha1:7d575e7197774096e710c295334fb92020edfe0d
+    pristine_git_object: b5c4b531c844de656e432d4a81ee1998632e1958
+  src/pumble_keys/models/operations/dmgroup.py:
+    id: c17821d205b2
+    last_write_checksum: sha1:cc1c60040b39b113752e79b50d24856af1efeb11
+    pristine_git_object: 0a380d3a478eddb4ae1e07d8fc3724a918a6339d
+  src/pumble_keys/models/operations/dmuser.py:
+    id: 78908c487843
+    last_write_checksum: sha1:4d7e1a0ced0fc36eb488e59906349f618305dabb
+    pristine_git_object: 07c122869bb57bf87ddafd061d9d8248c3cfd035
+  src/pumble_keys/models/operations/editmessage.py:
+    id: 5db2ca75692d
+    last_write_checksum: sha1:29d99a971ba3ad2c0125fcfccaff0dd76d967f90
+    pristine_git_object: 04d3d43e78c5e0903347b1c189f87e77a52855b5
+  src/pumble_keys/models/operations/editscheduledmessage.py:
+    id: 20f64b4a714b
+    last_write_checksum: sha1:d084d9e191fdc041a09e07bc605cd78ba49ac32b
+    pristine_git_object: 9cb0db59e0326ed5dbc877afbca463668c441b17
+  src/pumble_keys/models/operations/fetchmessage.py:
+    id: 3db5604431e5
+    last_write_checksum: sha1:d85f4b9eb2550de7d7763a243baee440734d5b3f
+    pristine_git_object: aa5722b293cf20419ce82e49c2f850f54356c86b
+  src/pumble_keys/models/operations/fetchscheduledmessage.py:
+    id: 90c4e165c10d
+    last_write_checksum: sha1:12a439c227780a3dc6deaed3e1b7f68d3100771e
+    pristine_git_object: de4bc3f061ce88346cdac68744fbc5ec0256407e
+  src/pumble_keys/models/operations/fetchscheduledmessages.py:
+    id: 8812ce992e3d
+    last_write_checksum: sha1:357d952c8010eb6440daa1134bc1dd8b521ffef9
+    pristine_git_object: 54ff1e4f7d4e52eeeeb1a8ab9b46bf267b78f724
+  src/pumble_keys/models/operations/fetchthreadreplies.py:
+    id: dd978c3a14f8
+    last_write_checksum: sha1:6b2f4e058369befbb815e9769832a8bb9212aaa8
+    pristine_git_object: 49bdd94b90aa71762e49325e838e2bcdc1c80269
+  src/pumble_keys/models/operations/getchannel.py:
+    id: c1f0ed1a6715
+    last_write_checksum: sha1:290b8ab0dd76985f690aaf4e46f8e9511d7babf5
+    pristine_git_object: 786e7337f7fd03981d68699eca9fb623eaf24ab7
+  src/pumble_keys/models/operations/listmessages.py:
+    id: 4955bde94653
+    last_write_checksum: sha1:e1d18649d9b51892528d4988097b04a5e5927089
+    pristine_git_object: ac61357ece133b996972b22d5af6a0f226e4ce88
+  src/pumble_keys/models/operations/removereaction.py:
+    id: 86d548afdec4
+    last_write_checksum: sha1:2ef51b2b7c955cf57a0142cfdfc2be60f9594b8c
+    pristine_git_object: 507aff1949432de40ce30af798db7aac3617c9d8
+  src/pumble_keys/models/operations/removeuserfromchannel.py:
+    id: 624e92467343
+    last_write_checksum: sha1:71b69b5336e4b26e4f5b0f3730fc13f5d9f45be1
+    pristine_git_object: 79b12ba62b9b2eda3c29a3478522d06e0f01f8d1
+  src/pumble_keys/models/operations/searchmessages.py:
+    id: add88b61aafd
+    last_write_checksum: sha1:8b0fc5648330cea5a2ded6397c2cfafd5eb952e5
+    pristine_git_object: 688c272107e76597e5946f92ffaca2383e10f24f
+  src/pumble_keys/models/operations/sendmessage.py:
+    id: 77ddae75c32a
+    last_write_checksum: sha1:c6610a833751eaa9a9ef382e3b3d81361ba5b599
+    pristine_git_object: 4b41713c7b86e96affd312a2ac11f615b475efe0
+  src/pumble_keys/models/operations/sendreply.py:
+    id: 78a8b566679e
+    last_write_checksum: sha1:3e5626569167e3fb28ddfc678f5ddb451bb9756a
+    pristine_git_object: 73e6799acb5809dfa903f33b97aa5e34ce8556cb
+  src/pumble_keys/models/postingpermissions.py:
+    id: 29b190340623
+    last_write_checksum: sha1:8348a4fb39bfff0a4dc045564593e6dc3bacb857
+    pristine_git_object: fd4be2680d02934b1eafd884d59b9256714c07cd
+  src/pumble_keys/models/postingpermissionsgroup.py:
+    id: b953b60ed8b0
+    last_write_checksum: sha1:e2d01cffdcdd21525c5732188413d1935b27be11
+    pristine_git_object: 73c03f107282ee1c441ccaf1e7cf4ef02895eb33
+  src/pumble_keys/models/reaction.py:
+    id: 32d7384cee87
+    last_write_checksum: sha1:28471dcffb4375fad78f24c9dd8f22b791e90da1
+    pristine_git_object: 6ed3a631789526786900ea70d3b574192d108412
+  src/pumble_keys/models/recurrence.py:
+    id: 8b4bf277242d
+    last_write_checksum: sha1:aa706fc98c049101955c1b2c7a34948357cc713c
+    pristine_git_object: 934ded1176a3bedb58f4d4bd43dfcd942b86c135
+  src/pumble_keys/models/recurrencetype.py:
+    id: 633cd3e7a25c
+    last_write_checksum: sha1:427218d1328ba34a6343468df9ecae74a5b3668a
+    pristine_git_object: 1aa4c14203cd5f5173c9595648df21cac40a6ed1
+  src/pumble_keys/models/richtextelement.py:
+    id: a80f3af8b406
+    last_write_checksum: sha1:d04d9084ffd0509910aa45ee4508264f5d87b9c1
+    pristine_git_object: 3b83c2007f0c7d0bad620f05116dd43082699e3f
+  src/pumble_keys/models/scheduledmessage.py:
+    id: e1967d86cf5a
+    last_write_checksum: sha1:44370b67a0aeb204b24ab0be29573508647745ed
+    pristine_git_object: 9e464dd2ebd46ca485fdabc4d1a0d28c4856c1ff
+  src/pumble_keys/models/scheduledmessagelist.py:
+    id: e5b826833e49
+    last_write_checksum: sha1:8bcaa71a81a5a50f05c1b85e518c557ffe018d3b
+    pristine_git_object: 1ba1ddb1f7a8bced27093748ddad433cd14e4bc1
+  src/pumble_keys/models/scheduledmessageref.py:
+    id: 5756199f6a49
+    last_write_checksum: sha1:e5b3d5bbedd6368186494758b3e3e792418492e3
+    pristine_git_object: 3c443d1a4ecd5462be97c740879276d877090ea7
+  src/pumble_keys/models/searchhit.py:
+    id: 61a7a7eef2b7
+    last_write_checksum: sha1:7c421ef8307444bedad79965749bd129c7aa72b2
+    pristine_git_object: 6cb8ce0e812b37241471d85ed5d81f6c4cc27801
+  src/pumble_keys/models/searchmessagesresult.py:
+    id: f775860fb838
+    last_write_checksum: sha1:3571a505de92ac4e7a6625ef46f27d53b6b1b735
+    pristine_git_object: 746afee6afb509fbc97202049d26924451e2bc5e
+  src/pumble_keys/models/searchstrategy.py:
+    id: 2d9cd8da8ae1
+    last_write_checksum: sha1:b71714f10bb8fa9aaa8381cd0f93a6b669eff79f
+    pristine_git_object: 6a99e9e5ad27cc00df8022335cbb5903a3926aa2
+  src/pumble_keys/models/security.py:
+    id: 126c3129a332
+    last_write_checksum: sha1:0df6a1f081010bbcdc22fc4a97308c6580fb1cc6
+    pristine_git_object: d026bb46ca98b32bafa9bc06ac6eca49775822b3
+  src/pumble_keys/models/user.py:
+    id: 61d0da4e63ac
+    last_write_checksum: sha1:619d988808d4cc3c4b13c8b81757ab775275621e
+    pristine_git_object: b8d31e7aeccbbcb4ad7593be5b06c860b65a48d2
+  src/pumble_keys/models/usergroup.py:
+    id: 42f2bffc895d
+    last_write_checksum: sha1:e9b22e88f092b683a6b73ffc6c878600f34d2919
+    pristine_git_object: eda1c94612e10771882b2627e32f84bf05c36a5f
+  src/pumble_keys/models/userrole.py:
+    id: 67caca4d5544
+    last_write_checksum: sha1:5417643dbc25163d212da20fe86dd29e36323a31
+    pristine_git_object: 90d13d1ae5e1805513ec4045b9a6eb5f972d8537
+  src/pumble_keys/models/userstatus.py:
+    id: c089741fdd1f
+    last_write_checksum: sha1:26e1693696bf32f2389e533ac5464aa69299dee7
+    pristine_git_object: 9fd68d7a414d9bb7d9994289ae3d801572216c23
+  src/pumble_keys/py.typed:
+    id: dbdc7840be32
+    last_write_checksum: sha1:8efc425ffe830805ffcc0f3055871bdcdc542c60
+    pristine_git_object: 3e38f1a929f7d6b1d6de74604aa87e3d8f010544
+  src/pumble_keys/scheduled_messages.py:
+    id: c7b9fd604ca8
+    last_write_checksum: sha1:591130520355bca15f188885f4035a3ab04d6870
+    pristine_git_object: af10265184ef97b155cdf6c0ff9ad843a67241cc
+  src/pumble_keys/sdk.py:
+    id: 376fe9a18449
+    last_write_checksum: sha1:552fe6832e656f4dbf34fdcb868dec39b78256e6
+    pristine_git_object: b61208c4a308c3fe846c05240b4b5429f0e57747
+  src/pumble_keys/sdkconfiguration.py:
+    id: 166fb21c1a0b
+    last_write_checksum: sha1:69a37a6e6d81e72d1d3e17e57df167ff95e1d689
+    pristine_git_object: c93571e2f48e17f025a89233de2fad73f0c7fa1b
+  src/pumble_keys/types/__init__.py:
+    id: 73e822a00002
+    last_write_checksum: sha1:f9ad14217f832e74f594285960125add50324be9
+    pristine_git_object: faa268137bc01c9d08cfadc4797017db48747a96
+  src/pumble_keys/types/base64fileinput.py:
+    id: 56f8864f4840
+    last_write_checksum: sha1:1522687ae3398374c35710cad993a6e82b5ab99d
+    pristine_git_object: 862566fe2b1db830276b390e136e65090e5963d2
+  src/pumble_keys/types/basemodel.py:
+    id: ebc99fad6bc3
+    last_write_checksum: sha1:10d84aedeb9d35edfdadf2c3020caa1d24d8b584
+    pristine_git_object: a9a640a1a7048736383f96c67c6290c86bf536ee
+  src/pumble_keys/users.py:
+    id: 0c8e2e43ecde
+    last_write_checksum: sha1:536cf5fd35b9200439f6be3db6fdd776096ebbdf
+    pristine_git_object: ed9bd8fe216c03a3918222777ebac537a0a30490
+  src/pumble_keys/utils/__init__.py:
+    id: 26bfe764e01e
+    last_write_checksum: sha1:53c9544397bbc534c45a228feac3cdb2e9017fe6
+    pristine_git_object: 7af3b82cf95edc2901bc85b2624c54f39b7f9724
+  src/pumble_keys/utils/annotations.py:
+    id: caf86e38dded
+    last_write_checksum: sha1:a4824ad65f730303e4e1e3ec1febf87b4eb46dbc
+    pristine_git_object: 12e0aa4f1151bb52474cc02e88397329b90703f6
+  src/pumble_keys/utils/datetimes.py:
+    id: 29e3612eb42f
+    last_write_checksum: sha1:fa47d54c549ff9b95496ce91930fadfb04a36be9
+    pristine_git_object: adad24762cf452d137abe94fda0fd26224cef593
+  src/pumble_keys/utils/dynamic_imports.py:
+    id: 0f602fef00f1
+    last_write_checksum: sha1:a1940c63feb8eddfd8026de53384baf5056d5dcc
+    pristine_git_object: 673edf82a97d0fea7295625d3e092ea369a36b79
+  src/pumble_keys/utils/enums.py:
+    id: f1ec8560b408
+    last_write_checksum: sha1:bc8c3c1285ae09ba8a094ee5c3d9c7f41fa1284d
+    pristine_git_object: 3324e1bc2668c54c4d5f5a1a845675319757a828
+  src/pumble_keys/utils/eventstreaming.py:
+    id: 252f5024a029
+    last_write_checksum: sha1:7d1dc68f8b48486ab646653aa05cc38752e1f912
+    pristine_git_object: a8d4fe5cc88d3c7337339e1b36a61bbf7ca8c4eb
+  src/pumble_keys/utils/forms.py:
+    id: 9635e73e98e8
+    last_write_checksum: sha1:dcf527960992b8baef3b21937c7e6c4e652630c0
+    pristine_git_object: 193f264960f3014c81d41543b9023c14c44c12e6
+  src/pumble_keys/utils/headers.py:
+    id: a8453cb50aa7
+    last_write_checksum: sha1:7c6df233ee006332b566a8afa9ce9a245941d935
+    pristine_git_object: 37864cbbbc40d1a47112bbfdd3ba79568fc8818a
+  src/pumble_keys/utils/logger.py:
+    id: cc2dbaacc83a
+    last_write_checksum: sha1:f3fdb154a3f09b8cc43d74c7e9c02f899f8086e4
+    pristine_git_object: b661aff65d38b77d035149699aea09b2785d2fc6
+  src/pumble_keys/utils/metadata.py:
+    id: 43ac6eb94dce
+    last_write_checksum: sha1:e703e5cbb5255144aacf86898d1420529afaaff8
+    pristine_git_object: 5abddd588837ac297050ca3b543627faadb350a9
+  src/pumble_keys/utils/queryparams.py:
+    id: 68ad6e0f443d
+    last_write_checksum: sha1:b94c3f314fd3da0d1d215afc2731f48748e2aa59
+    pristine_git_object: c04e0db82b68eca041f2cb2614d748fbac80fd41
+  src/pumble_keys/utils/requestbodies.py:
+    id: aef1d13b4657
+    last_write_checksum: sha1:e1fef575283b7fe7fe2ad392dbbb3fb105309124
+    pristine_git_object: 591415af8e64baa410627b507d2740afb5387d13
+  src/pumble_keys/utils/retries.py:
+    id: 8a0497ae0f72
+    last_write_checksum: sha1:3585b891142f30a597fbf7a2f0340700babef8e4
+    pristine_git_object: ca7b59efebbbd9545744d0207ef42725c4cc5143
+  src/pumble_keys/utils/security.py:
+    id: eaee9fe154a4
+    last_write_checksum: sha1:c11eef495b6aaa249178c24c796940cc540b7a00
+    pristine_git_object: 42d8d78e9981eed7507670014d99588e27ab325a
+  src/pumble_keys/utils/serializers.py:
+    id: a92ab2e6ee42
+    last_write_checksum: sha1:7485f1425b0661fd84836186570df90207eec6af
+    pristine_git_object: 1031ed930bad5ece220cf7416a56c29f40f0588b
+  src/pumble_keys/utils/unmarshal_json_response.py:
+    id: 5dea2a7cd8fc
+    last_write_checksum: sha1:a4681376845df0f61fa0b73216dc2080c7083f22
+    pristine_git_object: f6fcba70383c68bfe70f2c803075fa4bda057fd0
+  src/pumble_keys/utils/url.py:
+    id: ba59ad1e2e47
+    last_write_checksum: sha1:6479961baa90432ca25626f8e40a7bbc32e73b41
+    pristine_git_object: c78ccbae426ce6d385709d97ce0b1c2813ea2418
+  src/pumble_keys/utils/values.py:
+    id: "5289782032e9"
+    last_write_checksum: sha1:acaa178a7c41ddd000f58cc691e4632d925b2553
+    pristine_git_object: dae01a44384ac3bc13ae07453a053bf6c898ebe3
+examples:
+  listChannels:
+    speakeasy-default-list-channels:
+      responses:
+        "200":
+          application/json: [{"channel": {"id": "bbbbbbbbbbbbbbbbbbbb0001", "name": "general", "channelType": "PUBLIC", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000"}, "pinnedMessages": [], "users": ["aaaaaaaaaaaaaaaaaaaa0001", "aaaaaaaaaaaaaaaaaaaa0002"]}]
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  getChannel:
+    speakeasy-default-get-channel:
+      parameters:
+        query:
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channel: "general"
+      responses:
+        "200":
+          application/json: {"channel": {"id": "bbbbbbbbbbbbbbbbbbbb0001", "name": "general", "channelType": "PUBLIC", "addedById": null, "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "isArchived": false, "isHidden": false, "isMember": true, "isMuted": false, "isMain": true, "isInitial": true, "desktopNotificationPreferences": "EVERYTHING", "mobileNotificationPreferences": "MENTIONS"}}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  createChannel:
+    speakeasy-default-create-channel:
+      requestBody:
+        application/json: {"name": "project-updates", "type": "PUBLIC"}
+      responses:
+        "200":
+          application/json: {"id": "bbbbbbbbbbbbbbbbbbbb0002", "name": "engineering"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  addUsersToChannel:
+    speakeasy-default-add-users-to-channel:
+      requestBody:
+        application/json: {"channelId": "<id>", "userIds": ["<value 1>", "<value 2>"]}
+      responses:
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  removeUserFromChannel:
+    speakeasy-default-remove-user-from-channel:
+      requestBody:
+        application/json: {"channelId": "<id>", "userId": "<id>"}
+      responses:
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  sendMessage:
+    speakeasy-default-send-message:
+      requestBody:
+        application/json: {"channelId": "<id>", "text": "<value>", "blocks": [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Hello world"}]}]}]}
+      responses:
+        "200":
+          application/json: {"id": "cccccccccccccccccccc0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  sendReply:
+    speakeasy-default-send-reply:
+      requestBody:
+        application/json: {"channel": "<value>", "messageId": "<id>", "text": "<value>"}
+      responses:
+        "200":
+          application/json: {"id": "cccccccccccccccccccc0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  dmUser:
+    speakeasy-default-dm-user:
+      requestBody:
+        application/json: {"userId": "<id>", "text": "<value>"}
+      responses:
+        "200":
+          application/json: {"id": "cccccccccccccccccccc0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  dmGroup:
+    speakeasy-default-dm-group:
+      requestBody:
+        application/json: {"userIds": [], "text": "<value>"}
+      responses:
+        "200":
+          application/json: {"id": "cccccccccccccccccccc0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  fetchMessage:
+    speakeasy-default-fetch-message:
+      parameters:
+        query:
+          messageId: "cccccccccccccccccccc0001"
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channel: "bbbbbbbbbbbbbbbbbbbb0001"
+      responses:
+        "200":
+          application/json: {"id": "cccccccccccccccccccc0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "author": "aaaaaaaaaaaaaaaaaaaa0001", "text": "Hello world", "blocks": [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Hello world"}]}]}], "attachments": [], "files": [], "reactions": [], "deleted": false, "edited": false, "isFollowing": true, "timestamp": "2026-05-21T21:23:04Z", "timestampMilli": 1779398584000}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  fetchThreadReplies:
+    speakeasy-default-fetch-thread-replies:
+      parameters:
+        query:
+          rootMessageId: "cccccccccccccccccccc0001"
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channel: "bbbbbbbbbbbbbbbbbbbb0001"
+          cursor: "bbbbbbbbbbbbbbbbbbbb0001"
+          limit: 100
+      responses:
+        "200":
+          application/json: [{"id": "cccccccccccccccccccc0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "author": "aaaaaaaaaaaaaaaaaaaa0001", "text": "Hello world", "blocks": [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Hello world"}]}]}], "attachments": [], "files": [], "reactions": [], "deleted": false, "edited": false, "isFollowing": true, "timestamp": "2026-05-21T21:23:04Z", "timestampMilli": 1779398584000}]
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  searchMessages:
+    speakeasy-default-search-messages:
+      requestBody:
+        application/json: {"limit": 10, "strategy": "MOST_RECENT"}
+      responses:
+        "200":
+          application/json: {"content": [], "totalElements": 0, "hasMore": false}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  deleteMessage:
+    speakeasy-default-delete-message:
+      parameters:
+        query:
+          messageId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channel: "bbbbbbbbbbbbbbbbbbbb0001"
+      responses:
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  listMessages:
+    speakeasy-default-list-messages:
+      parameters:
+        query:
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channel: "bbbbbbbbbbbbbbbbbbbb0001"
+          cursor: "bbbbbbbbbbbbbbbbbbbb0001"
+          limit: 100
+          strategy: "BEFORE"
+      responses:
+        "200":
+          application/json: {"messages": [], "hasMoreBefore": false, "hasMoreAfter": null}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  addReaction:
+    speakeasy-default-add-reaction:
+      requestBody:
+        application/json: {"messageId": "<id>", "reaction": "<value>"}
+      responses:
+        "200":
+          application/json: {"status": "ok"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  removeReaction:
+    speakeasy-default-remove-reaction:
+      parameters:
+        query:
+          messageId: "bbbbbbbbbbbbbbbbbbbb0001"
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          reaction: ":+1:"
+      responses:
+        "200":
+          application/json: {"status": "ok"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  editMessage:
+    speakeasy-default-edit-message:
+      requestBody:
+        application/json: {"messageId": "<id>", "channelId": "<id>", "text": "<value>", "blocks": [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Hello world"}]}]}]}
+      responses:
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  createScheduledMessage:
+    speakeasy-default-create-scheduled-message:
+      requestBody:
+        application/json: {"channelId": "<id>", "text": "<value>", "sendAt": 979037, "blocks": [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Hello world"}]}]}], "recurrence": {"recurrenceType": "WEEKLY", "endAfterOccurrences": 10, "endDate": 1893459600000}}
+      responses:
+        "200":
+          application/json: {"id": "dddddddddddddddddddd0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002"}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  fetchScheduledMessages:
+    speakeasy-default-fetch-scheduled-messages:
+      parameters:
+        query:
+          channelId: "bbbbbbbbbbbbbbbbbbbb0001"
+          cursor: "bbbbbbbbbbbbbbbbbbbb0001"
+          limit: 100
+      responses:
+        "200":
+          application/json: {"scheduledMessages": [], "hasMore": false}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  fetchScheduledMessage:
+    speakeasy-default-fetch-scheduled-message:
+      parameters:
+        query:
+          scheduledMessageId: "bbbbbbbbbbbbbbbbbbbb0001"
+      responses:
+        "200":
+          application/json: {"id": "dddddddddddddddddddd0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "author": "aaaaaaaaaaaaaaaaaaaa0001", "text": "Reminder", "sendAt": 1893459600000, "alsoSendToChannel": false, "threadRootId": null, "rootText": null, "quotedMessage": null, "recurrence": null}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  editScheduledMessage:
+    speakeasy-default-edit-scheduled-message:
+      requestBody:
+        application/json: {"scheduledMessageId": "<id>", "channelId": "<id>", "text": "<value>", "sendAt": 561092, "blocks": [{"type": "rich_text", "elements": [{"type": "rich_text_section", "elements": [{"type": "text", "text": "Hello world"}]}]}], "recurrence": {"recurrenceType": "WEEKLY", "endAfterOccurrences": 10, "endDate": 1893459600000}}
+      responses:
+        "200":
+          application/json: {"id": "dddddddddddddddddddd0001", "channelId": "bbbbbbbbbbbbbbbbbbbb0002", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "author": "aaaaaaaaaaaaaaaaaaaa0001", "text": "Reminder", "sendAt": 1893459600000, "alsoSendToChannel": false, "threadRootId": null, "rootText": null, "quotedMessage": null, "recurrence": null}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  deleteScheduledMessage:
+    speakeasy-default-delete-scheduled-message:
+      parameters:
+        query:
+          scheduledMessageId: "bbbbbbbbbbbbbbbbbbbb0001"
+      responses:
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  listUsers:
+    speakeasy-default-list-users:
+      responses:
+        "200":
+          application/json: [{"id": "aaaaaaaaaaaaaaaaaaaa0001", "email": "user-1@example.invalid", "name": "Example User", "title": "", "role": "OWNER", "status": "ACTIVATED", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "timeZoneId": "Europe/Belgrade", "automaticallyTimeZone": true, "activeUntil": 0, "isAddonBot": false, "isPumbleBot": false, "invitedBy": null}]
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  listUserGroups:
+    speakeasy-default-list-user-groups:
+      responses:
+        "200":
+          application/json: [{"id": "eeeeeeeeeeeeeeeeeeee0001", "name": "engineering", "handle": "eng", "description": null, "disabled": false, "createdBy": "aaaaaaaaaaaaaaaaaaaa0001", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "workspaceUserIds": ["aaaaaaaaaaaaaaaaaaaa0001"]}]
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  myInfo:
+    speakeasy-default-my-info:
+      responses:
+        "200":
+          application/json: {"id": "aaaaaaaaaaaaaaaaaaaa0001", "email": "user-1@example.invalid", "name": "Example User", "title": "", "role": "OWNER", "status": "ACTIVATED", "workspaceId": "aaaaaaaaaaaaaaaaaaaa0000", "timeZoneId": "Europe/Belgrade", "automaticallyTimeZone": true, "activeUntil": 0, "isAddonBot": false, "isPumbleBot": false, "invitedBy": null}
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+  customStatus:
+    speakeasy-default-custom-status:
+      requestBody:
+        application/json: {"code": ":beach_with_umbrella:", "status": "Time off", "expiresAt": 37831}
+      responses:
+        "403":
+          application/json: {"error": "Could not find channel with that identifier"}
+examplesVersion: 1.0.2

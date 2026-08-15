@@ -1,0 +1,28 @@
+speakeasyVersion: 1.793.0
+sources:
+    pumble-openapi:
+        sourceNamespace: pumble-openapi
+        sourceRevisionDigest: sha256:0d19ef8dbb339648840ef549e01a64786da2f9e34082185f548f3e893a1a4778
+        sourceBlobDigest: sha256:d4c75944df1a058374334d85f804ec087fe02ae4e08b216a81972fe9561637c3
+        tags:
+            - latest
+            - 1.1.0
+targets:
+    pumble-keys-python:
+        source: pumble-openapi
+        sourceNamespace: pumble-openapi
+        sourceRevisionDigest: sha256:0d19ef8dbb339648840ef549e01a64786da2f9e34082185f548f3e893a1a4778
+        sourceBlobDigest: sha256:d4c75944df1a058374334d85f804ec087fe02ae4e08b216a81972fe9561637c3
+workflow:
+    workflowVersion: 1.0.0
+    speakeasyVersion: 1.763.6
+    sources:
+        pumble-openapi:
+            inputs:
+                - location: ./PumbleOpenApi.yaml
+            registry:
+                location: registry.speakeasyapi.dev/apet115/apet115-wt/pumble-openapi
+    targets:
+        pumble-keys-python:
+            target: python
+            source: pumble-openapi

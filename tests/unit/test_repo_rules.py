@@ -5,8 +5,8 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "tools"))
 
-import check_generated_boundaries as boundaries  # noqa: E402
-import check_status as status  # noqa: E402
+import check_generated_boundaries as boundaries
+import check_status as status
 
 OWNERSHIP = json.loads((REPO / "contracts" / "generated-ownership.json").read_text())
 

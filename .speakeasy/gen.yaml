@@ -2,46 +2,76 @@ configVersion: 2.0.0
 generation:
   sdkClassName: PumbleSDK
   maintainOpenAPIOrder: true
+  usageSnippets:
+    optionalPropertyRendering: withExample
+    sdkInitStyle: constructor
+  useClassNamesForArrayFields: true
   fixes:
+    nameResolutionDec2023: true
     nameResolutionFeb2025: true
     parameterOrderingFeb2024: true
     requestResponseComponentNamesFeb2024: true
     securityFeb2025: true
     sharedErrorComponentsApr2025: true
+    sharedNestedComponentsJan2026: false
+    nameOverrideFeb2026: false
+  auth:
+    oAuth2ClientCredentialsEnabled: false
+    oAuth2PasswordEnabled: false
+    hoistGlobalSecurity: true
+  inferSSEOverload: true
+  sdkHooksConfigAccess: true
+  schemas:
+    allOfMergeStrategy: shallowMerge
+  requestBodyFieldName: body
+  versioningStrategy: automatic
+  persistentEdits: {}
+  tests:
+    generateTests: false
+    generateNewTests: true
+    skipResponseBodyAssertions: false
 python:
   version: 0.1.0
-  packageName: pumble_keys_sdk
-  moduleName: pumble_keys
-  description: Unofficial Python SDK for the Pumble API Keys addon
+  additionalDependencies:
+    dev:
+      coverage: '>=7.6'
+      pytest: '>=8.3'
+      pytest-asyncio: '>=1.0'
+      pyyaml: '>=6.0'
+      respx: '>=0.22'
+      ruff: '>=0.12'
+    main:
+      mcp[cli]: ==2.0.0
+  allowedRedefinedBuiltins:
+    - id
+    - object
+    - input
+    - dir
+  asyncMode: both
   authors:
     - apet97
-  license: MIT
-  packageManager: uv
-  templateVersion: v2
+  baseErrorName: PumbleSDKBaseError
+  bodyVariantOverloads: false
   clientServerStatusCodesAsErrors: true
+  constFieldCasing: normal
   defaultErrorName: PumbleSDKError
+  description: Unofficial Python SDK for the Pumble API Keys addon
+  durationFormat: true
+  enableCustomCodeRegions: false
   enumFormat: enum
-  forwardCompatibleEnumsByDefault: true
+  errorSchemaValidation: true
+  eventStreamClassNames:
+    async: EventStreamAsync
+    sync: EventStream
+  fixFlags:
+    asyncPaginationSep2025: true
+    conflictResistantModelImportsFeb2026: true
+    responseRequiredSep2024: true
   flattenGlobalSecurity: true
   flattenRequests: true
   flatteningOrder: parameters-first
-  inputModelSuffix: input
-  outputModelSuffix: output
-  maxMethodParams: 9
-  methodArguments: infer-optional-args
-  responseFormat: flat
-  useAsyncHooks: true
-  enableCustomCodeRegions: false
-  additionalDependencies:
-    main:
-      "mcp[cli]": "==2.0.0"
-    dev:
-      pytest: ">=8.3"
-      pytest-asyncio: ">=1.0"
-      respx: ">=0.22"
-      ruff: ">=0.12"
-      coverage: ">=7.6"
-      pyyaml: ">=6.0"
+  forwardCompatibleEnumsByDefault: true
+  forwardCompatibleUnionsByDefault: tagged-only
   imports:
     option: openapi
     paths:
@@ -50,3 +80,27 @@ python:
       operations: models/operations
       shared: models
       webhooks: models/webhooks
+  inferUnionDiscriminators: true
+  inputModelSuffix: input
+  inputTypedDictSuffix: TypedDict
+  license: MIT
+  maxMethodParams: 9
+  methodArguments: infer-optional-args
+  methodTimeoutArgument: timeout-ms
+  methodTimeoutUnits: milliseconds
+  moduleName: pumble_keys
+  multipartArrayFormat: standard
+  optionalDependencies: {}
+  outputModelSuffix: output
+  packageManager: uv
+  packageName: pumble_keys_sdk
+  preApplyUnionDiscriminators: true
+  pytestFilterWarnings: []
+  pytestTimeout: 0
+  rawResponseHelpers: false
+  responseFormat: flat
+  responseSchemaValidation: true
+  sseFlatResponse: false
+  templateVersion: v2
+  useAsyncHooks: true
+  uuidFormat: false
