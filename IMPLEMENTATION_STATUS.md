@@ -19,7 +19,7 @@
 | P10 — Implement deterministic user/channel resolution | DONE | p10 | `pytest tests/unit/test_resolve.py test_find.py` — PASS (16) | ruff + pytest (204) + boundaries — PASS | Exact TS precedence; ≤5 candidates in API order; values not exceptions. |
 | P11 — Implement optional resolver cache and preflight | DONE | p11 | `pytest tests/unit/test_resolver_cache.py test_preflight.py` — PASS (15) | ruff + pytest (219) + boundaries — PASS | Fake-clock TTL; foreground-only refresh; concurrent preflight. |
 | P12 — Port defensive exhaustive search and message pagination | DONE | p12 | `pytest tests/unit/test_search_all.py test_list_all_messages.py` — PASS (22) | ruff + pytest (241) + boundaries — PASS | Golden replay of same-second overlap, dupes, cap, abort. |
-| P13 — Port compact thread context and reply helper | NOT_STARTED | — | — | — | — |
+| P13 — Port compact thread context and reply helper | DONE | p13 | `pytest tests/unit/test_threads.py` — PASS (10) | ruff + pytest (251) + boundaries — PASS | Concurrent root/replies; first-seen participants; blank inputs rejected. |
 | P14 — Build the async curated client façade and read namespaces | NOT_STARTED | — | — | — | — |
 | P15 — Port safe message/channel write façades | NOT_STARTED | — | — | — | — |
 | P16 — Port scheduled-message façade | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P13` (DONE)
+- Objective: Port compact thread context and reply helper.
+- Allowed files: `src/pumble_keys/extensions/threads.py`, `tests/unit/test_threads.py`
+- Exit condition: Thread behavior is compact, predictable, and reusable by MCP resources.
+- Started from commit: `554d110` (p12)
+- Commands/results:
+  - `uv run pytest tests/unit/test_threads.py -q` → 10 passed.
+  - `threads.py` ports thread-context.ts: `get_thread_context` validates nonblank channel/message IDs and positive finite `reply_limit` before any fetch, fetches root (`fetchMessage`) and replies (`fetchThreadReplies` with `root_message_id`) concurrently (`asyncio.gather`, concurrency proven by event ordering), returns compact `ThreadContext` (root/replies as `ThreadContextMessage` with ISO-Z timestamp, first-seen deduped participant IDs with blanks skipped, `reply_count` from `threadRootInfo.replyCount` else the reply list length). `reply_to_thread` requires explicit channel/root IDs, rejects blank text before dispatch, forwards extra fields, sends exactly once, no retry.
+  - Fetchers are injected async callables (P14 binds the generated `_async` operations), matching the P12/P10 pattern.
+  - Coverage: concurrency, reply slicing + limit forwarding, participant dedupe/order, server count and fallback, blank inputs (no fetch), invalid limits (0/-1/NaN/bool), API failure propagation, reply extras, blank-reply rejection.
+  - Fast gate: ruff — PASS; `pytest tests` → 251 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P12` (DONE)
 - Objective: Port defensive exhaustive search and message pagination.

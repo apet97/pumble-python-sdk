@@ -91,6 +91,12 @@ from pumble_keys.extensions.search import (
     PageCapExceededError,
     search_all_messages,
 )
+from pumble_keys.extensions.threads import (
+    ThreadContext,
+    ThreadContextMessage,
+    get_thread_context,
+    reply_to_thread,
+)
 
 __all__ = [
     "DEFAULT_RETRY_STATUSES",
@@ -117,6 +123,8 @@ __all__ = [
     "ResolveUserResult",
     "ResolverCache",
     "ScheduledMessageId",
+    "ThreadContext",
+    "ThreadContextMessage",
     "UserCandidate",
     "UserGroupId",
     "UserId",
@@ -138,6 +146,7 @@ __all__ = [
     "find_user_by_email",
     "format_channel_candidate_label",
     "format_user_candidate_label",
+    "get_thread_context",
     "is_facade_failure",
     "is_facade_operation_failure",
     "is_pumble_id_like",
@@ -150,6 +159,7 @@ __all__ = [
     "redact_debug_headers",
     "redact_debug_value",
     "redact_sensitive_text",
+    "reply_to_thread",
     "resolve_channel",
     "resolve_user",
     "search_all_messages",
