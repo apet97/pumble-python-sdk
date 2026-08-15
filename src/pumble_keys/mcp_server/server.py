@@ -110,6 +110,9 @@ def create_server(
     ``server_kwargs`` (e.g. ``token_verifier``/``auth`` in P26) pass
     through to ``MCPServer``.
     """
+    from pumble_keys.mcp_server.cache_policy import CACHE_HINTS
+
+    server_kwargs.setdefault("cache_hints", CACHE_HINTS)
     server = MCPServer(
         name=SERVER_NAME,
         instructions=SERVER_INSTRUCTIONS,

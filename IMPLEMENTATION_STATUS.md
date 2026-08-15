@@ -38,7 +38,7 @@
 | P29 — Register MCP resources with bounded payloads and safe paths | DONE | p29 | `pytest tests/mcp/test_resources.py` — PASS (11) | ruff + pytest (522) + mypy/pylint/pyright + boundaries — PASS | 6 URIs; traversal/symlink/extension containment; bounded live payloads. |
 | P30 — Port prompts and add argument completions | DONE | p30 | `pytest tests/mcp/test_prompts.py test_completions.py` — PASS (12) | ruff + pytest (534) + mypy/pylint/pyright + boundaries — PASS | 4 prompts (Python guidance); bounded deterministic completions. |
 | P31 — Implement readonly, raw readwrite, and dry-run profiles | DONE | p31 | `pytest tests/mcp/test_raw_profiles.py` — PASS (10) | ruff + pytest (544) + mypy/pylint/pyright + boundaries — PASS | Exact 11/26 adapters; double gate; audit per attempt; dry-run zero writes. |
-| P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | NOT_STARTED | — | — | — | — |
+| P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | DONE | p32 | `pytest tests/mcp/test_mcp_2026_core.py` — PASS (13) | ruff + pytest (557) + mypy/pylint/pyright + boundaries — PASS | Modern discover per profile; TTL hints on every cacheable class; header deny pre-body. |
 | P33 — Add optional MRTR interactive send/reply tools | NOT_STARTED | — | — | — | — |
 | P34 — Bridge Pumble webhooks to modern MCP subscriptions | NOT_STARTED | — | — | — | — |
 | P35 — Scaffold the single MCP App frontend | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,21 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P32` (DONE)
+- Objective: Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs.
+- Allowed files: `src/pumble_keys/mcp_server/cache_policy.py`, `middleware.py`, updates to registrations, `tests/mcp/test_mcp_2026_core.py`
+- Exit condition: The server receives the concrete scale/cache/routing benefits of the 2026 revision.
+- Started from commit: `78b4bf8` (p31)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_mcp_2026_core.py -q` → 13 passed; `pytest tests` → 557 passed.
+  - Discover: modern `server/discover` snapshot for all four profiles via the official in-process `mcp.client.client.Client` (mode "auto" and pinned "2026-07-28" — per-request envelope, NO initialize handshake): server name, `2026-07-28` in supported_versions, tools/prompts/resources/completions capabilities present, no `logging` capability. Legacy compatibility proven separately: the memory-stream harness (initialize handshake era) lists identical tools against the same server object. We implement no lifecycle RPC of our own.
+  - Cache hints (`cache_policy.py`, wired through the factory as `MCPServer(cache_hints=...)`): catalogs + discover → private/60 s; `resources/read` → private/5 s (live-data bound; method-level hint, per-result opt-out documented for the P36 immutable App HTML). Asserted on every cacheable result class through real client calls (`ttl_ms`/`cache_scope`).
+  - Deterministic catalogs: byte-stable JSON of tools/resources/templates/prompts across fresh server instances (curated + readonly) and repeated list calls in one session — registration order only, no sets, no import-order dependence.
+  - Routing headers (`middleware.py`): `HeaderToolPolicy` (pure ASGI edge middleware) denies `tools/call` for a named raw write from the `Mcp-Method`/`Mcp-Name` headers with 403 BEFORE any body read (receive-call count asserted zero); allowed calls pass through the real streamable HTTP app. `MethodMetricsMiddleware` (official `ServerMiddleware` seat, `ctx.method`) proves route-aware metrics via `MCPServer(middleware=[...])`.
+  - SDK findings: the 2026 client mirrors the method/name into `mcp-method`/`mcp-name` HTTP headers (constants in `mcp.shared.inbound`); `mcp.client.client.Client` is the official modern in-process client (memory ClientSession is handshake-era only); `DiscoverResult` carries `supported_versions`, not server_info (server info arrives via the client handshake state).
+  - Fast gate: ruff + pytest + mypy/pylint(10.00)/pyright + boundaries + `git diff --check` — all PASS.
+- Deviations: `server.py` passes `cache_hints` by default (override-able via server kwargs).
 
 - Packet: `P31` (DONE)
 - Objective: Implement readonly, raw readwrite, and dry-run profiles.
