@@ -13,7 +13,7 @@
 | P04 — Generate and inventory the raw Python SDK | DONE | p04 | `pytest tests/unit/test_generated_api_inventory.py` — PASS (5); `inventory_generated_api.py --check` — PASS | ruff + pytest (12) + boundaries (`--generator-run`) + status — PASS | 26 ops sync+async; reads spec backoff; writes no retry. |
 | P05 — Burn down generator defects without contaminating generated code | DONE | p05 | `pytest tests/generated` — PASS (5); patch second run — no-op | ruff + pytest (17) + inventory `--check` + boundaries (`--generator-run`) — PASS | 2 patch items (requires-python, scripts); dev tools moved to gen.yaml config. |
 | P06 — Lock OpenAPI and generated contract fidelity | DONE | p06 | `pytest tests/contract` — PASS (27, no network) | ruff + pytest (44) + boundaries + inventory `--check` — PASS | 26 ops, 32 schemas, ApiKey header, error union, retry policy locked. |
-| P07 — Implement identifiers, display helpers, and redaction | NOT_STARTED | — | — | — | — |
+| P07 — Implement identifiers, display helpers, and redaction | DONE | p07 | `pytest tests/unit/test_ids.py test_display.py test_redaction.py` — PASS (84) | ruff + pytest (128) + boundaries + inventory `--check` — PASS | NewType IDs; TS-exact labels; two redaction families. |
 | P08 — Implement structured results and error categorization | NOT_STARTED | — | — | — | — |
 | P09 — Implement safe retry and in-process rate limiting primitives | NOT_STARTED | — | — | — | — |
 | P10 — Implement deterministic user/channel resolution | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P07` (DONE)
+- Objective: Implement identifiers, display helpers, and redaction.
+- Allowed files: `src/pumble_keys/extensions/ids.py`, `display.py`, `redaction.py`, `tests/unit/test_ids.py`, `test_display.py`, `test_redaction.py`
+- Exit condition: Shared pure helpers are stable before network-facing façade work starts.
+- Started from commit: `c04f474` (p06)
+- Commands/results:
+  - `uv run pytest tests/unit/test_ids.py tests/unit/test_display.py tests/unit/test_redaction.py -q` → 84 passed.
+  - `ids.py`: `NewType` aliases for the six ID kinds (no runtime class proliferation), `is_pumble_id_like`, `as_*` shape validators, `unbrand`. Language difference vs TS: raises `ValueError` (Python convention) where TS throws `TypeError`; message format preserved.
+  - `display.py`: `display_channel` (leading `#`), `display_user` (email fallback for blank name), plus the resolve.ts candidate-label formatters (`<name> <email> | <id>`, `#<name> | <type> | <id>`) so P10 reuses them without duplication.
+  - `redaction.py`: `redact_sensitive_text` (pmb_ tokens, Bearer/Basic, key/value assignments — from write-plan.ts) and `redact_debug_value`/`redact_debug_headers` (secret-named keys, body-text keys `text/tx/message/description`, emails, 24-hex IDs, configurable `sensitive_keys` — from debug-redaction.ts). Deterministic; false-positive test keeps ordinary prose intact.
+  - Added `extensions/__init__.py` exporting the P07 surface (infrastructure for the named modules).
+  - Fast gate: ruff format/check on `src/pumble_keys/extensions tools tests` — PASS; `pytest tests` → 128 passed; boundaries — PASS (extensions/** is a hand-written exception); inventory `--check` — PASS; `git diff --check` clean.
+- Deviations: candidate-label formatters live in `display.py` instead of waiting for `resolve.py` (P10) — they are display code and the packet requires "IDs in ambiguity choices".
 
 - Packet: `P06` (DONE)
 - Objective: Lock OpenAPI and generated contract fidelity.
