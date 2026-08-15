@@ -27,7 +27,7 @@ pumble-keys-mcp = "pumble_keys.mcp_server.cli:main"
 dev = [
     "build >=1.2",
     "coverage >=7.6",
-    "mypy ==1.15.0",
+    "mypy ==2.3.0",
     "pip-audit >=2.7",
     "pylint ==3.2.3",
     "pyright ==1.1.398",
