@@ -9,6 +9,7 @@ Diagnostics use Python logging (stderr) — never stdout, which belongs
 to the MCP stdio wire.
 """
 
+# pylint: disable=import-outside-toplevel
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -60,6 +61,18 @@ def _register_prompts(server: MCPServer, config: McpConfig) -> None:
     completions.register(server, config)
 
 
+def _register_raw_reads(server: MCPServer, config: McpConfig) -> None:
+    from pumble_keys.mcp_server.tools import raw_read
+
+    raw_read.register(server, config)
+
+
+def _register_raw_writes(server: MCPServer, config: McpConfig) -> None:
+    from pumble_keys.mcp_server.tools import raw_write
+
+    raw_write.register(server, config)
+
+
 _CURATED_REGISTRARS: list[Registrar] = [
     _register_curated_reads,
     _register_curated_writes,
@@ -68,10 +81,11 @@ _CURATED_REGISTRARS: list[Registrar] = [
 ]
 _INTERACTIVE_REGISTRARS: list[Registrar] = []
 _READONLY_REGISTRARS: list[Registrar] = [
+    _register_raw_reads,
     _register_resources,
     _register_prompts,
 ]
-_READWRITE_REGISTRARS: list[Registrar] = []
+_READWRITE_REGISTRARS: list[Registrar] = [_register_raw_writes]
 
 
 def registrars_for(profile: Profile) -> list[Registrar]:

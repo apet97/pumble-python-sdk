@@ -37,7 +37,7 @@
 | P28 — Implement signed preview/confirmed MCP writes | DONE | p28 | `pytest tests/mcp/test_write_plan.py test_curated_write_tools.py` — PASS (18) | ruff + pytest (511) + mypy/pylint/pyright + boundaries — PASS | HMAC-bound preview/confirm; expiry/workspace/request/text/replay checks. |
 | P29 — Register MCP resources with bounded payloads and safe paths | DONE | p29 | `pytest tests/mcp/test_resources.py` — PASS (11) | ruff + pytest (522) + mypy/pylint/pyright + boundaries — PASS | 6 URIs; traversal/symlink/extension containment; bounded live payloads. |
 | P30 — Port prompts and add argument completions | DONE | p30 | `pytest tests/mcp/test_prompts.py test_completions.py` — PASS (12) | ruff + pytest (534) + mypy/pylint/pyright + boundaries — PASS | 4 prompts (Python guidance); bounded deterministic completions. |
-| P31 — Implement readonly, raw readwrite, and dry-run profiles | NOT_STARTED | — | — | — | — |
+| P31 — Implement readonly, raw readwrite, and dry-run profiles | DONE | p31 | `pytest tests/mcp/test_raw_profiles.py` — PASS (10) | ruff + pytest (544) + mypy/pylint/pyright + boundaries — PASS | Exact 11/26 adapters; double gate; audit per attempt; dry-run zero writes. |
 | P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | NOT_STARTED | — | — | — | — |
 | P33 — Add optional MRTR interactive send/reply tools | NOT_STARTED | — | — | — | — |
 | P34 — Bridge Pumble webhooks to modern MCP subscriptions | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,22 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P31` (DONE)
+- Objective: Implement readonly, raw readwrite, and dry-run profiles.
+- Allowed files: `src/pumble_keys/mcp_server/tools/raw_read.py`, `raw_write.py`, `raw_manifest.py`, `dry_run.py`, `tests/mcp/test_raw_profiles.py`
+- Exit condition: Complete OpenAPI access exists but is impossible to enable accidentally.
+- Started from commit: `f4f2483` (p30)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_raw_profiles.py -q` → 10 passed; `pytest tests` → 544 passed.
+  - `raw_manifest.py`: checked-in manifest of all 26 operations in OpenAPI document order (11 reads / 15 writes) with typed parameter specs mirrored from the generated signatures; contract test asserts manifest ids/methods/paths equal `contracts/operations.json`. Destructive flags: removeUserFromChannel, deleteMessage, removeReaction, deleteScheduledMessage.
+  - `raw_read.py`/`raw_write.py`: data-driven adapters with real typed input schemas (dynamic `__signature__`+`__annotations__`; ctx injected, excluded from schema); every adapter calls the sanctioned raw escape hatch (`client.raw.<ns>.<op>_async`) — no business fork; results/failures are structured JSON values. Readonly registers exactly 11 (incl. POST `/searchMessages`); readwrite exactly 26. Every operation adapter exercised through a real session.
+  - Gates: config validation (gate 1) plus `raw_write.register` re-check raising `RawWriteGateError` (gate 2) — both proven. Curated profile exposes zero raw tools.
+  - Audit: every write logs redacted `attempt` + `success`/`failure` events to the JSONL sink (30 events for 15 writes; failure path: attempt+failure with exactly one API call — never retried).
+  - Dry-run: write tools titled "DRY-RUN SIMULATION", read-only annotated, return the planned method/path/destructive flag and redacted arguments; zero write endpoints touched (asserted across all 15).
+  - Annotations: destructive→`destructive_hint`, all writes non-idempotent/open-world; reads read-only/idempotent.
+  - Fast gate: ruff + pytest + mypy/pylint(10.00)/pyright + boundaries + `git diff --check` — all PASS.
+- Deviations: `server.py` wires the raw registrars into the readonly/readwrite seats; factory snapshot updated.
 
 - Packet: `P30` (DONE)
 - Objective: Port prompts and add argument completions.

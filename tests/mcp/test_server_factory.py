@@ -126,10 +126,14 @@ class TestFactory:
             "reply_to_thread_preview",
             "reply_to_thread_confirmed",
         ]
+        from pumble_keys.mcp_server.tools.raw_manifest import (
+            RAW_READ_OPERATIONS,
+        )
+
         expected_tools = {
             Profile.CURATED: curated_tools,
             Profile.CURATED_INTERACTIVE: curated_tools,
-            Profile.READONLY: [],  # raw adapters arrive in P31
+            Profile.READONLY: [op.tool_name for op in RAW_READ_OPERATIONS],
         }
         snapshot = {
             "tools": [tool.name for tool in await server.list_tools()],
