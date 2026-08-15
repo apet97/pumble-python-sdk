@@ -12,7 +12,7 @@
 | P03 — Configure a pinned Speakeasy Python target | DONE | p03 | scratch generation with this exact config — PASS | `check_generated_boundaries.py`, `check_status.py`, `pytest` (7) — PASS | Pin `1.763.6` works for Python. Two generator gaps recorded for P05. |
 | P04 — Generate and inventory the raw Python SDK | DONE | p04 | `pytest tests/unit/test_generated_api_inventory.py` — PASS (5); `inventory_generated_api.py --check` — PASS | ruff + pytest (12) + boundaries (`--generator-run`) + status — PASS | 26 ops sync+async; reads spec backoff; writes no retry. |
 | P05 — Burn down generator defects without contaminating generated code | DONE | p05 | `pytest tests/generated` — PASS (5); patch second run — no-op | ruff + pytest (17) + inventory `--check` + boundaries (`--generator-run`) — PASS | 2 patch items (requires-python, scripts); dev tools moved to gen.yaml config. |
-| P06 — Lock OpenAPI and generated contract fidelity | NOT_STARTED | — | — | — | — |
+| P06 — Lock OpenAPI and generated contract fidelity | DONE | p06 | `pytest tests/contract` — PASS (27, no network) | ruff + pytest (44) + boundaries + inventory `--check` — PASS | 26 ops, 32 schemas, ApiKey header, error union, retry policy locked. |
 | P07 — Implement identifiers, display helpers, and redaction | NOT_STARTED | — | — | — | — |
 | P08 — Implement structured results and error categorization | NOT_STARTED | — | — | — | — |
 | P09 — Implement safe retry and in-process rate limiting primitives | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,18 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P06` (DONE)
+- Objective: Lock OpenAPI and generated contract fidelity.
+- Allowed files: `tests/contract/test_operations.py`, `test_models.py`, `test_auth.py`, `test_retry_policy.py`, `test_error_union.py`
+- Exit condition: The raw SDK is proven against the supplied OpenAPI rather than assumed correct.
+- Started from commit: `041f6c1` (p05)
+- Commands/results:
+  - `uv run pytest tests/contract -q` → 27 passed, fully offline (respx mocks the one HTTP-level test).
+  - Coverage: 26 spec operations == ledger == generated callables (runtime resolution); one known tag per operation and tag→namespace mapping enforced; all 32 ledger schemas resolve to generated symbols (renames recorded in the test's mapping table: `CustomStatusObject`→`CustomStatus`; `ThreadReplyInfo`/`ThreadRootInfo` inlined per parent as `Message*`/`SearchHit*`); `ApiKey` header serialization proven via `utils.get_security` (no `Authorization`); server URL constant + override; reads carry exact spec backoff (500/30000/1.5/60000, 429/5XX, connection errors) in both spec and generated source; writes carry `x-sdk-no-write-retries` and zero `BackoffStrategy` literals in any write method body; both error shapes parse through `ErrorUnion` without collapsing to a string; a mocked 403 raises typed `errors.Error` with `LegacyErrorData`.
+  - Fixtures are sanitized inline (24-zero-padded IDs, synthetic text), matching the reference sanitizer's placeholder alphabet.
+  - Fast gate: ruff format/check on hand-written paths — PASS; `pytest tests` → 44 passed; boundaries (no generated changes this packet) — PASS; inventory `--check` — PASS; `git diff --check` clean.
+- Deviations: none.
 
 - Packet: `P05` (DONE)
 - Objective: Burn down generator defects without contaminating generated code.
