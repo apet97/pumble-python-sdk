@@ -5,6 +5,7 @@
 import { App } from "@modelcontextprotocol/ext-apps";
 import "./styles.css";
 import { createBridge } from "./bridge";
+import { createComposer } from "./composer";
 import { createFlows } from "./flows";
 import { render } from "./render";
 import { createStore } from "./state";
@@ -23,7 +24,8 @@ async function start(): Promise<void> {
   const bridge = createBridge(app as unknown as HostApp);
   const store = createStore();
   const flows = createFlows(bridge, store);
-  store.subscribe((state) => render(root, state, flows));
+  const composer = createComposer(bridge, store);
+  store.subscribe((state) => render(root, state, flows, composer));
 
   const media = window.matchMedia(NARROW_QUERY);
   store.update({ narrow: media.matches });

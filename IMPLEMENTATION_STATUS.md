@@ -44,7 +44,7 @@
 | P35 — Scaffold the single MCP App frontend | DONE | p35 | `npm run typecheck && npm test` — PASS (12) | app typecheck/test/build + pytest (581) — PASS | Plain TS + Vite + ext-apps 1.7.5; single-file deterministic build; value-typed bridge; memory-only state enforced by test. |
 | P36 — Register the MCP App opening tool and UI resource | DONE | p36 | `pytest tests/mcp/test_app_registration.py` — PASS (5) | ruff + pytest (586) + mypy/pylint(10.00)/pyright + boundaries — PASS | One `Apps()` extension on app profiles; nested `_meta.ui` only; closed CSP; text/structured fallback. |
 | P37 — Implement App read/browse/search/thread flows | DONE | p37 | `npm test` — PASS (25) + `pytest tests/mcp/test_app_registration.py` — PASS (7) | app typecheck/test/build + pytest (588) + mypy/pylint(10.00)/pyright — PASS | Three-pane/narrow UI; cursor paging; bounded search; textContent-only rendering; typed error states. |
-| P38 — Implement App composer with preview and explicit confirmation | NOT_STARTED | — | — | — | — |
+| P38 — Implement App composer with preview and explicit confirmation | DONE | p38 | `npm test` — PASS (36) | app typecheck/test/build + pytest (588) — PASS | Preview-first composer; edit invalidation; no auto-retry; token never rendered or stored. |
 | P39 — Finish App accessibility, host integration, and packaging | NOT_STARTED | — | — | — | — |
 | P40 — Create sanitized replay corpus and TypeScript/Python parity tests | NOT_STARTED | — | — | — | — |
 | P41 — Build the live sacrificial-workspace verification suite | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P38` (DONE)
+- Objective: Implement App composer with preview and explicit confirmation.
+- Allowed files: updates under `app/src/`, `app/test/write-flows.test.ts`
+- Exit condition: The UI cannot send or reply without an explicit user-visible preview/confirmation sequence.
+- Started from commit: `07568bf` (p37)
+- Commands/results:
+  - `npm run typecheck --prefix app` → clean; `npm test --prefix app` → 36 passed (write-flows adds 11); `npm run build` → deterministic single file, external-reference scan still zero; full `pytest` → 588.
+  - Composer (`app/src/composer.ts`): channel message and thread reply only — no other write, no raw/destructive operation reachable from the App. The first action is always `send_message_preview`/`reply_to_thread_preview`; the card shows resolved target name, redacted excerpt, risk level, expiry timestamp, and the full-text sha256 prefix (12).
+  - Confirm: a separate button sends the UNCHANGED request + preview + token (asserted equal in the fake-bridge call log). The token and previewed request live in the controller closure — not in rendered state; the DOM scan proves the token never appears, and the storage scan still covers all of `app/src`.
+  - Edit invalidation: changing text, channel, or mode drops the held preview; a confirm without a matching snapshot is blocked locally with a "request a new preview" error and no server call.
+  - Safety: `busy` disables both buttons (gated-promise double-click test → exactly one confirmed call); a failed confirmed write clears the token and sets `needsNewPreview` — a second confirm cannot re-send (never auto-repeat). Server rejection (tamper/expiry, exercised via a `confirmation_expired` failure value) and transport failure both surface as errors distinct from the verification receipt, which renders its own `verification_state`/detail on success.
+  - Server-side tamper/expiry/replay enforcement itself was proven in P28; the App tests prove the client passes bindings through unchanged and respects rejections.
+- Deviations: `app/src/composer.ts` added (new file under the allowed `app/src/`); `app_assets/index.html` regenerated from the rebuilt bundle.
 
 - Packet: `P37` (DONE)
 - Objective: Implement App read/browse/search/thread flows.

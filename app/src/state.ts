@@ -2,6 +2,8 @@
 // the state dies with the iframe, so no API key, confirmation token,
 // or message body can outlive the session (a test enforces this).
 
+import type { ComposerState } from "./composer";
+import { initialComposer } from "./composer";
 import type { Message } from "./flows";
 import type { BridgeFailure, HostContextLike } from "./types";
 
@@ -59,6 +61,7 @@ export interface ViewState {
   messages: MessagesState;
   search: SearchState;
   thread: ThreadState;
+  composer: ComposerState;
 }
 
 export function initialState(): ViewState {
@@ -84,6 +87,7 @@ export function initialState(): ViewState {
     },
     search: { query: "", results: [], loading: false, error: undefined },
     thread: { root: undefined, replies: [], loading: false, error: undefined },
+    composer: initialComposer(),
   };
 }
 

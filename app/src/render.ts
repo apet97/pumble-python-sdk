@@ -3,6 +3,7 @@
 // markup. Desktop shows three panes; narrow mode shows one pane with a
 // back control.
 
+import type { Composer } from "./composer";
 import type { Flows } from "./flows";
 import type { UiError, ViewState } from "./state";
 import { authorLabel, filteredChannels } from "./state";
@@ -43,6 +44,103 @@ function messageItem(
   return item;
 }
 
+
+function composerSection(state: ViewState, composer: Composer): HTMLElement {
+  const section = el("section", "composer");
+  const c = state.composer;
+  section.append(
+    el(
+      "h3",
+      "composer-title",
+      c.mode === "reply" ? "Reply in thread" : "New message",
+    ),
+  );
+
+  const channelInput = el("input", "composer-channel") as HTMLInputElement;
+  channelInput.placeholder = "Channel";
+  channelInput.value = c.channel;
+  channelInput.addEventListener("input", () => {
+    composer.setChannel(channelInput.value);
+  });
+  section.append(channelInput);
+
+  const textArea = document.createElement("textarea");
+  textArea.className = "composer-text";
+  textArea.value = c.text;
+  textArea.addEventListener("input", () => {
+    composer.setText(textArea.value);
+  });
+  section.append(textArea);
+
+  const previewButton = el(
+    "button",
+    "composer-preview",
+    "Preview",
+  ) as HTMLButtonElement;
+  previewButton.disabled = c.busy;
+  previewButton.addEventListener("click", () => {
+    void composer.requestPreview();
+  });
+  section.append(previewButton);
+
+  if (c.card !== undefined) {
+    const card = el("div", "preview-card");
+    card.append(el("p", "preview-target", `To: ${c.card.targetLabel}`));
+    card.append(el("p", "preview-excerpt", `Text: ${c.card.excerpt}`));
+    card.append(el("p", "preview-risk", `Risk: ${c.card.risk}`));
+    card.append(
+      el("p", "preview-hash", `Full-text sha256 ${c.card.hashPrefix}…`),
+    );
+    card.append(
+      el(
+        "p",
+        "preview-expiry",
+        `Expires at ${new Date(c.card.expiresAtMs).toISOString()}`,
+      ),
+    );
+    const confirmButton = el(
+      "button",
+      "composer-confirm",
+      "Confirm and send",
+    ) as HTMLButtonElement;
+    confirmButton.disabled = c.busy;
+    confirmButton.addEventListener("click", () => {
+      void composer.confirm();
+    });
+    card.append(confirmButton);
+    section.append(card);
+  }
+
+  if (c.needsNewPreview) {
+    section.append(
+      el(
+        "p",
+        "status",
+        "The send failed. Review and request a new preview; nothing is retried automatically.",
+      ),
+    );
+  }
+  if (c.error !== undefined) {
+    section.append(errorLine(c.error));
+  }
+  if (c.receipt !== undefined) {
+    const receipt = el("div", "receipt");
+    receipt.append(el("p", "receipt-summary", c.receipt.summary));
+    receipt.append(
+      el(
+        "p",
+        `receipt-verification verification-${c.receipt.verificationState}`,
+        `Verification: ${c.receipt.verificationState}` +
+          (c.receipt.verificationDetail === undefined
+            ? ""
+            : ` (${c.receipt.verificationDetail})`),
+      ),
+    );
+    section.append(receipt);
+  }
+  return section;
+}
+
 function channelsPane(state: ViewState, flows: Flows): HTMLElement {
   const pane = el("section", "pane pane-channels");
   pane.append(el("h2", "pane-title", "Channels"));
@@ -77,7 +175,11 @@ function channelsPane(state: ViewState, flows: Flows): HTMLElement {
   return pane;
 }
 
-function messagesPane(state: ViewState, flows: Flows): HTMLElement {
+function messagesPane(
+  state: ViewState,
+  flows: Flows,
+  composer: Composer,
+): HTMLElement {
   const pane = el("section", "pane pane-messages");
   pane.append(el("h2", "pane-title", "Messages"));
 
@@ -133,10 +235,17 @@ function messagesPane(state: ViewState, flows: Flows): HTMLElement {
     });
     pane.append(more);
   }
+  if (state.composer.mode === "message") {
+    pane.append(composerSection(state, composer));
+  }
   return pane;
 }
 
-function threadPane(state: ViewState, flows: Flows): HTMLElement {
+function threadPane(
+  state: ViewState,
+  flows: Flows,
+  composer: Composer,
+): HTMLElement {
   const pane = el("section", "pane pane-thread");
   pane.append(el("h2", "pane-title", "Thread"));
   const thread = state.thread;
@@ -154,10 +263,18 @@ function threadPane(state: ViewState, flows: Flows): HTMLElement {
     }
     pane.append(list);
   }
+  if (state.composer.mode === "reply") {
+    pane.append(composerSection(state, composer));
+  }
   return pane;
 }
 
-export function render(root: HTMLElement, state: ViewState, flows: Flows): void {
+export function render(
+  root: HTMLElement,
+  state: ViewState,
+  flows: Flows,
+  composer: Composer,
+): void {
   root.replaceChildren();
   root.dataset["theme"] = state.theme;
   root.dataset["pane"] = state.pane;
@@ -194,15 +311,15 @@ export function render(root: HTMLElement, state: ViewState, flows: Flows): void 
     if (state.pane === "channels") {
       shell.append(channelsPane(state, flows));
     } else if (state.pane === "messages") {
-      shell.append(messagesPane(state, flows));
+      shell.append(messagesPane(state, flows, composer));
     } else {
-      shell.append(threadPane(state, flows));
+      shell.append(threadPane(state, flows, composer));
     }
   } else {
     shell.append(
       channelsPane(state, flows),
-      messagesPane(state, flows),
-      threadPane(state, flows),
+      messagesPane(state, flows, composer),
+      threadPane(state, flows, composer),
     );
   }
   root.append(shell);

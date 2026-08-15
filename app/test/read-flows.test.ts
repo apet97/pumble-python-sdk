@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { Bridge } from "../src/bridge";
+import { createComposer } from "../src/composer";
 import { classifyFailure, createFlows } from "../src/flows";
 import { render } from "../src/render";
 import { authorLabel, createStore, filteredChannels } from "../src/state";
@@ -60,7 +61,8 @@ function setup() {
   const store = createStore();
   store.update({ phase: "ready" });
   const flows = createFlows(bridge, store);
-  return { bridge, store, flows };
+  const composer = createComposer(bridge, store);
+  return { bridge, store, flows, composer };
 }
 
 describe("classifyFailure", () => {
@@ -256,10 +258,10 @@ describe("thread", () => {
 
 describe("rendering safety", () => {
   function renderState(mutate: (store: ReturnType<typeof createStore>) => void) {
-    const { store, flows } = setup();
+    const { store, flows, composer } = setup();
     mutate(store);
     const root = document.createElement("div");
-    render(root, store.get(), flows);
+    render(root, store.get(), flows, composer);
     return root;
   }
 
