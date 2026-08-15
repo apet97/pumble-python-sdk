@@ -80,3 +80,13 @@ parse (`list_channels(,` and `with` blocks with no body). They are
 generator-owned and left as emitted; the docs test suite checks only
 hand-written docs. Delete this entry when a generator upgrade produces
 valid snippets.
+
+## Patch entry 3: package-data for knowledge + App assets (P43)
+
+The generator emits `[tool.setuptools.package-data]` with only
+`py.typed`, so wheels shipped without the packaged knowledge base and
+the built MCP App asset. `tools/patch_generated.py` extends the block
+with `pumble_keys.knowledge` (`*.md`, `guides/*.md`) and
+`pumble_keys.mcp_server.app_assets` (`*.html`, `*.json`). Failing
+check: `tools/pack_smoke.py` required-file inspection. Delete when the
+generator grows a package-data key.

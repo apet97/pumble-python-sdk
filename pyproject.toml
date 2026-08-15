@@ -44,6 +44,8 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
+"pumble_keys.knowledge" = ["*.md", "guides/*.md"]
+"pumble_keys.mcp_server.app_assets" = ["*.html", "*.json"]
 
 [build-system]
 requires = ["setuptools>=80", "wheel"]

@@ -49,11 +49,24 @@
 | P40 — Create sanitized replay corpus and TypeScript/Python parity tests | DONE | p40 | `pytest tests/parity` — PASS (53) + `sanitize_fixture.py --check` — clean | ruff + pytest (646) + mypy/pylint(10.00)/pyright + boundaries + fixture scan + app-asset check — PASS | 45-fixture corpus; 26 ops + 7 webhooks completeness meta-tests; shape-based secret scanner; PARITY_MATRIX.md. |
 | P41 — Build the live sacrificial-workspace verification suite | DONE | p41 | live run: 8 passed, 1 skipped, zero residue | ruff + pytest (646+9 skipped) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | Gated on PUMBLE_LIVE=1 + workspace marker; probe-prefixed writes with direct-read proof; hashed receipt; found+fixed real dm request-wrapping bug. |
 | P42 — Write user and maintainer documentation | DONE | p42 | `pytest tests/unit/test_docs.py` — PASS (6) | ruff + pytest (652+9) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | 8 new docs + README map; examples compile + imports verified + links checked in CI. |
-| P43 — Harden packaging and fresh-environment smoke tests | NOT_STARTED | — | — | — | — |
+| P43 — Harden packaging and fresh-environment smoke tests | DONE | p43 | `tools/pack_smoke.py` — PASS (build+twine+allowlist+fresh smoke) | ruff + pytest (657+9) + mypy/pylint(10.00)/pyright + boundaries(--generator-run for the documented patch) + scans — PASS | Wheel carries knowledge+app assets; allowlist rejects tests/secrets/maps; isolated fresh-venv smoke green. |
 | P44 — Implement CI, security gates, and release workflow | NOT_STARTED | — | — | — | — |
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P43` (DONE)
+- Objective: Harden packaging and fresh-environment smoke tests.
+- Allowed files: `MANIFEST.in` (not needed), `tools/pack_smoke.py`, `tests/pack/*`
+- Exit condition: Published artifacts are complete, minimal, and runnable.
+- Started from commit: `e9f2551` (p42)
+- Commands/results:
+  - `uv run python tools/pack_smoke.py` → app-asset freshness check, `uv build` (one sdist + one wheel in a temp dir), `twine check` PASSED on both, wheel allowlist clean (180 entries), fresh `uv venv` install and isolated smoke (`python -I`, cwd outside the repo — no path leakage) → `SMOKE_OK 15 tools`.
+  - Smoke coverage: raw SDK import (`PumbleSDK`), façade `create_pumble_client` + aclose, `PumbleApp`, both console scripts `--help` from the venv's own bin, `create_server` tool list (curated 15 incl. `open_pumble_workspace`), packaged App resource read (`load_app_html` doctype).
+  - Wheel inspection: only `pumble_keys/` + `*.dist-info/` top levels; required files enforced (py.typed, knowledge index + both guides, app_assets index.html + manifest.json); forbidden markers rejected (tests/, fixtures/, node_modules, .map, .env, conftest, .speakeasy, gen.yaml, live_receipt) — each rule red-tested against synthetic wheels in `tests/pack/test_pack_rules.py` (10 pack tests total).
+  - Package-data gap closed via the DOCUMENTED pyproject patch mechanism: `tools/patch_generated.py` entry 3 adds `pumble_keys.knowledge` and `pumble_keys.mcp_server.app_assets` to `[tool.setuptools.package-data]` (idempotence unit-tested); `uv lock` refreshed; `docs/GENERATOR_DEVIATIONS.md` updated; boundaries gate run as `--generator-run` for the patch application, per the P05 precedent.
+  - Environment findings: stdlib `venv`+`ensurepip` SIGABRTs under the uv-managed interpreter — the smoke uses `uv venv` + `uv pip install --python` instead; `uv build` drops a `.gitignore` into the out dir (filtered before `twine check`).
+- Deviations: `tools/patch_generated.py` + `docs/GENERATOR_DEVIATIONS.md` updated (the documented patch mechanism lives there); `MANIFEST.in` not needed (wheel package-data covers it; the sdist is built from the tracked tree).
 
 - Packet: `P42` (DONE)
 - Objective: Write user and maintainer documentation.

@@ -14,6 +14,9 @@ Patched gaps (pinned Speakeasy 1.763.6):
 2. `[project.scripts]`: the Python generator has no console-script key
    and silently drops one; the project ships `pumble-keys` and
    `pumble-keys-mcp`.
+3. `[tool.setuptools.package-data]`: the generator emits only
+   `py.typed`; the wheel must also carry the packaged knowledge base
+   and the built MCP App asset (+ hash manifest).
 """
 
 from __future__ import annotations
@@ -32,6 +35,13 @@ pumble-keys = "pumble_keys.cli.main:main"
 pumble-keys-mcp = "pumble_keys.mcp_server.cli:main"
 """
 
+PACKAGE_DATA_GENERATED = """[tool.setuptools.package-data]
+"*" = ["py.typed"]"""
+PACKAGE_DATA_PATCHED = """[tool.setuptools.package-data]
+"*" = ["py.typed"]
+"pumble_keys.knowledge" = ["*.md", "guides/*.md"]
+"pumble_keys.mcp_server.app_assets" = ["*.html", "*.json"]"""
+
 
 def patch_text(text: str) -> str:
     """Return the patched pyproject text. Pure and idempotent."""
@@ -44,6 +54,13 @@ def patch_text(text: str) -> str:
                 "the generator layout changed — update tools/patch_generated.py"
             )
         text = text.replace(anchor, SCRIPTS_BLOCK + "\n" + anchor, 1)
+    if '"pumble_keys.knowledge"' not in text:
+        if PACKAGE_DATA_GENERATED not in text:
+            raise SystemExit(
+                "FAIL: pyproject.toml package-data block changed shape — "
+                "update tools/patch_generated.py"
+            )
+        text = text.replace(PACKAGE_DATA_GENERATED, PACKAGE_DATA_PATCHED, 1)
     return text
 
 
