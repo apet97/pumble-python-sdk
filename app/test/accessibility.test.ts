@@ -120,5 +120,18 @@ describe("styles", () => {
     expect(contrast("#f4f5f6", "#1a1d21")).toBeGreaterThanOrEqual(4.5);
     expect(contrast("#a8adb3", "#1a1d21")).toBeGreaterThanOrEqual(4.5);
     expect(contrast("#ff8a80", "#1a1d21")).toBeGreaterThanOrEqual(4.5);
+    // Accent / state tokens (buttons, active channel, risk chip,
+    // verified receipt) in both palettes.
+    expect(contrast("#4141c8", "#ffffff")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#ffffff", "#4141c8")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#4141c8", "#ececfb")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#1e6b3a", "#e7f4ec")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#7a4d00", "#fdf3e0")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#9fa4ff", "#1a1d21")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#14142e", "#9fa4ff")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#8fd8ab", "#1e3328")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#f2c078", "#3a2f1a")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#5c6066", "#f6f7f9")).toBeGreaterThanOrEqual(4.5);
+    expect(contrast("#a8adb3", "#22262c")).toBeGreaterThanOrEqual(4.5);
   });
 });

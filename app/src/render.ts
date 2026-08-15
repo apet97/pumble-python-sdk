@@ -57,7 +57,7 @@ function composerSection(state: ViewState, composer: Composer): HTMLElement {
   );
 
   const channelInput = el("input", "composer-channel") as HTMLInputElement;
-  channelInput.placeholder = "Channel";
+  channelInput.placeholder = "Channel, e.g. general";
   channelInput.setAttribute("aria-label", "Target channel");
   channelInput.value = c.channel;
   channelInput.addEventListener("input", () => {
@@ -67,6 +67,7 @@ function composerSection(state: ViewState, composer: Composer): HTMLElement {
 
   const textArea = document.createElement("textarea");
   textArea.className = "composer-text";
+  textArea.placeholder = "Write a message";
   textArea.setAttribute("aria-label", "Message text");
   textArea.value = c.text;
   textArea.addEventListener("input", () => {
@@ -143,18 +144,47 @@ function composerSection(state: ViewState, composer: Composer): HTMLElement {
   return section;
 }
 
+/** Friendly display parts for one channel row. */
+function channelParts(channel: {
+  name: string;
+  channel_type: string;
+}): { glyph: string; label: string; badge: string | undefined } {
+  // The server sends the enum value ("PUBLIC"); tolerate the older
+  // "ChannelType.PUBLIC" repr form too.
+  const kind = channel.channel_type.replace(/^ChannelType\./, "");
+  if (kind === "DIRECT") {
+    return { glyph: "@", label: channel.name || "Direct message", badge: "DM" };
+  }
+  if (kind === "SELF") {
+    return { glyph: "@", label: channel.name || "Notes to self", badge: "you" };
+  }
+  return {
+    glyph: kind === "PRIVATE" ? "🔒" : "#",
+    label: channel.name || "(unnamed)",
+    badge: kind === "PRIVATE" ? "private" : undefined,
+  };
+}
+
 function channelsPane(state: ViewState, flows: Flows): HTMLElement {
   const pane = el("section", "pane pane-channels");
   pane.setAttribute("aria-label", "Channels");
   pane.append(el("h2", "pane-title", "Channels"));
   if (state.identity !== undefined) {
-    pane.append(el("p", "identity", `Signed in as ${state.identity["name"]}`));
+    const identity = el("p", "identity");
+    identity.append(el("span", "identity-dot", ""));
+    identity.append(
+      el("span", "identity-name", state.identity["name"] ?? ""),
+    );
+    pane.append(identity);
   }
   const filter = el("input", "channel-filter") as HTMLInputElement;
   filter.type = "search";
   filter.placeholder = "Filter channels";
   filter.setAttribute("aria-label", "Filter channels");
   filter.value = state.channelFilter;
+  filter.addEventListener("input", () => {
+    flows.setChannelFilter(filter.value);
+  });
   pane.append(filter);
   const list = el("ul", "channel-list");
   const channels = filteredChannels(state);
@@ -163,11 +193,20 @@ function channelsPane(state: ViewState, flows: Flows): HTMLElement {
   }
   for (const channel of channels) {
     const item = el("li", "channel");
-    const button = el(
-      "button",
-      "channel-open",
-      `#${channel.name} (${channel.channel_type})`,
+    const parts = channelParts(channel);
+    const button = el("button", "channel-open");
+    button.setAttribute(
+      "aria-label",
+      parts.badge === undefined ? parts.label : `${parts.label} (${parts.badge})`,
     );
+    if (channel.id === state.selectedChannelId) {
+      button.classList.add("channel-active");
+    }
+    button.append(el("span", "channel-glyph", parts.glyph));
+    button.append(el("span", "channel-name", parts.label));
+    if (parts.badge !== undefined) {
+      button.append(el("span", "channel-badge", parts.badge));
+    }
     button.dataset["channelId"] = channel.id;
     button.addEventListener("click", () => {
       void flows.selectChannel(channel.id);

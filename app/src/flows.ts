@@ -85,6 +85,7 @@ export interface Flows {
   runSearch(query: string): Promise<void>;
   openThread(channelId: string, messageId: string): Promise<void>;
   back(): void;
+  setChannelFilter(value: string): void;
 }
 
 export function createFlows(bridge: Bridge, store: Store): Flows {
@@ -293,6 +294,10 @@ export function createFlows(bridge: Bridge, store: Store): Flows {
       } else if (pane === "messages") {
         store.update({ pane: "channels" });
       }
+    },
+
+    setChannelFilter(value: string): void {
+      store.update({ channelFilter: value });
     },
   };
 }

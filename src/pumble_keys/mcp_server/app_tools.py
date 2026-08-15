@@ -102,7 +102,11 @@ def register_app_tools(apps: Apps) -> None:
                 {
                     "id": channel.id,
                     "name": channel.name,
-                    "channel_type": str(channel.channel_type),
+                    # `.value` for the enum, the raw string for
+                    # forward-compatible unknown members.
+                    "channel_type": getattr(
+                        channel.channel_type, "value", str(channel.channel_type)
+                    ),
                 }
                 for channel in channels
             ],
