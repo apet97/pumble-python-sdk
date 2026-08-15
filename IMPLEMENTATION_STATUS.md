@@ -16,7 +16,7 @@
 | P07 — Implement identifiers, display helpers, and redaction | DONE | p07 | `pytest tests/unit/test_ids.py test_display.py test_redaction.py` — PASS (84) | ruff + pytest (128) + boundaries + inventory `--check` — PASS | NewType IDs; TS-exact labels; two redaction families. |
 | P08 — Implement structured results and error categorization | DONE | p08 | `pytest tests/unit/test_results.py test_errors.py` — PASS (33) | ruff + pytest (161) + boundaries — PASS | 5 failure reasons, 6 error categories; cause/raw excluded from serialization. |
 | P09 — Implement safe retry and in-process rate limiting primitives | DONE | p09 | `pytest tests/unit/test_retries.py test_rate_limit.py` — PASS (27) | ruff + pytest (188) + boundaries — PASS | Write callables rejected without explicit override; fake-clock bucket. |
-| P10 — Implement deterministic user/channel resolution | NOT_STARTED | — | — | — | — |
+| P10 — Implement deterministic user/channel resolution | DONE | p10 | `pytest tests/unit/test_resolve.py test_find.py` — PASS (16) | ruff + pytest (204) + boundaries — PASS | Exact TS precedence; ≤5 candidates in API order; values not exceptions. |
 | P11 — Implement optional resolver cache and preflight | NOT_STARTED | — | — | — | — |
 | P12 — Port defensive exhaustive search and message pagination | NOT_STARTED | — | — | — | — |
 | P13 — Port compact thread context and reply helper | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,18 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P10` (DONE)
+- Objective: Implement deterministic user/channel resolution.
+- Allowed files: `src/pumble_keys/extensions/resolve.py`, `find.py`, `tests/unit/test_resolve.py`, `test_find.py`
+- Exit condition: Resolvers match the TypeScript behavioral contract exactly.
+- Started from commit: `4c95397` (p09)
+- Commands/results:
+  - `uv run pytest tests/unit/test_resolve.py tests/unit/test_find.py -q` → 16 passed.
+  - `resolve.py`: exact precedence (user: id→email→name→partial-name; channel: id→name→partial, one leading `#` stripped), trim + case-insensitive default with `case_insensitive=False` option, blank input → `not_found` with zero API calls, duplicate exact matches → `ambiguous`, candidates capped at 5 (overridable) in API list order, labels via the P07 formatters. Results are frozen dataclasses `ResolveSuccess`/`ResolveFailure` — values, never exceptions. Clients are `Protocol`s (`list_users`/`list_channels` async), so P14 binds them to the generated calls and tests use fakes.
+  - `find.py`: `find_user_by_email` / `find_channel_by_name` thin conveniences returning the object or `None`.
+  - Fast gate: ruff — PASS; `pytest tests` → 204 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P09` (DONE)
 - Objective: Implement safe retry and in-process rate limiting primitives.

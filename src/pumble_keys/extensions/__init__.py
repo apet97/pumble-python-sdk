@@ -16,6 +16,10 @@ from pumble_keys.extensions.errors import (
     ErrorCategory,
     categorize_error,
 )
+from pumble_keys.extensions.find import (
+    find_channel_by_name,
+    find_user_by_email,
+)
 from pumble_keys.extensions.ids import (
     ChannelId,
     MessageId,
@@ -49,6 +53,16 @@ from pumble_keys.extensions.redaction import (
     redact_debug_value,
     redact_sensitive_text,
 )
+from pumble_keys.extensions.resolve import (
+    ChannelCandidate,
+    ResolveChannelResult,
+    ResolveFailure,
+    ResolveSuccess,
+    ResolveUserResult,
+    UserCandidate,
+    resolve_channel,
+    resolve_user,
+)
 from pumble_keys.extensions.results import (
     FacadeError,
     FacadeFailure,
@@ -73,6 +87,7 @@ __all__ = [
     "READ_OPERATION_IDS",
     "REDACTED",
     "CategorizedError",
+    "ChannelCandidate",
     "ChannelId",
     "ErrorCategory",
     "FacadeError",
@@ -82,7 +97,12 @@ __all__ = [
     "PumbleId",
     "RateLimitQueueFullError",
     "RateLimiter",
+    "ResolveChannelResult",
+    "ResolveFailure",
+    "ResolveSuccess",
+    "ResolveUserResult",
     "ScheduledMessageId",
+    "UserCandidate",
     "UserGroupId",
     "UserId",
     "WorkspaceId",
@@ -99,6 +119,8 @@ __all__ = [
     "create_facade_operation_failure",
     "display_channel",
     "display_user",
+    "find_channel_by_name",
+    "find_user_by_email",
     "format_channel_candidate_label",
     "format_user_candidate_label",
     "is_facade_failure",
@@ -111,6 +133,8 @@ __all__ = [
     "redact_debug_headers",
     "redact_debug_value",
     "redact_sensitive_text",
+    "resolve_channel",
+    "resolve_user",
     "unbrand",
     "with_retries",
 ]
