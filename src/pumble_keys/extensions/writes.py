@@ -187,9 +187,8 @@ class FacadeWrites:
             user_id = resolved.id
 
         message = await _attempt(
-            self._raw.messages.dm_user_async(
-                request={"user_id": user_id, "text": text, **rest}
-            ),
+            # dmUser takes flat kwargs (not request-wrapped) — proven live.
+            self._raw.messages.dm_user_async(user_id=user_id, text=text, **rest),
             "Pumble API rejected messages.dm.",
         )
         if _is_failure(message):
@@ -228,9 +227,8 @@ class FacadeWrites:
             )
 
         message = await _attempt(
-            self._raw.messages.dm_group_async(
-                request={"user_ids": user_ids, "text": text, **rest}
-            ),
+            # dmGroup takes flat kwargs (not request-wrapped) — proven live.
+            self._raw.messages.dm_group_async(user_ids=user_ids, text=text, **rest),
             "Pumble API rejected messages.dm_group.",
         )
         if _is_failure(message):

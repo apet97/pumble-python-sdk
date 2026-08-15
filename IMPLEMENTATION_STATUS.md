@@ -47,13 +47,27 @@
 | P38 — Implement App composer with preview and explicit confirmation | DONE | p38 | `npm test` — PASS (36) | app typecheck/test/build + pytest (588) — PASS | Preview-first composer; edit invalidation; no auto-retry; token never rendered or stored. |
 | P39 — Finish App accessibility, host integration, and packaging | DONE | p39 | `npm test` — PASS (43) + `pytest tests/pack` — PASS (5) | app typecheck/test + pytest (593) + build_app --check — PASS | Labeled landmarks/focus/reduced-motion/AA contrast; theme/locale live updates; hash-manifest packaging gate. |
 | P40 — Create sanitized replay corpus and TypeScript/Python parity tests | DONE | p40 | `pytest tests/parity` — PASS (53) + `sanitize_fixture.py --check` — clean | ruff + pytest (646) + mypy/pylint(10.00)/pyright + boundaries + fixture scan + app-asset check — PASS | 45-fixture corpus; 26 ops + 7 webhooks completeness meta-tests; shape-based secret scanner; PARITY_MATRIX.md. |
-| P41 — Build the live sacrificial-workspace verification suite | NOT_STARTED | — | — | — | — |
+| P41 — Build the live sacrificial-workspace verification suite | DONE | p41 | live run: 8 passed, 1 skipped, zero residue | ruff + pytest (646+9 skipped) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | Gated on PUMBLE_LIVE=1 + workspace marker; probe-prefixed writes with direct-read proof; hashed receipt; found+fixed real dm request-wrapping bug. |
 | P42 — Write user and maintainer documentation | NOT_STARTED | — | — | — | — |
 | P43 — Harden packaging and fresh-environment smoke tests | NOT_STARTED | — | — | — | — |
 | P44 — Implement CI, security gates, and release workflow | NOT_STARTED | — | — | — | — |
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P41` (DONE)
+- Objective: Build the live sacrificial-workspace verification suite.
+- Allowed files: `tests/live/*`, `tools/run_live.py`, `docs/LIVE-TESTING.md`
+- Exit condition: Real API behavior is proven without making normal CI dangerous.
+- Started from commit: `d63bf18` (p40)
+- Commands/results:
+  - Default collection: `pytest tests/live` → 9 skipped (PUMBLE_LIVE unset). Live: `PUMBLE_LIVE=1 uv run python tools/run_live.py --profile full --require-cleanup` against the sacrificial workspace → 8 passed, 1 skipped, `cleanup_residue: []`, receipt written.
+  - Gating: `PUMBLE_LIVE=1` + `PUMBLE_API_KEY`/`PUMBLE_LIVE_CHANNEL_ID` from the environment only (the runner rejects key/ID-shaped argv); the guard test aborts the whole session (`pytest.exit`) before any write when the sacrificial channel marker is not visible to the key.
+  - Coverage: all 11 reads asserted covered in the final coverage test; writes proven live with probe-prefixed content and direct-read verification: sendMessage (façade + MCP preview→confirm), sendReply, editMessage, addReaction, removeReaction, createScheduledMessage, fetchScheduledMessage, deleteScheduledMessage, customStatus (60 s self-clearing expiry), deleteMessage (cleanup, delete verified by refetch). MCP live block also proves whoami/list_channels/get_channel_context/open_pumble_workspace/pumble_ui_bootstrap through the official in-process client on a real server.
+  - Receipt (`live_receipt.json`, gitignored): commit, OpenAPI spec sha256, per-operation read/write counts, sha256-hashed created/deleted IDs (no content, no live IDs, no key), residue (empty), skips. `--require-cleanup` fails on nonzero residue.
+  - Recorded skips: dmUser (live API rejects self-DM), clearStatus (live API rejects the expired-status clear trick — the short expiry self-clears), webhook/subscription (no signing secret/ingress), createChannel/addUsers/removeUser (no channel-delete operation exists — creation would be permanent residue in ANY workspace).
+  - LIVE FINDING → real bug fixed: `extensions/writes.py` wrapped `dm_user_async`/`dm_group_async` in `request={...}`, but the generated methods take flat kwargs (dmUser/dmGroup are not request-wrapped — the manifest said so all along). Unit mocks (`**kwargs` recorders) could never catch it; the live call did. Fixed with flat kwargs; unit + CLI regressions updated to pin the flat shape.
+- Deviations: the P15 `writes.py` fix and the matching assertion updates in `tests/unit/test_facade_writes.py` / `tests/cli/test_cli.py` (bug fix, outside the allowed list — documented); `live_receipt.json` added to `.gitignore`.
 
 - Packet: `P40` (DONE)
 - Objective: Create sanitized replay corpus and TypeScript/Python parity tests.

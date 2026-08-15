@@ -202,7 +202,8 @@ async def test_dm_user_resolved_and_explicit_paths() -> None:
     assert receipt.ok is True
     assert receipt.summary == f"Sent DM {MESSAGE_ID} to Example."
     assert receipt.ids["user_id"] == USER_ID
-    assert r["dm_user"].calls == [{"request": {"user_id": USER_ID, "text": "yo"}}]
+    # Flat kwargs: dmUser is NOT request-wrapped (live-run regression).
+    assert r["dm_user"].calls == [{"user_id": USER_ID, "text": "yo"}]
 
     receipt2 = await client.messages.dm(user_id=USER_ID, text="yo")
     assert receipt2.ok is True
@@ -218,9 +219,8 @@ async def test_dm_group_requires_user_ids_and_verifies() -> None:
     receipt = await client.messages.dm_group(user_ids=[USER_ID, CHANNEL_ID], text="all")
     assert receipt.ok is True
     assert receipt.verification.state == "verified"
-    assert r["dm_group"].calls == [
-        {"request": {"user_ids": [USER_ID, CHANNEL_ID], "text": "all"}}
-    ]
+    # Flat kwargs: dmGroup is NOT request-wrapped (live-run regression).
+    assert r["dm_group"].calls == [{"user_ids": [USER_ID, CHANNEL_ID], "text": "all"}]
 
 
 @pytest.mark.asyncio

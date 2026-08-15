@@ -188,7 +188,7 @@ def test_send_with_explicit_id_skips_listing(capsys) -> None:
 def test_dm_by_email_and_by_id(capsys) -> None:
     code, _out, _err, r = run_cli(["dm", "user-1@example.invalid", "yo"], capsys)
     assert code == 0
-    assert r["dm_user"].calls == [{"request": {"user_id": USER_ID, "text": "yo"}}]
+    assert r["dm_user"].calls == [{"user_id": USER_ID, "text": "yo"}]
 
     code, _out, _err, r2 = run_cli(["dm", USER_ID, "yo"], capsys)
     assert code == 0

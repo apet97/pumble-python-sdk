@@ -22,3 +22,4 @@ coverage.xml
 node_modules/
 app/dist/
 .env
+live_receipt.json
