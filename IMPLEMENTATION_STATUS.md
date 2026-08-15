@@ -26,7 +26,7 @@
 | P17 — Add custom-status helpers and invalidate affected caches | DONE | p17 | `pytest tests/unit/test_status.py` — PASS (7) | ruff + pytest (300) + boundaries — PASS | myInfo read-proof once; users cache invalidated only when verified. |
 | P18 — Port telemetry and reusable testing helpers | DONE | p18 | `pytest tests/unit/test_telemetry.py test_testing_helpers.py` — PASS (24) | ruff + pytest (324) + boundaries — PASS | Attribute allowlist + canary leak scan; sanitizer/mock-transport port. |
 | P19 — Port typed Pumble webhook event models | DONE | p19 | `pytest tests/unit/test_webhook_events.py` — PASS (27) | ruff + pytest (351) + boundaries — PASS | 7 events, envelope+compact forms, unknown fields preserved. |
-| P20 — Port webhook signature verification and ASGI receiver | NOT_STARTED | — | — | — | — |
+| P20 — Port webhook signature verification and ASGI receiver | DONE | p20 | `pytest tests/unit/test_webhooks.py tests/integration` — PASS (20) | ruff + pytest (371) + boundaries — PASS | Raw-body HMAC, ±300 s window, 1 MiB limit, 401/400/413/204/500. |
 | P21 — Port event router and `PumbleApp` convenience class | NOT_STARTED | — | — | — | — |
 | P22 — Port Pumble OAuth helpers and token store protocol | NOT_STARTED | — | — | — | — |
 | P23 — Port experimental Pumble Socket Mode as an optional extra | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P20` (DONE)
+- Objective: Port webhook signature verification and ASGI receiver.
+- Allowed files: `src/pumble_keys/pumble_app/webhooks.py`, `asgi.py`, `tests/unit/test_webhooks.py`, `tests/integration/test_webhook_asgi.py`
+- Exit condition: Pumble webhook ingress is framework-safe and evidence-compatible.
+- Started from commit: `183f593` (p19)
+- Commands/results:
+  - `uv run pytest tests/unit/test_webhooks.py tests/integration -q` → 20 passed (15 unit + 5 ASGI integration over `httpx.ASGITransport`).
+  - `webhooks.py` ports webhooks.ts: `x-pumble-request-timestamp`/`x-pumble-request-signature` verified against HMAC-SHA256 of `<timestamp>:<raw-body>` (bytes exactly as received; never parse-then-reserialize), timing-safe hex compare with shape checks, seconds-or-milliseconds timestamps, ±300 s default tolerance, 1 MiB default body limit, injectable clock. Response contract proven: 401 (missing/bad/stale/wrong-secret/tampered/malformed-hex), 400 (malformed JSON / malformed envelope body / unsupported type), 413 (over limit, before verification), 204 (dispatched), 500 (handler raised → `on_error` gets the original error). `CancelledError` in a handler propagates instead of becoming 500. `sign_pumble_request` exposed for tests/tooling.
+  - The receiver is framework-neutral (`(raw_body, headers) -> WebhookResult`); dispatch accepts a per-type handler map and/or a catch-all `on_event` (the P21 router plugs in there).
+  - `asgi.py` ports http-receiver.ts: minimal ASGI app (POST-only, 405 otherwise) reading the body incrementally with the size limit enforced during the read; `starlette_route` adapter (lazy import) proven with a real Starlette app.
+  - Fast gate: ruff — PASS; `pytest tests` → 371 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `pumble_app/__init__.py` re-exports (continuation).
 
 - Packet: `P19` (DONE)
 - Objective: Port typed Pumble webhook event models.
