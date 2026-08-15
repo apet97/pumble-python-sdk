@@ -28,7 +28,7 @@
 | P19 — Port typed Pumble webhook event models | DONE | p19 | `pytest tests/unit/test_webhook_events.py` — PASS (27) | ruff + pytest (351) + boundaries — PASS | 7 events, envelope+compact forms, unknown fields preserved. |
 | P20 — Port webhook signature verification and ASGI receiver | DONE | p20 | `pytest tests/unit/test_webhooks.py tests/integration` — PASS (20) | ruff + pytest (371) + boundaries — PASS | Raw-body HMAC, ±300 s window, 1 MiB limit, 401/400/413/204/500. |
 | P21 — Port event router and `PumbleApp` convenience class | DONE | p21 | `pytest tests/unit/test_event_router.py test_pumble_app.py` — PASS (12) | ruff + pytest (383) + boundaries — PASS | Registration-order dispatch; first failure stops (TS parity). |
-| P22 — Port Pumble OAuth helpers and token store protocol | NOT_STARTED | — | — | — | — |
+| P22 — Port Pumble OAuth helpers and token store protocol | DONE | p22 | `pytest tests/unit/test_oauth.py test_token_store.py` — PASS (17) | ruff + pytest (400) + boundaries — PASS | Exact URLs/fields; constant-time state; in-memory store only. |
 | P23 — Port experimental Pumble Socket Mode as an optional extra | NOT_STARTED | — | — | — | — |
 | P24 — Port the one-shot SDK CLI | NOT_STARTED | — | — | — | — |
 | P25 — Create MCP configuration, lifespan, and server factory | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,18 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P22` (DONE)
+- Objective: Port Pumble OAuth helpers and token store protocol.
+- Allowed files: `src/pumble_keys/pumble_app/oauth.py`, `token_store.py`, `tests/unit/test_oauth.py`, `test_token_store.py`
+- Exit condition: Pumble OAuth helper parity is available without conflating it with MCP OAuth.
+- Started from commit: `32c1305` (p21)
+- Commands/results:
+  - `uv run pytest tests/unit/test_oauth.py tests/unit/test_token_store.py -q` → 17 passed.
+  - `oauth.py` ports app/oauth.ts: consent URL `https://app.pumble.com/access-request` and access URL `https://api-ga.pumble.com/oauth2/access` as overridable defaults; ≥1 user/bot scope required; bot scopes prefixed `bot:`; `redirectUrl`/`clientId`/`scopes`/`defaultWorkspaceId`/`state`/`isReinstall` fields preserved with proper URL encoding; access-token request builds form fields `client-id`/`client-secret`/`code`; `verify_pumble_oauth_callback` extracts `code`/`state` with constant-time (`hmac.compare_digest`) state comparison; blank fields rejected with the TS error texts.
+  - `token_store.py` ports app/token-store.ts: `TokenStore` async `Protocol` (runtime-checkable) with initialize/get_bot_token/get_user_token/get_bot_user_id/save_tokens/delete_for_workspace/delete_for_user; `InMemoryTokenStore` process-local (save merges bot fields only when present; deletes are narrow no-op-safe). No plaintext filesystem persistence ships.
+  - Fast gate: ruff — PASS; `pytest tests` → 400 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `pumble_app/__init__.py` re-exports (continuation).
 
 - Packet: `P21` (DONE)
 - Objective: Port event router and `PumbleApp` convenience class.
