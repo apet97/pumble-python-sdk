@@ -1,0 +1,17 @@
+{
+  "comment": "Paths owned by the pinned Speakeasy generator. Never edit them by hand. P04 records the exact emitted paths after first generation.",
+  "generated_patterns": [
+    "src/pumble_keys/**"
+  ],
+  "handwritten_exceptions": [
+    "src/pumble_keys/extensions/**",
+    "src/pumble_keys/pumble_app/**",
+    "src/pumble_keys/mcp_server/**",
+    "src/pumble_keys/cli/**",
+    "src/pumble_keys/testing/**",
+    "src/pumble_keys/knowledge/**"
+  ],
+  "anchored_files": [
+    "PumbleOpenApi.yaml"
+  ]
+}

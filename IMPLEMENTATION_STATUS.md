@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | P00 — Anchor sources and create the parity ledger | DONE | p00 | `tools/check_source_anchors.py` — PASS | fast gate n/a (no toolchain yet) | Blob+SHA-256 verified; 26 ops / 32 schemas / 15 writes. |
 | P01 — Create the clean Python repository and toolchain | DONE | p01 | `uv run pytest tests/unit/test_import.py` — PASS (1); 3.11 + 3.12 import OK | `uv sync --all-extras --dev` — PASS | `mcp[cli]==2.0.0` pinned; console scripts declared. |
-| P02 — Add repository rules, generated ownership, and status tracking | NOT_STARTED | — | — | — | — |
+| P02 — Add repository rules, generated ownership, and status tracking | DONE | p02 | `pytest tests/unit/test_repo_rules.py` — PASS (6) | `check_status.py` + `check_generated_boundaries.py` — PASS | Boundary checker rejects synthetic generated-path edit. |
 | P03 — Configure a pinned Speakeasy Python target | NOT_STARTED | — | — | — | — |
 | P04 — Generate and inventory the raw Python SDK | NOT_STARTED | — | — | — | — |
 | P05 — Burn down generator defects without contaminating generated code | NOT_STARTED | — | — | — | — |
@@ -55,14 +55,14 @@
 
 ## Current packet detail
 
-- Packet: `P01` (DONE)
-- Objective: Create the clean Python repository and toolchain.
-- Allowed files: `pyproject.toml`, `uv.lock`, `.python-version`, `.gitignore`, `README.md`, `LICENSE`
-- Exit condition: Empty package builds and imports with a locked dependency graph.
-- Started from commit: `93c637a` (p00)
-- Findings: `uv` resolves `mcp[cli]==2.0.0` on Python 3.11. Placeholder `src/pumble_keys/__init__.py` imports cleanly; the generator replaces it at P04.
-- Commands/results: `uv sync --all-extras --dev` → PASS. `uv run pytest tests/unit/test_import.py` → 1 passed (Python 3.11.11). Isolated 3.12 wheel-install import → PASS.
-- Deviations/blockers: Added `src/pumble_keys/__init__.py` and `tests/unit/test_import.py` beyond allowed files (required by the packet's own evidence). No other deviation.
+- Packet: `P02` (DONE)
+- Objective: Add repository rules, generated ownership, and status tracking.
+- Allowed files: `CONTRIBUTING.md`, `IMPLEMENTATION_STATUS.md`, `contracts/generated-ownership.json`, `tools/check_generated_boundaries.py`, `tools/check_status.py`
+- Exit condition: The repository can mechanically distinguish generated and hand-written changes.
+- Started from commit: `45aed34` (p01)
+- Findings: Ownership manifest defines `src/pumble_keys/**` as generated with six hand-written exception subtrees. P04 refines the exact emitted paths after first generation.
+- Commands/results: `uv run pytest tests/unit/test_repo_rules.py` → 6 passed. `check_status.py` → OK. `check_generated_boundaries.py --paths src/pumble_keys/sdk.py` → exit 1 (synthetic edit rejected).
+- Deviations/blockers: Added `tests/unit/test_repo_rules.py` beyond allowed files (packet evidence requires executable tests). The `--require-clean-generation` full-gate mode arrives with the regeneration workflow (P06/P44). No other deviation.
 
 ## Release evidence pointers
 
