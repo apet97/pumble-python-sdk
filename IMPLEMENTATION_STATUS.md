@@ -40,7 +40,7 @@
 | P31 — Implement readonly, raw readwrite, and dry-run profiles | DONE | p31 | `pytest tests/mcp/test_raw_profiles.py` — PASS (10) | ruff + pytest (544) + mypy/pylint/pyright + boundaries — PASS | Exact 11/26 adapters; double gate; audit per attempt; dry-run zero writes. |
 | P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | DONE | p32 | `pytest tests/mcp/test_mcp_2026_core.py` — PASS (13) | ruff + pytest (557) + mypy/pylint/pyright + boundaries — PASS | Modern discover per profile; TTL hints on every cacheable class; header deny pre-body. |
 | P33 — Add optional MRTR interactive send/reply tools | DONE | p33 | `pytest tests/mcp/test_mrtr_writes.py` — PASS (11) | ruff + pytest (568) + mypy/pylint(10.00)/pyright + boundaries — PASS | Curated-interactive only; Resolve/Elicit MRTR; accept = one write; decline/cancel = none. |
-| P34 — Bridge Pumble webhooks to modern MCP subscriptions | NOT_STARTED | — | — | — | — |
+| P34 — Bridge Pumble webhooks to modern MCP subscriptions | DONE | p34 | `pytest tests/mcp/test_subscriptions.py` — PASS (13) | ruff + pytest (581) + mypy/pylint(10.00)/pyright + boundaries — PASS | Signature-gated `/webhooks/pumble`; URI-only refetch cues on the shared bus; in-process bus documented as single-process. |
 | P35 — Scaffold the single MCP App frontend | NOT_STARTED | — | — | — | — |
 | P36 — Register the MCP App opening tool and UI resource | NOT_STARTED | — | — | — | — |
 | P37 — Implement App read/browse/search/thread flows | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,22 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P34` (DONE)
+- Objective: Bridge Pumble webhooks to modern MCP subscriptions.
+- Allowed files: `src/pumble_keys/mcp_server/subscriptions.py`, `webhook_bridge.py`, `tests/mcp/test_subscriptions.py`
+- Exit condition: Live Pumble changes can invalidate client context through the new subscription model.
+- Started from commit: `8909ef5` (p33)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_subscriptions.py -q` → 13 passed (red-first: collection failed on the missing modules before implementation); `pytest` → 581 passed.
+  - Cues (`subscriptions.py`): message events → channel context URI (+ thread URI when a reply); reactions → channel + rooted thread; channel-created → `pumble://channels`; uninstall/unauthorize → `pumble://me` + `pumble://channels`; workspace membership → no cue. Cues are URIs with IDs only — proven that message text never reaches an event or the stream.
+  - Delivery seam: `EventPublisher` protocol; the SDK's `SubscriptionBus` satisfies it. One `InMemorySubscriptionBus` is passed to both `create_server(..., subscriptions=bus)` and the bridge. The module docstring states plainly that the in-process bus is single-process and that multi-replica deployments need a shared `SubscriptionBus` adapter (none is pretended).
+  - Webhook mount (`webhook_bridge.py`): `mount_pumble_webhooks` adds a `POST /webhooks/pumble` Starlette route to `server.streamable_http_app(...)` beside `/mcp`; protection is the P20 Pumble HMAC receiver (timestamp tolerance, 1 MiB bound), not MCP bearer auth. Bad signature → 401 and zero publishes (bus listener capture).
+  - End to end over real transports: signed POST via `httpx.ASGITransport` → 204 → `ResourceUpdated` arrives on an open `client.listen(...)` stream (official modern client) → the client refetches `pumble://channels` and reads fresh content.
+  - Listen semantics proven: ack echoes the honored URI filter; a cue for an unsubscribed channel is withheld (exact filters; unsubscribed thread URI withheld too — no unsolicited events); three identical cues pending together collapse to one delivered event (the catalog cue proves the stream advanced); a raising bus listener is isolated from other listeners.
+  - Slow-subscriber bound: per-stream backlog cap and end-at-cap behavior live in the SDK's `ListenHandler` (documented in the module docstring); clients re-listen and refetch — no replay.
+  - SDK findings: the HTTP `session_manager.run()` exit runs the shared server lifespan teardown and clears the stashed static-resource state, so tests that mix the HTTP app with the in-process client keep the whole flow inside the manager context.
+- Deviations: none — only the three allowed files were touched.
 
 - Packet: `P33` (DONE)
 - Objective: Add optional MRTR interactive send/reply tools.
