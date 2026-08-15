@@ -1,0 +1,55 @@
+[project]
+name = "pumble_keys_sdk"
+version = "0.1.0"
+description = "Unofficial Python SDK, MCP server, and MCP App for the Pumble API Keys addon"
+authors = [{ name = "apet97" }]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+    "mcp[cli]==2.0.0",
+]
+
+[project.scripts]
+pumble-keys = "pumble_keys.cli.main:main"
+pumble-keys-mcp = "pumble_keys.mcp_server.cli:main"
+
+[project.urls]
+Repository = "https://github.com/apet97/pumble-python-sdk"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12",
+    "mypy>=1.15",
+    "pytest>=8.3",
+    "pytest-asyncio>=1.0",
+    "coverage[toml]>=7.6",
+    "respx>=0.22",
+    "build>=1.2",
+    "twine>=6.1",
+    "pip-audit>=2.8",
+    "pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pumble_keys"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 88
+src = ["src", "tests", "tools"]
+
+[tool.mypy]
+strict = true
+
+[tool.coverage.run]
+branch = true
+source = ["src/pumble_keys"]

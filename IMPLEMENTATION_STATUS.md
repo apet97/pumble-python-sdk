@@ -7,7 +7,7 @@
 | Packet | Status | Commit | Targeted tests | Full/fast gate | Notes |
 |---|---|---|---|---|---|
 | P00 — Anchor sources and create the parity ledger | DONE | p00 | `tools/check_source_anchors.py` — PASS | fast gate n/a (no toolchain yet) | Blob+SHA-256 verified; 26 ops / 32 schemas / 15 writes. |
-| P01 — Create the clean Python repository and toolchain | NOT_STARTED | — | — | — | — |
+| P01 — Create the clean Python repository and toolchain | DONE | p01 | `uv run pytest tests/unit/test_import.py` — PASS (1); 3.11 + 3.12 import OK | `uv sync --all-extras --dev` — PASS | `mcp[cli]==2.0.0` pinned; console scripts declared. |
 | P02 — Add repository rules, generated ownership, and status tracking | NOT_STARTED | — | — | — | — |
 | P03 — Configure a pinned Speakeasy Python target | NOT_STARTED | — | — | — | — |
 | P04 — Generate and inventory the raw Python SDK | NOT_STARTED | — | — | — | — |
@@ -55,14 +55,14 @@
 
 ## Current packet detail
 
-- Packet: `P00` (DONE)
-- Objective: Anchor sources and create the parity ledger.
-- Allowed files: `SOURCE_BASELINE.md`, `contracts/operations.json`, `contracts/schemas.json`, `contracts/source_modules.json`
-- Exit condition: Baseline document and manifests are committed; no product code exists yet.
-- Started from commit: repository root (first commit)
-- Findings: OpenAPI copy verified byte-for-byte (SHA-256 `a9c3af3c…`, blob `aacb7f25…`). 26 operations (15 writes marked `x-sdk-no-write-retries`, 11 reads with per-operation `x-speakeasy-retries` backoff), 32 schemas.
-- Commands/results: `uv run --with pyyaml python3 tools/check_source_anchors.py --write` → wrote manifests; verify mode → PASS.
-- Deviations/blockers: Added `PumbleOpenApi.yaml` (required action 2), `tools/check_source_anchors.py` (required evidence needs a drift script), and this status file (packet procedure requires status updates from P00) beyond the packet's allowed-files list. No other deviation.
+- Packet: `P01` (DONE)
+- Objective: Create the clean Python repository and toolchain.
+- Allowed files: `pyproject.toml`, `uv.lock`, `.python-version`, `.gitignore`, `README.md`, `LICENSE`
+- Exit condition: Empty package builds and imports with a locked dependency graph.
+- Started from commit: `93c637a` (p00)
+- Findings: `uv` resolves `mcp[cli]==2.0.0` on Python 3.11. Placeholder `src/pumble_keys/__init__.py` imports cleanly; the generator replaces it at P04.
+- Commands/results: `uv sync --all-extras --dev` → PASS. `uv run pytest tests/unit/test_import.py` → 1 passed (Python 3.11.11). Isolated 3.12 wheel-install import → PASS.
+- Deviations/blockers: Added `src/pumble_keys/__init__.py` and `tests/unit/test_import.py` beyond allowed files (required by the packet's own evidence). No other deviation.
 
 ## Release evidence pointers
 
