@@ -21,7 +21,7 @@
 | P12 — Port defensive exhaustive search and message pagination | DONE | p12 | `pytest tests/unit/test_search_all.py test_list_all_messages.py` — PASS (22) | ruff + pytest (241) + boundaries — PASS | Golden replay of same-second overlap, dupes, cap, abort. |
 | P13 — Port compact thread context and reply helper | DONE | p13 | `pytest tests/unit/test_threads.py` — PASS (10) | ruff + pytest (251) + boundaries — PASS | Concurrent root/replies; first-seen participants; blank inputs rejected. |
 | P14 — Build the async curated client façade and read namespaces | DONE | p14 | `pytest tests/unit/test_client_reads.py` — PASS (13) | ruff + pytest (264) + boundaries — PASS | 11 reads mapped; no global retry_config (regression test). |
-| P15 — Port safe message/channel write façades | NOT_STARTED | — | — | — | — |
+| P15 — Port safe message/channel write façades | DONE | p15 | `pytest tests/unit/test_facade_writes.py` — PASS (14) | ruff + pytest (278) + boundaries — PASS | One attempt, direct-read proof, honest verification_failed. |
 | P16 — Port scheduled-message façade | NOT_STARTED | — | — | — | — |
 | P17 — Add custom-status helpers and invalidate affected caches | NOT_STARTED | — | — | — | — |
 | P18 — Port telemetry and reusable testing helpers | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,22 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P15` (DONE)
+- Objective: Port safe message/channel write façades.
+- Allowed files: `src/pumble_keys/extensions/writes.py`, `tests/unit/test_facade_writes.py`
+- Exit condition: User-visible writes have precise receipts and cannot be duplicated by internal retry.
+- Started from commit: `5b832c3` (p14)
+- Commands/results:
+  - `uv run pytest tests/unit/test_facade_writes.py -q` → 14 passed.
+  - `writes.py` ports facade-writes.ts plus the plan-mandated direct-read verification (§10.4). `FacadeWrites` implements `send_message`, `dm_user`, `dm_group`, `reply_to_thread`, `create_channel`, and `search_recent` (a read; kept here for TS parity). Flow per write: shape validation → resolve unless explicit ID (with `validate_target=True` forcing resolution) → exactly one write call, never via a retry helper (proven with a transient 503: one attempt, failure value) → direct fetch by returned ID (`fetchMessage` for messages/replies/DMs, `getChannel` for channel create) → `WriteReceipt` with factual summary, ids, resolved target, write reference, and `WriteVerification`.
+  - Write success + failed direct read → `ok=True` receipt with `verification.state="verification_failed"` and a detail stating the write was NOT retried and no rollback happened. Search is never used as proof (asserted: zero search calls in send flow).
+  - TS parity texts preserved (`Sent message X to #chan.`, `Sent DM X to Name.`, `Replied with X in #chan.`); Python difference: receipts add the verification block (plan-mandated).
+  - Fast gate: ruff — PASS; `pytest tests` → 278 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations (narrow, documented):
+  - `client.py` (P14 file) wires the write façades into the namespaces (`messages.send/dm/dm_group`, `threads.reply`, `channels.create`, `search.recent`) — the same wiring split as client.ts/facade-writes.ts; without it the packet's exit condition is untestable through the public client.
+  - `tests/unit/test_client_reads.py` namespace snapshot updated for the newly wired members.
+  - `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P14` (DONE)
 - Objective: Build the async curated client façade and read namespaces.

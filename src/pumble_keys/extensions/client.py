@@ -37,6 +37,7 @@ from pumble_keys.extensions.results import FacadeFailure, create_facade_failure
 from pumble_keys.extensions.search import search_all_messages
 from pumble_keys.extensions.threads import get_thread_context
 from pumble_keys.extensions.users import Users
+from pumble_keys.extensions.writes import FacadeWrites
 
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
@@ -110,9 +111,10 @@ class CacheNamespace:
 class Search:
     """``client.search`` — one bounded page, or the defensive full walk."""
 
-    def __init__(self, raw: Any, guard: Any) -> None:
+    def __init__(self, raw: Any, guard: Any, writes: Any) -> None:
         self._raw = raw
         self._guard = guard
+        self.recent = writes.search_recent
 
     async def page(self, **options: Any) -> Any:
         """One bounded search page, normalized to ``SearchMessagesResult``."""
@@ -131,11 +133,12 @@ class Search:
 
 
 class Threads:
-    """``client.threads`` — compact context and reply listing."""
+    """``client.threads`` — compact context, replies, and the safe reply."""
 
-    def __init__(self, raw: Any, guard: Any) -> None:
+    def __init__(self, raw: Any, guard: Any, writes: Any) -> None:
         self._raw = raw
         self._guard = guard
+        self.reply = writes.reply_to_thread
 
     async def get_context(
         self,
@@ -195,7 +198,13 @@ class ScheduledReads:
 
 
 class Messaging(Messages):
-    """``client.messages`` with the exhaustive history walk attached."""
+    """``client.messages`` with history walk and safe write façades."""
+
+    def __init__(self, raw: Any, guard: Any, writes: Any) -> None:
+        super().__init__(raw, guard)
+        self.send = writes.send_message
+        self.dm = writes.dm_user
+        self.dm_group = writes.dm_group
 
     def all(self, request: dict[str, Any] | None = None, **options: Any) -> Any:
         async def fetch(page_request: dict[str, Any]) -> Any:
@@ -218,10 +227,16 @@ class PumbleClient:
             raw, guard, resolver_cache, self._resolve_facade_channel
         )
         self.users = Users(raw, guard, resolver_cache, self._resolve_facade_user)
-        self.messages = Messaging(raw, guard)
-        self.search = Search(raw, guard)
-        self.threads = Threads(raw, guard)
+        writes = FacadeWrites(
+            raw=raw,
+            resolve_facade_channel=self._resolve_facade_channel,
+            resolve_facade_user=self._resolve_facade_user,
+        )
+        self.messages = Messaging(raw, guard, writes)
+        self.search = Search(raw, guard, writes)
+        self.threads = Threads(raw, guard, writes)
         self.scheduled = ScheduledReads(raw, guard)
+        self.channels.create = writes.create_channel
 
     async def _guard(self, operation_id: str, awaitable: Any) -> Any:
         """Run one generated call; normal errors become failure values."""

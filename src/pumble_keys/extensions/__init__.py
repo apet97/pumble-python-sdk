@@ -103,6 +103,11 @@ from pumble_keys.extensions.threads import (
     get_thread_context,
     reply_to_thread,
 )
+from pumble_keys.extensions.writes import (
+    FacadeWrites,
+    WriteReceipt,
+    WriteVerification,
+)
 
 __all__ = [
     "DEFAULT_RETRY_STATUSES",
@@ -118,6 +123,7 @@ __all__ = [
     "FacadeError",
     "FacadeFailure",
     "FacadeFailureReason",
+    "FacadeWrites",
     "MessageId",
     "PageCapExceededError",
     "PreflightResult",
@@ -138,6 +144,8 @@ __all__ = [
     "UserId",
     "UserSummary",
     "WorkspaceId",
+    "WriteReceipt",
+    "WriteVerification",
     "as_channel_id",
     "as_message_id",
     "as_scheduled_message_id",

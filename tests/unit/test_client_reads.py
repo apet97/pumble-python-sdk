@@ -109,11 +109,11 @@ def test_namespace_manifest_snapshot() -> None:
     }
     assert manifest == {
         "identity": ["me"],
-        "channels": ["find", "find_by_name", "get", "list", "resolve"],
+        "channels": ["create", "find", "find_by_name", "get", "list", "resolve"],
         "users": ["find", "find_by_email", "list", "list_groups", "resolve"],
-        "messages": ["all", "get", "list"],
-        "search": ["all", "page"],
-        "threads": ["get_context", "list_replies"],
+        "messages": ["all", "dm", "dm_group", "get", "list", "send"],
+        "search": ["all", "page", "recent"],
+        "threads": ["get_context", "list_replies", "reply"],
         "scheduled": ["get", "list"],
         "cache": ["clear", "info", "metrics", "refresh"],
     }
