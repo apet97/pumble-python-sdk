@@ -43,7 +43,7 @@
 | P34 — Bridge Pumble webhooks to modern MCP subscriptions | DONE | p34 | `pytest tests/mcp/test_subscriptions.py` — PASS (13) | ruff + pytest (581) + mypy/pylint(10.00)/pyright + boundaries — PASS | Signature-gated `/webhooks/pumble`; URI-only refetch cues on the shared bus; in-process bus documented as single-process. |
 | P35 — Scaffold the single MCP App frontend | DONE | p35 | `npm run typecheck && npm test` — PASS (12) | app typecheck/test/build + pytest (581) — PASS | Plain TS + Vite + ext-apps 1.7.5; single-file deterministic build; value-typed bridge; memory-only state enforced by test. |
 | P36 — Register the MCP App opening tool and UI resource | DONE | p36 | `pytest tests/mcp/test_app_registration.py` — PASS (5) | ruff + pytest (586) + mypy/pylint(10.00)/pyright + boundaries — PASS | One `Apps()` extension on app profiles; nested `_meta.ui` only; closed CSP; text/structured fallback. |
-| P37 — Implement App read/browse/search/thread flows | NOT_STARTED | — | — | — | — |
+| P37 — Implement App read/browse/search/thread flows | DONE | p37 | `npm test` — PASS (25) + `pytest tests/mcp/test_app_registration.py` — PASS (7) | app typecheck/test/build + pytest (588) + mypy/pylint(10.00)/pyright — PASS | Three-pane/narrow UI; cursor paging; bounded search; textContent-only rendering; typed error states. |
 | P38 — Implement App composer with preview and explicit confirmation | NOT_STARTED | — | — | — | — |
 | P39 — Finish App accessibility, host integration, and packaging | NOT_STARTED | — | — | — | — |
 | P40 — Create sanitized replay corpus and TypeScript/Python parity tests | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,21 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P37` (DONE)
+- Objective: Implement App read/browse/search/thread flows.
+- Allowed files: updates under `app/src/`, `app/test/read-flows.test.ts`, Python app-helper tests
+- Exit condition: The App is genuinely useful for Pumble browsing without bypassing the MCP server.
+- Started from commit: `810c6e6` (p36)
+- Commands/results:
+  - `npm run typecheck --prefix app` → clean; `npm test --prefix app` → 25 passed (bridge 12 + read-flows 13); `pytest tests/mcp/test_app_registration.py` → 7 (two new helper tests); full `pytest` → 588.
+  - Layout (`render.ts`): desktop = channel rail + message/search pane + thread pane; `narrow: true` renders exactly one pane with a Back control (`back()` walks thread → messages → channels). Narrow flag driven by `matchMedia("(max-width: 640px)")` in `main.ts`.
+  - Bootstrap (`flows.ts` → `pumble_ui_bootstrap`): identity, channel catalog with case-insensitive filter (`filteredChannels`) and channel-type labels, compact author map (`authorLabel` falls back to the raw id).
+  - Paging: `pumble_ui_channel_page` with explicit `cursor` (asserted in the fake-bridge call log), pages append, exhausted cursor makes loadMore a no-op. Search: requires a non-blank query (no server call otherwise) and calls the curated `search_messages` with a bounded limit (25). Thread: exact `channel_id`/`message_id`.
+  - Rendering safety: every dynamic value goes through `textContent`; the XSS test renders `<img onerror>`/`<script>` payloads and asserts no such elements exist while the raw text is displayed verbatim. No rich-text subset shipped (plain text only — the plan's escape-tests precondition for rich text was not spent).
+  - States: loading, empty, recoverable error, auth error (`classifyFailure` maps permission/401/403), rate-limit (rate/429), and stale-data (failed refetch keeps items and flags `stale`). Request dedup: identical in-flight (tool,args) calls collapse to one bridge call (gated-promise test).
+  - Every byte the app shows comes through `bridge.callTool` — no fetch, no direct API path (P35's external-URL scan still holds on the rebuilt bundle).
+- Deviations: `app/src/flows.ts` added (new file under the allowed `app/src/`); `happy-dom` 20.11.2 added as an exact-pinned dev dependency for DOM tests; `app_assets/index.html` regenerated from the rebuilt deterministic bundle (hash test keeps it in sync); the P36 mock raw client's message page shape fixed to the real `result.messages` form.
 
 - Packet: `P36` (DONE)
 - Objective: Register the MCP App opening tool and UI resource.

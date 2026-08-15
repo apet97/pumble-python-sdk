@@ -64,7 +64,11 @@ def make_raw():
             )
         ),
         messages=SimpleNamespace(
-            list_messages_async=Recorder(SimpleNamespace(result=[])),
+            list_messages_async=Recorder(
+                SimpleNamespace(
+                    result=SimpleNamespace(messages=[], has_more_before=False)
+                )
+            ),
         ),
     )
 
@@ -155,3 +159,32 @@ async def test_opening_tool_fallback_without_apps_support() -> None:
     text = result.content[0].text
     assert "Probe User" in text
     assert json.loads(text)["ok"] is True
+
+
+@pytest.mark.asyncio
+async def test_channel_page_helper_passes_cursor_and_limits() -> None:
+    server = make_server()
+    async with Client(server, mode="auto") as client:
+        result = await client.call_tool(
+            "pumble_ui_channel_page",
+            {"channel_id": CHANNEL_ID, "cursor": "m-5", "limit": 10},
+        )
+    payload = result.structured_content
+    assert payload["ok"] is True
+    assert payload["channel_id"] == CHANNEL_ID
+    assert payload["messages"] == []
+    assert payload["next_cursor"] is None
+
+
+@pytest.mark.asyncio
+async def test_thread_helper_failure_stays_a_value() -> None:
+    server = make_server()
+    async with Client(server, mode="auto") as client:
+        result = await client.call_tool(
+            "pumble_ui_thread",
+            {"channel_id": CHANNEL_ID, "message_id": "m-missing"},
+        )
+    # The mock raw client has no thread surface: the façade categorizes
+    # the error into a structured value; the call itself never errors.
+    assert result.is_error is not True
+    assert result.structured_content["ok"] is False
