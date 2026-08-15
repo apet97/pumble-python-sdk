@@ -36,6 +36,7 @@ from pumble_keys.extensions.resolver_cache import ResolverCache
 from pumble_keys.extensions.results import FacadeFailure, create_facade_failure
 from pumble_keys.extensions.scheduled import ScheduledFacade
 from pumble_keys.extensions.search import search_all_messages
+from pumble_keys.extensions.status import StatusFacade
 from pumble_keys.extensions.threads import get_thread_context
 from pumble_keys.extensions.users import Users
 from pumble_keys.extensions.writes import FacadeWrites
@@ -221,6 +222,9 @@ class PumbleClient:
             resolve_facade_channel=self._resolve_facade_channel,
         )
         self.channels.create = writes.create_channel
+        status = StatusFacade(raw=raw, resolver_cache=resolver_cache)
+        self.users.set_status = status.set_status
+        self.users.clear_status = status.clear_status
 
     async def _guard(self, operation_id: str, awaitable: Any) -> Any:
         """Run one generated call; normal errors become failure values."""

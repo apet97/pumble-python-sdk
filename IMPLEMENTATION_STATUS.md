@@ -23,7 +23,7 @@
 | P14 — Build the async curated client façade and read namespaces | DONE | p14 | `pytest tests/unit/test_client_reads.py` — PASS (13) | ruff + pytest (264) + boundaries — PASS | 11 reads mapped; no global retry_config (regression test). |
 | P15 — Port safe message/channel write façades | DONE | p15 | `pytest tests/unit/test_facade_writes.py` — PASS (14) | ruff + pytest (278) + boundaries — PASS | One attempt, direct-read proof, honest verification_failed. |
 | P16 — Port scheduled-message façade | DONE | p16 | `pytest tests/unit/test_scheduled.py` — PASS (15) | ruff + pytest (293) + boundaries — PASS | Future-only integer send_at; verified create/edit; safe cancel. |
-| P17 — Add custom-status helpers and invalidate affected caches | NOT_STARTED | — | — | — | — |
+| P17 — Add custom-status helpers and invalidate affected caches | DONE | p17 | `pytest tests/unit/test_status.py` — PASS (7) | ruff + pytest (300) + boundaries — PASS | myInfo read-proof once; users cache invalidated only when verified. |
 | P18 — Port telemetry and reusable testing helpers | NOT_STARTED | — | — | — | — |
 | P19 — Port typed Pumble webhook event models | NOT_STARTED | — | — | — | — |
 | P20 — Port webhook signature verification and ASGI receiver | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P17` (DONE)
+- Objective: Add custom-status helpers and invalidate affected caches.
+- Allowed files: `src/pumble_keys/extensions/status.py`, updates to `client.py`, `tests/unit/test_status.py`
+- Exit condition: Status workflow is safe and consistent with other verified writes.
+- Started from commit: `e290129` (p16)
+- Commands/results:
+  - `uv run pytest tests/unit/test_status.py -q` → 7 passed.
+  - `status.py`: `StatusFacade.set_status(code, expires_at, status=None)` uses the exact OpenAPI payload (`code` in `:emoji_name:` form, `expiresAt` epoch-ms integer, 0 = never; optional field omitted when absent; no silent emoji normalization — that stays a P24 CLI convenience). `clear_status` writes an already-expired status (`expires_at=1`), matching the documented "past timestamp clears immediately" semantics.
+  - After a successful write, exactly one `myInfo` read-proof; never a write retry (transient 503 → one attempt). Verified success invalidates the resolver cache's `users` entries; failed proof returns an honest `verification_failed` receipt and does NOT invalidate.
+  - Wired as `client.users.set_status` / `client.users.clear_status` (client.py in the allowed list this packet); manifest snapshot updated.
+  - Fast gate: ruff — PASS; `pytest tests` → 300 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P16` (DONE)
 - Objective: Port scheduled-message façade.

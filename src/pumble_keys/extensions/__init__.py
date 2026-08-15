@@ -98,6 +98,7 @@ from pumble_keys.extensions.search import (
     PageCapExceededError,
     search_all_messages,
 )
+from pumble_keys.extensions.status import StatusFacade
 from pumble_keys.extensions.threads import (
     ThreadContext,
     ThreadContextMessage,
@@ -139,6 +140,7 @@ __all__ = [
     "ResolverCache",
     "ScheduledFacade",
     "ScheduledMessageId",
+    "StatusFacade",
     "ThreadContext",
     "ThreadContextMessage",
     "UserCandidate",
