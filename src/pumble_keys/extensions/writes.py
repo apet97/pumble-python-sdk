@@ -63,7 +63,7 @@ async def _attempt(coro: Any, summary: str) -> Any:
     """Run one write attempt; a raised error becomes a failure value."""
     try:
         return await coro
-    except asyncio.CancelledError:
+    except asyncio.CancelledError:  # pylint: disable=try-except-raise
         raise
     except Exception as error:  # noqa: BLE001 — categorized into a value
         return create_facade_operation_failure(
@@ -78,7 +78,7 @@ async def _verify(coro_factory: Any, what: str) -> WriteVerification:
     """Direct read-by-ID proof. Never retries; never re-runs the write."""
     try:
         fetched = await coro_factory()
-    except asyncio.CancelledError:
+    except asyncio.CancelledError:  # pylint: disable=try-except-raise
         raise
     except Exception as error:  # noqa: BLE001 — verification is best-effort
         return WriteVerification(

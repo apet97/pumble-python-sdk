@@ -139,7 +139,7 @@ def create_webhook_handler(
         raise ValueError(
             "create_webhook_handler: signing_secret must be a non-empty string"
         )
-    if not max_body_bytes > 0:
+    if max_body_bytes <= 0:
         raise ValueError(
             f"create_webhook_handler: max_body_bytes must be > 0, got {max_body_bytes}"
         )

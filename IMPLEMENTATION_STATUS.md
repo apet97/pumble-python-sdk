@@ -29,7 +29,7 @@
 | P20 — Port webhook signature verification and ASGI receiver | DONE | p20 | `pytest tests/unit/test_webhooks.py tests/integration` — PASS (20) | ruff + pytest (371) + boundaries — PASS | Raw-body HMAC, ±300 s window, 1 MiB limit, 401/400/413/204/500. |
 | P21 — Port event router and `PumbleApp` convenience class | DONE | p21 | `pytest tests/unit/test_event_router.py test_pumble_app.py` — PASS (12) | ruff + pytest (383) + boundaries — PASS | Registration-order dispatch; first failure stops (TS parity). |
 | P22 — Port Pumble OAuth helpers and token store protocol | DONE | p22 | `pytest tests/unit/test_oauth.py test_token_store.py` — PASS (17) | ruff + pytest (400) + boundaries — PASS | Exact URLs/fields; constant-time state; in-memory store only. |
-| P23 — Port experimental Pumble Socket Mode as an optional extra | NOT_STARTED | — | — | — | — |
+| P23 — Port experimental Pumble Socket Mode as an optional extra | DONE | p23 | `pytest tests/unit/test_socket_mode.py` — PASS (12) | ruff + pytest (412) + mypy/pylint/pyright + boundaries + inventory — PASS | Injected transport; [socket] extra via gen.yaml; regen compile gate learned. |
 | P24 — Port the one-shot SDK CLI | NOT_STARTED | — | — | — | — |
 | P25 — Create MCP configuration, lifespan, and server factory | NOT_STARTED | — | — | — | — |
 | P26 — Implement MCP entry point, transports, and remote authorization | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,23 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P23` (DONE)
+- Objective: Port experimental Pumble Socket Mode as an optional extra.
+- Allowed files: `src/pumble_keys/pumble_app/socket_mode.py`, `tests/unit/test_socket_mode.py`, `docs/EXPERIMENTAL.md`
+- Exit condition: Experimental parity exists without imposing a hidden production policy.
+- Started from commit: `d2c4c49` (p22)
+- Commands/results:
+  - `uv run pytest tests/unit/test_socket_mode.py -q` → 12 passed.
+  - `socket_mode.py` ports app/socket-mode.ts: transport injection only (`connect` without `create_socket` raises `PumbleSocketModeUnsupportedError` "not bundled"); 25-second default ping started on `open` (injectable interval timer, cancelled on close/disconnect), `pong` ignored; JSON frames `{payload, correlation_id}`; `PUMBLE_EVENT`/`APP_EVENT` accepted; unsupported message/event types raise the dedicated error; malformed frames raise `ValueError`; events normalize through the shared P19 model (`normalize_webhook_event`) and dispatch through the P21 router; context value-or-factory; correlation ID surfaced in the dispatch result; cleanup removes listeners exactly once. Protocol evidence constant preserved.
+  - `[socket]` optional dependency (`websockets>=13.0`) added via `.speakeasy/gen.yaml` `optionalDependencies` (config route) and regenerated; concrete adapter is a documented example only in `docs/EXPERIMENTAL.md` — no bundled transport, no hidden reconnect policy.
+  - Coverage: string/bytes frames, pong, malformed JSON/missing payload/non-dict payload, unsupported types, missing correlation ID, ping lifecycle + cleanup, close-event cleanup, `on_error` routing, context factory, idempotent connect/disconnect.
+  - Fast gate: ruff (hand-written paths) + `pytest tests` → 412 passed; mypy/pylint(10.00)/pyright clean; boundaries `--generator-run` — PASS; inventory rebuilt and byte-identical; `git diff --check` clean.
+- Findings (recorded in docs/GENERATOR_DEVIATIONS.md):
+  - The generator's "Compile SDK" step runs pylint+mypy+pyright over ALL of `src/pumble_keys` including hand-written code and fails generation on any finding. Fixed 4 real mypy/pyright findings in P14–P19 code (typed body cast, explicit `WriteVerification`, declared bound attributes, isinstance narrowing) and added inline pragmas for deliberate patterns.
+  - Mishap + recovery: one `ruff --fix src` invocation reformatted generator-owned files; restored them byte-identical from HEAD before commit and added a NEVER-lint-generated-paths rule to the deviations doc.
+  - Version-reset procedure updated per advisor guidance: text-reset gen.yaml/pyproject/_version.py/gen.lock only, then `uv lock` (never text-edit the lock).
+- Deviations: `.speakeasy/gen.yaml` touched for the config-expressible `[socket]` extra; small hand-written fixes in P14–P19 files required to pass the generator's compile gate; `pumble_app/__init__.py` re-exports.
 
 - Packet: `P22` (DONE)
 - Objective: Port Pumble OAuth helpers and token store protocol.

@@ -25,6 +25,7 @@ from pumble_keys.extensions.display import (
 
 DEFAULT_MAX_CANDIDATES = 5
 
+# pylint: disable=invalid-name
 TValue = TypeVar("TValue")
 TCandidate = TypeVar("TCandidate")
 

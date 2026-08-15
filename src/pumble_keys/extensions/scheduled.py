@@ -18,7 +18,12 @@ from pumble_keys.extensions.results import (
     FacadeFailure,
     create_facade_invalid_request,
 )
-from pumble_keys.extensions.writes import WriteReceipt, _attempt, _verify
+from pumble_keys.extensions.writes import (
+    WriteReceipt,
+    WriteVerification,
+    _attempt,
+    _verify,
+)
 
 
 def _default_now_ms() -> int:
@@ -237,11 +242,11 @@ class ScheduledFacade:
         return WriteReceipt(
             summary=f"Canceled scheduled message {scheduled_message_id}.",
             ids={"scheduled_message_id": scheduled_message_id},
-            verification={
-                "state": "not_verifiable",
-                "detail": (
+            verification=WriteVerification(
+                state="not_verifiable",
+                detail=(
                     "The API accepted the cancel. No content verification "
                     "is claimed beyond the successful response."
                 ),
-            },
+            ),
         )

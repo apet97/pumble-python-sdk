@@ -18,7 +18,7 @@ Two wire forms are supported:
 from __future__ import annotations
 
 import json
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import pydantic
 
@@ -183,8 +183,8 @@ def _event_for(
     except pydantic.ValidationError:
         return None
     return PumbleWebhookEvent(
-        type=event_type,  # type: ignore[arg-type]
-        body=parsed,
+        type=cast("PumbleWebhookEventType", event_type),
+        body=cast("Any", parsed),
         workspace_id=workspace_id,
         workspace_user_ids=workspace_user_ids,
         raw=raw,

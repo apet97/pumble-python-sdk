@@ -59,7 +59,7 @@ class SpanRecorder(Protocol):
     ) -> RecorderSpan: ...
 
 
-class _NoopSpan:
+class _NoopSpan:  # pylint: disable=unused-argument
     def end(self) -> None:
         return None
 
@@ -70,7 +70,7 @@ class _NoopSpan:
         return None
 
 
-class NoopRecorder:
+class NoopRecorder:  # pylint: disable=unused-argument
     """No-op ``SpanRecorder``; also the fallback when OTel is missing."""
 
     def start_span(self, name: str, attrs: dict[str, Any] | None = None) -> _NoopSpan:
@@ -95,6 +95,7 @@ class _OTelSpan:
         self._span.end()
 
     def set_status(self, *, ok: bool, error_class: str | None = None) -> None:
+        # pylint: disable=import-outside-toplevel
         from opentelemetry.trace import Status
 
         if ok:
@@ -125,6 +126,7 @@ def create_otel_span_recorder(
 ) -> SpanRecorder:
     """OTel-backed recorder, or a no-op when the API is not installed."""
     try:
+        # pylint: disable=import-outside-toplevel
         from opentelemetry import trace
         from opentelemetry.trace import StatusCode
     except ImportError:

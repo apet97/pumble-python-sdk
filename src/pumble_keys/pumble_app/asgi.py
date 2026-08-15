@@ -95,6 +95,7 @@ def starlette_route(
     Imports Starlette lazily; it is available transitively via
     ``mcp[cli]`` but stays optional for pure-SDK users.
     """
+    # pylint: disable=import-outside-toplevel
     from starlette.requests import Request
     from starlette.responses import Response
     from starlette.routing import Route

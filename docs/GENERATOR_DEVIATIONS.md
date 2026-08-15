@@ -55,6 +55,20 @@ so a regeneration that skips the patch cannot land silently.
   version on every regeneration run. Release versioning is an explicit
   decision in this project: after a regeneration with no intended
   release, restore the previous version string in `gen.yaml`,
-  `pyproject.toml`, `src/pumble_keys/_version.py`, `uv.lock`, and
-  `releaseVersion` in `.speakeasy/gen.lock` (see P04/P05 status notes).
-  This is a version-metadata reset, not a code patch.
+  `pyproject.toml`, `src/pumble_keys/_version.py`, and `releaseVersion`
+  in `.speakeasy/gen.lock`, then regenerate `uv.lock` with `uv lock`
+  (never text-edit the lock file). This is a version-metadata reset,
+  not a code patch.
+- The `[socket]` optional extra (`websockets`) is expressed in
+  `.speakeasy/gen.yaml` `optionalDependencies` (P23) — config, not a
+  patch.
+- The generator's "Compile SDK" step runs pylint, mypy, AND pyright
+  over ALL of `src/pumble_keys`, including the hand-written
+  subpackages, and fails generation on any finding. Hand-written code
+  must stay pylint-10.00/mypy-clean/pyright-clean; deliberate patterns
+  (lazy optional imports, `except CancelledError: raise`) carry inline
+  `# pylint: disable=...` pragmas.
+- NEVER run `ruff --fix`/`ruff format` over `src` wholesale: ruff would
+  rewrite generator-owned files (a forbidden manual edit). Lint only
+  the hand-written paths: `src/pumble_keys/extensions`, `pumble_app`,
+  `testing`, `cli`, `mcp_server`.

@@ -66,7 +66,7 @@ class StatusFacade:
             return result
 
         verification = await _verify(
-            lambda: self._raw.users.my_info_async(),
+            self._raw.users.my_info_async,
             "the authenticated user",
         )
         if verification.state == "verified":
@@ -90,7 +90,7 @@ class StatusFacade:
             return result
 
         verification = await _verify(
-            lambda: self._raw.users.my_info_async(),
+            self._raw.users.my_info_async,
             "the authenticated user",
         )
         if verification.state == "verified":

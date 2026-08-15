@@ -93,7 +93,9 @@ python:
   methodTimeoutUnits: milliseconds
   moduleName: pumble_keys
   multipartArrayFormat: standard
-  optionalDependencies: {}
+  optionalDependencies:
+    socket:
+      websockets: '>=13.0'
   outputModelSuffix: output
   packageManager: uv
   packageName: pumble_keys_sdk

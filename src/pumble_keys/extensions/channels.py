@@ -11,6 +11,9 @@ from pumble_keys.extensions.resolve import ResolveChannelResult, resolve_channel
 class Channels:
     """``client.channels`` — list, get, find, resolve."""
 
+    # Bound in client.py: the P15 safe create façade.
+    create: Any
+
     def __init__(
         self, raw: Any, guard: Any, resolver_client: Any, facade_find: Any
     ) -> None:

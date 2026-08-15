@@ -113,7 +113,7 @@ async def with_retries(
     for attempt in range(max_attempts):
         try:
             return await fn()
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # pylint: disable=try-except-raise
             raise
         except Exception as error:
             last_error = error

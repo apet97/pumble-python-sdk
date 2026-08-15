@@ -33,6 +33,13 @@ from pumble_keys.pumble_app.router import (
     PumbleEventHandlerError,
     PumbleEventRouter,
 )
+from pumble_keys.pumble_app.socket_mode import (
+    PUMBLE_SOCKET_MODE_PROTOCOL_EVIDENCE,
+    PumbleSocketModeDispatchResult,
+    PumbleSocketModeFrame,
+    PumbleSocketModeReceiver,
+    PumbleSocketModeUnsupportedError,
+)
 from pumble_keys.pumble_app.token_store import (
     InMemoryTokenStore,
     PumbleOAuthAccessTokenResponse,
@@ -53,6 +60,7 @@ __all__ = [
     "PUMBLE_OAUTH_CONSENT_URL",
     "PUMBLE_REQUEST_SIGNATURE_HEADER",
     "PUMBLE_REQUEST_TIMESTAMP_HEADER",
+    "PUMBLE_SOCKET_MODE_PROTOCOL_EVIDENCE",
     "DispatchResult",
     "InMemoryTokenStore",
     "NotificationAppUnauthorized",
@@ -67,6 +75,10 @@ __all__ = [
     "PumbleOAuthAccessTokenRequest",
     "PumbleOAuthAccessTokenResponse",
     "PumbleOAuthCallback",
+    "PumbleSocketModeDispatchResult",
+    "PumbleSocketModeFrame",
+    "PumbleSocketModeReceiver",
+    "PumbleSocketModeUnsupportedError",
     "PumbleWebhookEvent",
     "PumbleWebhookEventType",
     "TokenStore",

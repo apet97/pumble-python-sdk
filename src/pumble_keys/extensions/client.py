@@ -32,6 +32,7 @@ from pumble_keys.extensions.preflight import (
     PreflightResult,
     preflight_resolvers,
 )
+from pumble_keys.extensions.resolve import ResolveFailure
 from pumble_keys.extensions.resolver_cache import ResolverCache
 from pumble_keys.extensions.results import FacadeFailure, create_facade_failure
 from pumble_keys.extensions.scheduled import ScheduledFacade
@@ -163,7 +164,7 @@ class Threads:
                 message_id=message_id,
                 reply_limit=reply_limit,
             )
-        except (asyncio.CancelledError, ValueError):
+        except (asyncio.CancelledError, ValueError):  # pylint: disable=try-except-raise
             raise
         except Exception as error:  # noqa: BLE001 — categorized into a value
             return operation_failure(
@@ -230,7 +231,7 @@ class PumbleClient:
         """Run one generated call; normal errors become failure values."""
         try:
             return await awaitable
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # pylint: disable=try-except-raise
             raise
         except Exception as error:  # noqa: BLE001 — categorized into a value
             return operation_failure(
@@ -241,7 +242,7 @@ class PumbleClient:
         self, input_value: str, **options: Any
     ) -> FindChannelSuccess | FacadeFailure:
         result = await self.channels.resolve(input_value, **options)
-        if not result.ok:
+        if isinstance(result, ResolveFailure):
             return create_facade_failure(
                 "Channel",
                 input_value,
@@ -263,7 +264,7 @@ class PumbleClient:
         self, input_value: str, **options: Any
     ) -> FindUserSuccess | FacadeFailure:
         result = await self.users.resolve(input_value, **options)
-        if not result.ok:
+        if isinstance(result, ResolveFailure):
             return create_facade_failure(
                 "User",
                 input_value,
@@ -356,6 +357,7 @@ def create_pumble_client(
         if api_key is None or not api_key.strip():
             raise ValueError("create_pumble_client: api_key must not be blank")
         _validate_base_url(server_url)
+        # pylint: disable=import-outside-toplevel
         from pumble_keys import PumbleSDK
 
         kwargs: dict[str, Any] = {"api_key_auth": api_key}
