@@ -22,7 +22,7 @@
 | P13 — Port compact thread context and reply helper | DONE | p13 | `pytest tests/unit/test_threads.py` — PASS (10) | ruff + pytest (251) + boundaries — PASS | Concurrent root/replies; first-seen participants; blank inputs rejected. |
 | P14 — Build the async curated client façade and read namespaces | DONE | p14 | `pytest tests/unit/test_client_reads.py` — PASS (13) | ruff + pytest (264) + boundaries — PASS | 11 reads mapped; no global retry_config (regression test). |
 | P15 — Port safe message/channel write façades | DONE | p15 | `pytest tests/unit/test_facade_writes.py` — PASS (14) | ruff + pytest (278) + boundaries — PASS | One attempt, direct-read proof, honest verification_failed. |
-| P16 — Port scheduled-message façade | NOT_STARTED | — | — | — | — |
+| P16 — Port scheduled-message façade | DONE | p16 | `pytest tests/unit/test_scheduled.py` — PASS (15) | ruff + pytest (293) + boundaries — PASS | Future-only integer send_at; verified create/edit; safe cancel. |
 | P17 — Add custom-status helpers and invalidate affected caches | NOT_STARTED | — | — | — | — |
 | P18 — Port telemetry and reusable testing helpers | NOT_STARTED | — | — | — | — |
 | P19 — Port typed Pumble webhook event models | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,17 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P16` (DONE)
+- Objective: Port scheduled-message façade.
+- Allowed files: `src/pumble_keys/extensions/scheduled.py`, `tests/unit/test_scheduled.py`
+- Exit condition: Scheduled workflows match the TypeScript façade contract.
+- Started from commit: `c9ef6eb` (p15)
+- Commands/results:
+  - `uv run pytest tests/unit/test_scheduled.py -q` → 15 passed.
+  - `scheduled.py` ports scheduled.ts: `ScheduledFacade` with create/list/get/edit/cancel; channel resolution shares the same target rules as P15 (explicit ID skips resolution unless `validate_target=True`); `send_at` must be an integer epoch-ms strictly greater than the injected clock (`now_ms` injectable; bool/float/str/past/equal all rejected before any API call). Create/edit receipts carry scheduled-message ID, channel ID, optional resolved channel, returned object, and §10.4 direct-read verification via `fetchScheduledMessage`. Cancel: one delete attempt (transient 503 → one attempt, failure value), receipt `verification.state="not_verifiable"` claiming nothing beyond the API response. `list` without channel passes through; with channel resolves first; page normalized to the result body.
+  - Fast gate: ruff — PASS; `pytest tests` → 293 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `client.py` swaps the P14 `ScheduledReads` placeholder for `ScheduledFacade` (same wiring rationale as P15); manifest snapshot in `test_client_reads.py` updated; `extensions/__init__.py` re-exports.
 
 - Packet: `P15` (DONE)
 - Objective: Port safe message/channel write façades.

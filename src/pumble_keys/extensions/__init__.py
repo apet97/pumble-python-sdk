@@ -92,6 +92,7 @@ from pumble_keys.extensions.retries import (
     mark_safe_to_retry,
     with_retries,
 )
+from pumble_keys.extensions.scheduled import ScheduledFacade
 from pumble_keys.extensions.search import (
     HARD_PAGE_CAP,
     PageCapExceededError,
@@ -136,6 +137,7 @@ __all__ = [
     "ResolveSuccess",
     "ResolveUserResult",
     "ResolverCache",
+    "ScheduledFacade",
     "ScheduledMessageId",
     "ThreadContext",
     "ThreadContextMessage",

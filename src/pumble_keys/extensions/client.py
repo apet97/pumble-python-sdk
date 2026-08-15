@@ -34,6 +34,7 @@ from pumble_keys.extensions.preflight import (
 )
 from pumble_keys.extensions.resolver_cache import ResolverCache
 from pumble_keys.extensions.results import FacadeFailure, create_facade_failure
+from pumble_keys.extensions.scheduled import ScheduledFacade
 from pumble_keys.extensions.search import search_all_messages
 from pumble_keys.extensions.threads import get_thread_context
 from pumble_keys.extensions.users import Users
@@ -176,27 +177,6 @@ class Threads:
         return getattr(response, "result", response)
 
 
-class ScheduledReads:
-    """``client.scheduled`` — reads only; the write façade arrives in P16."""
-
-    def __init__(self, raw: Any, guard: Any) -> None:
-        self._raw = raw
-        self._guard = guard
-
-    async def list(self, **options: Any) -> Any:
-        response = await self._guard(
-            "fetchScheduledMessages",
-            self._raw.scheduled_messages.fetch_scheduled_messages_async(**options),
-        )
-        return getattr(response, "result", response)
-
-    async def get(self, **options: Any) -> Any:
-        return await self._guard(
-            "fetchScheduledMessage",
-            self._raw.scheduled_messages.fetch_scheduled_message_async(**options),
-        )
-
-
 class Messaging(Messages):
     """``client.messages`` with history walk and safe write façades."""
 
@@ -235,7 +215,11 @@ class PumbleClient:
         self.messages = Messaging(raw, guard, writes)
         self.search = Search(raw, guard, writes)
         self.threads = Threads(raw, guard, writes)
-        self.scheduled = ScheduledReads(raw, guard)
+        self.scheduled = ScheduledFacade(
+            raw=raw,
+            guard=guard,
+            resolve_facade_channel=self._resolve_facade_channel,
+        )
         self.channels.create = writes.create_channel
 
     async def _guard(self, operation_id: str, awaitable: Any) -> Any:

@@ -114,7 +114,7 @@ def test_namespace_manifest_snapshot() -> None:
         "messages": ["all", "dm", "dm_group", "get", "list", "send"],
         "search": ["all", "page", "recent"],
         "threads": ["get_context", "list_replies", "reply"],
-        "scheduled": ["get", "list"],
+        "scheduled": ["cancel", "create", "edit", "get", "list"],
         "cache": ["clear", "info", "metrics", "refresh"],
     }
     assert hasattr(client, "raw")
