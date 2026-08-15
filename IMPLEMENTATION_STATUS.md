@@ -14,7 +14,7 @@
 | P05 — Burn down generator defects without contaminating generated code | DONE | p05 | `pytest tests/generated` — PASS (5); patch second run — no-op | ruff + pytest (17) + inventory `--check` + boundaries (`--generator-run`) — PASS | 2 patch items (requires-python, scripts); dev tools moved to gen.yaml config. |
 | P06 — Lock OpenAPI and generated contract fidelity | DONE | p06 | `pytest tests/contract` — PASS (27, no network) | ruff + pytest (44) + boundaries + inventory `--check` — PASS | 26 ops, 32 schemas, ApiKey header, error union, retry policy locked. |
 | P07 — Implement identifiers, display helpers, and redaction | DONE | p07 | `pytest tests/unit/test_ids.py test_display.py test_redaction.py` — PASS (84) | ruff + pytest (128) + boundaries + inventory `--check` — PASS | NewType IDs; TS-exact labels; two redaction families. |
-| P08 — Implement structured results and error categorization | NOT_STARTED | — | — | — | — |
+| P08 — Implement structured results and error categorization | DONE | p08 | `pytest tests/unit/test_results.py test_errors.py` — PASS (33) | ruff + pytest (161) + boundaries — PASS | 5 failure reasons, 6 error categories; cause/raw excluded from serialization. |
 | P09 — Implement safe retry and in-process rate limiting primitives | NOT_STARTED | — | — | — | — |
 | P10 — Implement deterministic user/channel resolution | NOT_STARTED | — | — | — | — |
 | P11 — Implement optional resolver cache and preflight | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P08` (DONE)
+- Objective: Implement structured results and error categorization.
+- Allowed files: `src/pumble_keys/extensions/results.py`, `errors.py`, `operations.py`, `tests/unit/test_results.py`, `test_errors.py`
+- Exit condition: Every later façade function has one uniform failure contract.
+- Started from commit: `9342015` (p07)
+- Commands/results:
+  - `uv run pytest tests/unit/test_results.py tests/unit/test_errors.py -q` → 33 passed.
+  - `results.py`: frozen Pydantic `FacadeFailure` (`ok=False`, 5 reasons, summary, labeled bounded choices, next_actions); `cause` excluded from dump and repr; `create_facade_failure` reproduces the exact TS summary/next-action text; `assert_facade_ok` raises `FacadeError` carrying the failure value.
+  - `errors.py`: `categorize_error` ports the exact 8-step classification (403+structured→validation; 401/403→permission; 404→not-found; 429→rate-limit retryable; 408/425/5xx→transient retryable; 400/422+structured→validation; transport→transient; else unknown). Python difference: TS transient network codes (ECONNRESET…) map to `httpx.TransportError`/`ConnectionError`/`TimeoutError`. Works over generated `Error` (`.data` union), `PumbleSDKError` (body JSON parse), and arbitrary exceptions; `raw` excluded from serialization.
+  - `operations.py`: `operation_failure_reason` (status_code→api_error else transport_error), `operation_failure` builder, `is_facade_operation_failure`, `OPERATION_FAILURE_NEXT_ACTION` constant — same texts as facade-operation.ts.
+  - Fast gate: ruff format/check — PASS; `pytest tests` → 161 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports the new symbols (continuation of the P07 export surface).
 
 - Packet: `P07` (DONE)
 - Objective: Implement identifiers, display helpers, and redaction.
