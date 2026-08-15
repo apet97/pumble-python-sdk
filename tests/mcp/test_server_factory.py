@@ -140,7 +140,7 @@ class TestFactory:
         }
         assert snapshot == {
             "tools": expected_tools[profile],
-            "resources": [],
+            "resources": ["pumble://me", "pumble://channels"],
             "prompts": [],
         }
 

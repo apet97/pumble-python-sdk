@@ -122,11 +122,15 @@ def make_lifespan(
     """Build the ``MCPServer`` lifespan callable yielding ``AppState``."""
 
     @asynccontextmanager
-    async def lifespan(_server: Any) -> AsyncIterator[AppState]:
+    async def lifespan(server: Any) -> AsyncIterator[AppState]:
         state = build_state(config, client_factory=client_factory)
+        # Static resources cannot receive a Context in this SDK version;
+        # they read the state through this attribute instead.
+        server.pumble_app_state = state
         try:
             yield state
         finally:
+            server.pumble_app_state = None
             await state.aclose()
 
     return lifespan

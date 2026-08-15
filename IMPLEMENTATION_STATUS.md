@@ -35,7 +35,7 @@
 | P26 — Implement MCP entry point, transports, and remote authorization | DONE | p26 | `pytest tests/mcp` — PASS (49) | ruff + pytest (481) + mypy/pylint/pyright + boundaries — PASS | stdio + stateless HTTP; 421/403/413/401 proven at HTTP level; sse rejected. |
 | P27 — Register the seven curated read tools | DONE | p27 | `pytest tests/mcp/test_curated_read_tools.py` — PASS (12) | ruff + pytest (493) + mypy/pylint/pyright + boundaries — PASS | Exact 7 tools; limits 10/50; failures as values via real client session. |
 | P28 — Implement signed preview/confirmed MCP writes | DONE | p28 | `pytest tests/mcp/test_write_plan.py test_curated_write_tools.py` — PASS (18) | ruff + pytest (511) + mypy/pylint/pyright + boundaries — PASS | HMAC-bound preview/confirm; expiry/workspace/request/text/replay checks. |
-| P29 — Register MCP resources with bounded payloads and safe paths | NOT_STARTED | — | — | — | — |
+| P29 — Register MCP resources with bounded payloads and safe paths | DONE | p29 | `pytest tests/mcp/test_resources.py` — PASS (11) | ruff + pytest (522) + mypy/pylint/pyright + boundaries — PASS | 6 URIs; traversal/symlink/extension containment; bounded live payloads. |
 | P30 — Port prompts and add argument completions | NOT_STARTED | — | — | — | — |
 | P31 — Implement readonly, raw readwrite, and dry-run profiles | NOT_STARTED | — | — | — | — |
 | P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,20 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P29` (DONE)
+- Objective: Register MCP resources with bounded payloads and safe paths.
+- Allowed files: `src/pumble_keys/mcp_server/resources.py`, `src/pumble_keys/knowledge/*`, `tests/mcp/test_resources.py`
+- Exit condition: Resources provide reusable context without unbounded model payloads.
+- Started from commit: `3d1dd6d` (p28)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_resources.py -q` → 11 passed; `pytest tests` → 522 passed.
+  - Registered (deterministic order, byte-stable across fresh servers): static `pumble://me` and `pumble://channels`; templates `pumble://channel/{channel_id}`, `pumble://thread/{channel_id}/{message_id}`, `pumble://knowledge/{+path}`, `pumble://events/{name}`. Live payloads compact and bounded (catalog first 100 with `truncated`, channel last 20 messages, thread ≤50 replies); live failures serialize as structured JSON values; MIME types application/json / text/markdown asserted through real session reads.
+  - Knowledge: packaged Markdown under `src/pumble_keys/knowledge/` (index + 2 guides) via `importlib.resources`. `resolve_knowledge_path` enforces containment: relative-only, no null bytes, resolved-path must stay under the root (kills `../` and symlink escapes — symlink attack tested), extension allowlist `.md/.txt`, missing file → not-found. The SDK's default `ResourceSecurity` adds its own traversal/absolute/null rejection in front.
+  - `pumble://events/{name}`: field guide + sanitized example for each of the seven webhook events; unknown names raise a resource error.
+  - SDK findings: static (no-variable) resources cannot receive a `Context` — the lifespan now stashes `AppState` on the server object (`server.pumble_app_state`) and static handlers read it; `{+path}` templates are supported, `{path*}` is not; client-side attrs are snake_case (`uri_template`, `mime_type`).
+  - Fast gate: ruff + pytest + mypy/pylint(10.00)/pyright + boundaries + `git diff --check` — all PASS.
+- Deviations: `lifespan.py` stashes/clears state on the server (required by the static-resource limitation); `server.py` wires the resources registrar into the curated and readonly seats; factory snapshot updated; `knowledge/__init__.py` added so `importlib.resources.files` resolves a real path.
 
 - Packet: `P28` (DONE)
 - Objective: Implement signed preview/confirmed MCP writes.
