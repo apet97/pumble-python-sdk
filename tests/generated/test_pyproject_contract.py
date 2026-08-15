@@ -40,6 +40,27 @@ def test_dev_group_contains_release_tooling() -> None:
         assert tool in names, f"missing dev tool: {tool}"
 
 
+def test_project_urls_and_classifiers_are_declared() -> None:
+    project = _pyproject()["project"]
+    urls = project.get("urls", {})
+    assert urls.get("Repository") == "https://github.com/apet97/pumble-python-sdk"
+    assert urls.get("Issues") == "https://github.com/apet97/pumble-python-sdk/issues"
+    classifiers = project.get("classifiers", [])
+    assert "License :: OSI Approved :: MIT License" in classifiers
+    assert "Typing :: Typed" in classifiers
+
+
+def test_readme_install_instructions_are_published_form() -> None:
+    readme = (REPO / "README.md").read_text()
+    assert "<UNSET>" not in readme
+    assert "run your first generation action" not in readme
+    assert "pip install pumble_keys_sdk" in readme
+
+
+def test_generator_publish_script_is_removed() -> None:
+    assert not (REPO / "scripts" / "publish.sh").exists()
+
+
 def test_patch_script_is_idempotent() -> None:
     import patch_generated
 
@@ -47,9 +68,15 @@ def test_patch_script_is_idempotent() -> None:
     changed = patch_generated.patch_text(before)
     assert patch_generated.patch_text(changed) == changed
 
+    readme_before = (REPO / "README.md").read_text()
+    readme_changed = patch_generated.patch_readme_text(readme_before)
+    assert patch_generated.patch_readme_text(readme_changed) == readme_changed
+
 
 def test_committed_pyproject_is_already_patched() -> None:
     import patch_generated
 
     committed = (REPO / "pyproject.toml").read_text()
     assert patch_generated.patch_text(committed) == committed
+    readme = (REPO / "README.md").read_text()
+    assert patch_generated.patch_readme_text(readme) == readme

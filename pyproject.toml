@@ -13,6 +13,24 @@ dependencies = [
     "pydantic >=2.11.2",
 ]
 license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/apet97/pumble-python-sdk"
+Repository = "https://github.com/apet97/pumble-python-sdk"
+Issues = "https://github.com/apet97/pumble-python-sdk/issues"
+Changelog = "https://github.com/apet97/pumble-python-sdk/blob/main/CHANGELOG.md"
+
 
 [project.optional-dependencies]
 socket = [

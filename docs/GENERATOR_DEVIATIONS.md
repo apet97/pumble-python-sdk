@@ -45,20 +45,53 @@ so a regeneration that skips the patch cannot land silently.
 - Delete when: the pinned generator supports script entries, or the
   CLIs move to a separate distribution.
 
+### 4. `[project.urls]` and trove classifiers
+
+- Defect: the pinned generator emits `pyproject.toml` with no
+  `[project.urls]`, `classifiers`, or `keywords`; the PyPI page would
+  carry no repository/issues links and no Python-version or licence
+  classifiers.
+- Failing test: `test_project_urls_and_classifiers_are_declared`.
+- Upstream: no public issue filed; the fields are outside the
+  generator's Python feature set at the pinned version.
+- Delete when: the pinned generator gains urls/classifiers keys.
+
+### 5. README installation section
+
+- Defect: `speakeasy run` (unlike `speakeasy generate sdk
+  --published`) renders the unpublished install variant — three
+  `git+<UNSET>.git` commands (no repo URL is configurable for `run` at
+  the pinned version) plus a stale "run your first generation action"
+  tip. The package is published to PyPI as `pumble_keys_sdk` by
+  `.github/workflows/release.yml` (trusted publishing).
+- Failing test: `test_readme_install_instructions_are_published_form`.
+- Delete when: the pinned toolchain lets `speakeasy run` mark the
+  target as published (or carry a repo URL) so the README renders
+  correct install instructions natively.
+
+### 6. `scripts/publish.sh` removal
+
+- Defect: the generator emits `scripts/publish.sh` (`uv publish
+  --token $PYPI_TOKEN`), which contradicts the project's
+  trusted-publishing release path and invites a plaintext-token
+  publish of an unverified build. The patch deletes it on every run.
+- Failing test: `test_generator_publish_script_is_removed`.
+- Delete when: the generator stops emitting the script or gains a key
+  to disable it.
+
 ## Resolved without a patch
 
 - Development tools `build`, `twine`, `pip-audit`: expressed in
   `.speakeasy/gen.yaml` `additionalDependencies.dev` (P05). The P03
   note that these needed a patch was wrong; the config key carries
   them. `mypy` is already a generator-pinned dev dependency.
-- The generator's `versioningStrategy: automatic` bumps the patch
-  version on every regeneration run. Release versioning is an explicit
-  decision in this project: after a regeneration with no intended
-  release, restore the previous version string in `gen.yaml`,
-  `pyproject.toml`, `src/pumble_keys/_version.py`, and `releaseVersion`
-  in `.speakeasy/gen.lock`, then regenerate `uv.lock` with `uv lock`
-  (never text-edit the lock file). This is a version-metadata reset,
-  not a code patch.
+- `versioningStrategy` is set to `manual` in `.speakeasy/gen.yaml`
+  (changed pre-release from `automatic`, which bumped the patch
+  version on every regeneration and had to be reset by hand each
+  time). Version bumps are now an explicit edit of the `version` key
+  in `gen.yaml`; `pyproject.toml` and `src/pumble_keys/_version.py`
+  follow on the next regeneration, and `uv lock` refreshes the lock
+  file (never text-edit it).
 - The `[socket]` optional extra (`websockets`) is expressed in
   `.speakeasy/gen.yaml` `optionalDependencies` (P23) — config, not a
   patch.

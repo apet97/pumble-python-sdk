@@ -52,6 +52,7 @@ def test_unexpected_top_level_fails(tmp_path: Path) -> None:
 def test_package_data_patch_is_idempotent() -> None:
     generated = (
         'requires-python = ">=3.10"\n'
+        'license = { text = "MIT" }\n'
         "[dependency-groups]\n"
         "[tool.setuptools.package-data]\n"
         '"*" = ["py.typed"]\n'
@@ -59,4 +60,5 @@ def test_package_data_patch_is_idempotent() -> None:
     once = patch_text(generated)
     assert '"pumble_keys.knowledge"' in once
     assert '"pumble_keys.mcp_server.app_assets"' in once
+    assert "[project.urls]" in once
     assert patch_text(once) == once
