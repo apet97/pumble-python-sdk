@@ -43,6 +43,7 @@ from pumble_keys.extensions.operations import (
     operation_failure,
     operation_failure_reason,
 )
+from pumble_keys.extensions.pagination import list_all_messages
 from pumble_keys.extensions.preflight import (
     PreflightResult,
     preflight_resolvers,
@@ -85,9 +86,15 @@ from pumble_keys.extensions.retries import (
     mark_safe_to_retry,
     with_retries,
 )
+from pumble_keys.extensions.search import (
+    HARD_PAGE_CAP,
+    PageCapExceededError,
+    search_all_messages,
+)
 
 __all__ = [
     "DEFAULT_RETRY_STATUSES",
+    "HARD_PAGE_CAP",
     "OPERATION_FAILURE_NEXT_ACTION",
     "READ_OPERATION_IDS",
     "REDACTED",
@@ -99,6 +106,7 @@ __all__ = [
     "FacadeFailure",
     "FacadeFailureReason",
     "MessageId",
+    "PageCapExceededError",
     "PreflightResult",
     "PumbleId",
     "RateLimitQueueFullError",
@@ -134,6 +142,7 @@ __all__ = [
     "is_facade_operation_failure",
     "is_pumble_id_like",
     "is_safe_to_retry",
+    "list_all_messages",
     "mark_safe_to_retry",
     "operation_failure",
     "operation_failure_reason",
@@ -143,6 +152,7 @@ __all__ = [
     "redact_sensitive_text",
     "resolve_channel",
     "resolve_user",
+    "search_all_messages",
     "unbrand",
     "with_retries",
 ]

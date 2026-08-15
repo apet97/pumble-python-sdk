@@ -18,7 +18,7 @@
 | P09 — Implement safe retry and in-process rate limiting primitives | DONE | p09 | `pytest tests/unit/test_retries.py test_rate_limit.py` — PASS (27) | ruff + pytest (188) + boundaries — PASS | Write callables rejected without explicit override; fake-clock bucket. |
 | P10 — Implement deterministic user/channel resolution | DONE | p10 | `pytest tests/unit/test_resolve.py test_find.py` — PASS (16) | ruff + pytest (204) + boundaries — PASS | Exact TS precedence; ≤5 candidates in API order; values not exceptions. |
 | P11 — Implement optional resolver cache and preflight | DONE | p11 | `pytest tests/unit/test_resolver_cache.py test_preflight.py` — PASS (15) | ruff + pytest (219) + boundaries — PASS | Fake-clock TTL; foreground-only refresh; concurrent preflight. |
-| P12 — Port defensive exhaustive search and message pagination | NOT_STARTED | — | — | — | — |
+| P12 — Port defensive exhaustive search and message pagination | DONE | p12 | `pytest tests/unit/test_search_all.py test_list_all_messages.py` — PASS (22) | ruff + pytest (241) + boundaries — PASS | Golden replay of same-second overlap, dupes, cap, abort. |
 | P13 — Port compact thread context and reply helper | NOT_STARTED | — | — | — | — |
 | P14 — Build the async curated client façade and read namespaces | NOT_STARTED | — | — | — | — |
 | P15 — Port safe message/channel write façades | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,19 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P12` (DONE)
+- Objective: Port defensive exhaustive search and message pagination.
+- Allowed files: `src/pumble_keys/extensions/search.py`, `pagination.py`, `tests/unit/test_search_all.py`, `test_list_all_messages.py`
+- Exit condition: No exhaustive helper can silently loop forever or duplicate results.
+- Started from commit: `2615205` (p11)
+- Commands/results:
+  - `uv run pytest tests/unit/test_search_all.py tests/unit/test_list_all_messages.py -q` → 22 passed.
+  - `search.py` ports search-all.ts as a lazy async generator over an injected page fetcher (P14 binds `search_messages_async`): ID dedupe, same-second boundary overlap (`before_ts = min_ts + 1000`, ≤3 attempts) then cursor `min_ts - 1`, stops on empty page / repeated first ID / zero new IDs / `hasMore=false` with short page / missing timestamps / non-advancing cursor; hard 10,000-page cap (`PageCapExceededError`); `max_results`, `max_pages`, `on_page` observer (accurate counts before yields; raising aborts). Cancellation is plain task cancellation and propagates. Python difference (recorded): TS `AbortSignal` maps to `asyncio` cancellation; no signal parameter.
+  - `pagination.py` ports list-all-messages.ts: default `BEFORE` strategy, opaque last-message-ID cursor, `has_more_before`/`has_more_after` per strategy (null → stop), dedupe, repeated-cursor bail, same cap/observer/limits.
+  - Golden replay coverage: same-second boundary recovery, overlap cap, duplicate pages, missing timestamps, contradictory `hasMore` (false + full page walks on; false + short page stops), max-results mid-page, early `break` fetches no further page, page-cap guard, cancellation, observer counts and abort.
+  - Fast gate: ruff — PASS; `pytest tests` → 241 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P11` (DONE)
 - Objective: Implement optional resolver cache and preflight.
