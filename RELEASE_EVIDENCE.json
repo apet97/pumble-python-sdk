@@ -1,0 +1,40 @@
+{
+  "project": "pumble-python-sdk",
+  "release_candidate_version": "0.1.0",
+  "audited_commit": "0321cc74669df0b5953f1271b32d3270c1738b14",
+  "audit_note": "p45 commit adds only audit documents and the regeneration-normalization drift (gen.lock metadata, README ToC line)",
+  "openapi_spec_sha256": "a9c3af3cc5de074b7112b63203ec6e1b686afebfe8751bc75df630efd2906a43",
+  "generator": {
+    "speakeasy_pin": "1.763.6",
+    "speakeasy_cli": "1.793.0",
+    "generation_version": "2.928.0",
+    "regeneration": "byte-identical generated sources at audit time"
+  },
+  "runtime_versions": {
+    "python_supported": ">=3.11,<3.15",
+    "mcp_sdk": "2.0.0",
+    "mcp_protocol": "2026-07-28 (+ legacy handshake compatibility)",
+    "node_engines": "22.x (CI pins 22.12.0)",
+    "ext_apps": "1.7.5",
+    "modelcontextprotocol_sdk_ts": "1.30.0"
+  },
+  "artifacts": {
+    "app_bundle_sha256": "7dd83c2d181163e2303c42b2e4a06f339767bb75c3ca3af8dbfbea4a54f4a2a5",
+    "wheel_content_digest": "68d1ed121d1a28cc (sorted per-file sha256, RECORD excluded, SOURCE_DATE_EPOCH pinned)",
+    "wheel_entries": 179
+  },
+  "tests": {
+    "offline": "663 passed, 9 skipped (live gating) locally; 662 passed, 10 skipped in each clean clone",
+    "app": "43 passed (vitest)",
+    "parity": "53 passed over 45 sanitized fixtures",
+    "live": {
+      "result": "8 passed, 1 skipped, zero residue",
+      "receipt_commit": "0321cc74669df0b5953f1271b32d3270c1738b14"
+    },
+    "coverage_combined_percent": 92
+  },
+  "open_waivers": [
+    "W1: coverage below the 95%/100%-branch targets (see FINAL_AUDIT.md \u00a74) \u2014 close before tagging a release"
+  ],
+  "packets_done": "46/46"
+}

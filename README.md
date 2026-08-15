@@ -55,6 +55,7 @@ SDKs receive a single union type for typed error handling.
 ## Table of Contents
 <!-- $toc-max-depth=2 -->
 * [pumble-python-sdk](#pumble-python-sdk)
+  * [Documentation](#documentation)
   * [Authentication](#authentication)
   * [Errors](#errors)
   * [SDK Installation](#sdk-installation)

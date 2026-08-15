@@ -6,11 +6,11 @@ management:
   speakeasyVersion: 1.793.0
   generationVersion: 2.928.0
   releaseVersion: 0.1.0
-  configChecksum: 44f000924bd94d0fe626bac52ee3ea29
+  configChecksum: 6e72a352370a538497dba58741a003e0
 persistentEdits:
-  generation_id: b68cf0d9-eb8b-4da2-b1ed-5d86a30f08b0
-  pristine_commit_hash: e68efcda3d7b375988ce6e1255563f64c4e5042e
-  pristine_tree_hash: 71ef0c077cd6468baa3d9590b08101483bd8c7b2
+  generation_id: ae8c4565-7fe0-4877-8e7a-b9789132f3a2
+  pristine_commit_hash: 47d7df26e4cfba0085afc9d752f476f7031eec5c
+  pristine_tree_hash: fd317682e7d504debbb7941b912685137fa06b4f
 features:
   python:
     additionalDependencies: 1.1.0
@@ -353,8 +353,8 @@ trackedFiles:
     pristine_git_object: c00200cfd072e9febac5d6be783da1925d11dac0
   pyproject.toml:
     id: 5d07e7d72637
-    last_write_checksum: sha1:cf2eb41cda898d9b318b2c8ae2f76bc86c0aba3c
-    pristine_git_object: b2cc902958a31577b585926ba4b0882715a72481
+    last_write_checksum: sha1:be4a1f6d4d088a1826d3b06a657ae659e835870d
+    pristine_git_object: 2b393c419c80dffa01304c01c0050b6945fbda36
   scripts/publish.sh:
     id: fe273b08f514
     last_write_checksum: sha1:adc9b741c12ad1591ab4870eabe20f0d0a86cd1a
@@ -389,8 +389,8 @@ trackedFiles:
     pristine_git_object: 05ad1d85c188f6e0f0efc82516042b8c45161cc0
   src/pumble_keys/_version.py:
     id: "184347066042"
-    last_write_checksum: sha1:60fe56d08bf890399cc0224543e0a436d8537db2
-    pristine_git_object: 72e50b50cae40b0413ff227b4dc4c8fca852383f
+    last_write_checksum: sha1:458053a77811d880ed01a90bff0a71165f611873
+    pristine_git_object: 43b4e7a52a679db2b0b70f0ef816399d8f8b74ae
   src/pumble_keys/basesdk.py:
     id: 2734e8265658
     last_write_checksum: sha1:553b94da5172b11ff47baa30612686b3ef7d6cf3

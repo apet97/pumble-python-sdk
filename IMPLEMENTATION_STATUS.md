@@ -51,9 +51,25 @@
 | P42 — Write user and maintainer documentation | DONE | p42 | `pytest tests/unit/test_docs.py` — PASS (6) | ruff + pytest (652+9) + mypy/pylint(10.00)/pyright + boundaries + scans — PASS | 8 new docs + README map; examples compile + imports verified + links checked in CI. |
 | P43 — Harden packaging and fresh-environment smoke tests | DONE | p43 | `tools/pack_smoke.py` — PASS (build+twine+allowlist+fresh smoke) | ruff + pytest (657+9) + mypy/pylint(10.00)/pyright + boundaries(--generator-run for the documented patch) + scans — PASS | Wheel carries knowledge+app assets; allowlist rejects tests/secrets/maps; isolated fresh-venv smoke green. |
 | P44 — Implement CI, security gates, and release workflow | DONE | p44 | workflow validation (6 tests) + `uv build`+`twine check --strict` dry run — PASS | ruff + pytest (663+9) + mypy/pylint(10.00)/pyright + boundaries + both scans — PASS | SHA-pinned matrix CI; env-gated nightly live; trusted-publishing release with reviewed-commit gate. |
-| P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
+| P45 — Perform final adversarial parity and release audit | DONE | p45 | FINAL_AUDIT.md + RELEASE_EVIDENCE.json | regeneration byte-clean; double clean-clone gate; live zero-residue; scans clean | 46/46 DONE; one open waiver (W1 coverage) recorded as a pre-release blocker. |
 
 ## Current packet detail
+
+- Packet: `P45` (DONE)
+- Objective: Perform final adversarial parity and release audit.
+- Allowed files: `FINAL_AUDIT.md`, `RELEASE_EVIDENCE.json`, final `IMPLEMENTATION_STATUS.md`
+- Exit condition: The candidate is defensible, reproducible, and ready for a separate explicit release action.
+- Started from commit: `0321cc7` (p44)
+- Commands/results (full detail in FINAL_AUDIT.md):
+  - Regeneration: `speakeasy run --pinned` at audit time → generated sources byte-identical after the documented version reset + pyproject patch; drift limited to gen.lock bookkeeping and a generator-refreshed README ToC line (committed here). The generator compile gate covered every post-P33 module for the first time and passed.
+  - Double clean-checkout gate: two independent clones of the pushed commit — 662 passed / 10 skipped each; identical app bundle sha256 (`7dd83c2d…`, equal to the committed manifest); identical wheel per-file content digests (`68d1ed12…`, 179 entries, SOURCE_DATE_EPOCH pinned; raw zip bytes differ via mtimes — scope stated).
+  - Independent parity comparison: all 23 TS extension files mapped to Python modules (table in FINAL_AUDIT.md); replay suite + completeness meta-tests re-run; MCP catalogs frozen.
+  - Adversarial sweep: no write retries, no stdout prints outside the CLI (one stderr warning in telemetry), SSE only in rejection code, `scan_secrets --all` clean (435 files), no unguarded raw writes, capability claims traced to tests.
+  - Live: rerun at the audited commit → 8 passed, 1 skipped, zero residue; receipt commit matches.
+  - Coverage: 92% combined branch+line over hand-written code; security modules redaction/oauth/profiles 100%, write_plan 99%, webhooks 91%, auth 88% → OPEN WAIVER W1 (below the plan's 95%/100%-branch targets), recorded as a pre-release blocker since P45 cannot add tests.
+  - Gate deltas documented: `tools/check_version_consistency.py` never existed (check enforced in release.yml and run manually); `pytest --cov` replaced by `coverage run --branch` (pytest-cov not a dependency).
+  - Waiver table W1–W7 consolidated from the packet log (unmounted webhook seat, live-API skips, sleep-paced collapse test, generator README snippets, dm bug CLOSED, Node engines note).
+- Deviations: none beyond the allowed files plus the regeneration-normalization drift described above.
 
 - Packet: `P44` (DONE)
 - Objective: Implement CI, security gates, and release workflow.
