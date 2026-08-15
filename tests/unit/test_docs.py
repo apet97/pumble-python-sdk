@@ -17,6 +17,8 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 DOCS = [
     REPO / "README.md",
+    REPO / "CHANGELOG.md",
+    REPO / "SECURITY.md",
     REPO / "PARITY_MATRIX.md",
     REPO / "docs" / "QUICKSTART.md",
     REPO / "docs" / "API-REFERENCE.md",
@@ -28,6 +30,7 @@ DOCS = [
     REPO / "docs" / "STABILITY.md",
     REPO / "docs" / "MIGRATING-FROM-TS.md",
     REPO / "docs" / "LIVE-TESTING.md",
+    REPO / "docs" / "EXPERIMENTAL.md",
 ]
 
 # README's python blocks are generator-emitted and are NOT checked:
