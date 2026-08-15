@@ -39,7 +39,7 @@
 | P30 — Port prompts and add argument completions | DONE | p30 | `pytest tests/mcp/test_prompts.py test_completions.py` — PASS (12) | ruff + pytest (534) + mypy/pylint/pyright + boundaries — PASS | 4 prompts (Python guidance); bounded deterministic completions. |
 | P31 — Implement readonly, raw readwrite, and dry-run profiles | DONE | p31 | `pytest tests/mcp/test_raw_profiles.py` — PASS (10) | ruff + pytest (544) + mypy/pylint/pyright + boundaries — PASS | Exact 11/26 adapters; double gate; audit per attempt; dry-run zero writes. |
 | P32 — Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs | DONE | p32 | `pytest tests/mcp/test_mcp_2026_core.py` — PASS (13) | ruff + pytest (557) + mypy/pylint/pyright + boundaries — PASS | Modern discover per profile; TTL hints on every cacheable class; header deny pre-body. |
-| P33 — Add optional MRTR interactive send/reply tools | NOT_STARTED | — | — | — | — |
+| P33 — Add optional MRTR interactive send/reply tools | DONE | p33 | `pytest tests/mcp/test_mrtr_writes.py` — PASS (11) | ruff + pytest (568) + mypy/pylint(10.00)/pyright + boundaries — PASS | Curated-interactive only; Resolve/Elicit MRTR; accept = one write; decline/cancel = none. |
 | P34 — Bridge Pumble webhooks to modern MCP subscriptions | NOT_STARTED | — | — | — | — |
 | P35 — Scaffold the single MCP App frontend | NOT_STARTED | — | — | — | — |
 | P36 — Register the MCP App opening tool and UI resource | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,23 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P33` (DONE)
+- Objective: Add optional MRTR interactive send/reply tools.
+- Allowed files: `src/pumble_keys/mcp_server/tools/interactive.py`, `dependencies.py`, `tests/mcp/test_mrtr_writes.py`
+- Exit condition: MRTR improves supported-host UX without replacing the portable default safety path.
+- Started from commit: `7a37e0d` (p32)
+- Commands/results:
+  - `uv run pytest tests/mcp/test_mrtr_writes.py -q` → 11 passed; `pytest` → 568 passed.
+  - Registration: `send_message_interactive` and `reply_to_thread_interactive` register only on `curated-interactive` (`_INTERACTIVE_REGISTRARS` seat in the factory); the curated snapshot proves their absence elsewhere.
+  - Schema invisibility: the `Resolve`-injected `resolved` and `outcome` parameters and the `Context` never appear in the model input schema — model-visible properties are exactly `channel`/`text` (+`message_id` for reply), asserted from the listed tool schemas.
+  - Deterministic question (`dependencies.confirmation_question`): resolved target label, redacted excerpt, sha256 prefix, risk level — no random IDs, no timestamps. Proven identical across two rounds and different per target via the official `mcp.client.client.Client(mode="auto", elicitation_callback=...)` capture.
+  - Confirmation semantics: accept + `send=true` → exactly one façade write with the direct read-by-ID verification receipt (`fetch_message` call count asserted); decline/cancel/accept-with-`send=false` → zero writes and a structured `CuratedFailure` (`confirmation_declined`/`_cancelled`/`_accepted`); channel-resolution failure skips the question AND the write; a raw API failure after accept stays a structured value. One shared façade write path with the preview/confirm tools — no duplicate safety logic.
+  - SDK findings: the consumer opts into the full accept/decline/cancel union ONLY when the parameter is annotated exactly as `ElicitationResult[T]` (or members); wrapping it in `... | None` defeats the SDK's `_wants_union` detection and injects the unwrapped model (decline then aborts the call). `ctx` must be annotated `Context`, or the SDK treats it as a model-visible string argument. Elicit accept injects `AcceptedElicitation(data=T)`.
+  - Fast gate: ruff (hand-written paths) + `pytest` (568) + mypy/pylint(10.00)/pyright (all on the hand-written src packages) + boundaries + inventory `--check` + `git diff --check` — all PASS.
+- Deviations:
+  - `server.py`: one-line wiring of `_register_interactive` into the existing `_INTERACTIVE_REGISTRARS` seat (the seat was scaffolded in P25 for exactly this packet); `tests/mcp/test_server_factory.py` snapshot extended with the two new curated-interactive tools.
+  - `tools/raw_read.py` (P31 file): removed a dead `except asyncio.CancelledError: raise` arm and its function-local `asyncio` import — `CancelledError` is a `BaseException`, so the broad `except Exception` below never caught it; the arm and the local import were pylint findings (W0706/C0415) that earlier broad-scope pylint runs had rounded away. Gate pylint now runs scoped to the hand-written src packages and scores a true 10.00.
 
 - Packet: `P32` (DONE)
 - Objective: Adopt stateless discovery, routing headers, cache hints, and deterministic catalogs.

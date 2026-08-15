@@ -79,7 +79,15 @@ _CURATED_REGISTRARS: list[Registrar] = [
     _register_resources,
     _register_prompts,
 ]
-_INTERACTIVE_REGISTRARS: list[Registrar] = []
+
+
+def _register_interactive(server: MCPServer, config: McpConfig) -> None:
+    from pumble_keys.mcp_server.tools import interactive
+
+    interactive.register(server, config)
+
+
+_INTERACTIVE_REGISTRARS: list[Registrar] = [_register_interactive]
 _READONLY_REGISTRARS: list[Registrar] = [
     _register_raw_reads,
     _register_resources,

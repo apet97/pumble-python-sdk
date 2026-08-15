@@ -132,7 +132,8 @@ class TestFactory:
 
         expected_tools = {
             Profile.CURATED: curated_tools,
-            Profile.CURATED_INTERACTIVE: curated_tools,
+            Profile.CURATED_INTERACTIVE: curated_tools
+            + ["send_message_interactive", "reply_to_thread_interactive"],
             Profile.READONLY: [op.tool_name for op in RAW_READ_OPERATIONS],
         }
         snapshot = {

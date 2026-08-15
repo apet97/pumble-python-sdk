@@ -34,15 +34,12 @@ async def call_raw_operation(
     state: Any, operation: RawOperation, arguments: dict[str, Any]
 ) -> Any:
     """One call through the raw escape hatch; failures become values."""
-    import asyncio
-
     namespace = getattr(state.client.raw, operation.namespace)
     method = getattr(namespace, operation.method)
     call_kwargs = {"request": arguments} if operation.request_wrapped else arguments
     try:
         result = await method(**call_kwargs)
-    except asyncio.CancelledError:
-        raise
+    # CancelledError is a BaseException, so cancellation still propagates.
     except Exception as error:  # noqa: BLE001 — categorized into a value
         failure = to_failure(
             operation_failure(
