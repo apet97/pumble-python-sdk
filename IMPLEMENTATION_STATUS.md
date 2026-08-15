@@ -17,7 +17,7 @@
 | P08 — Implement structured results and error categorization | DONE | p08 | `pytest tests/unit/test_results.py test_errors.py` — PASS (33) | ruff + pytest (161) + boundaries — PASS | 5 failure reasons, 6 error categories; cause/raw excluded from serialization. |
 | P09 — Implement safe retry and in-process rate limiting primitives | DONE | p09 | `pytest tests/unit/test_retries.py test_rate_limit.py` — PASS (27) | ruff + pytest (188) + boundaries — PASS | Write callables rejected without explicit override; fake-clock bucket. |
 | P10 — Implement deterministic user/channel resolution | DONE | p10 | `pytest tests/unit/test_resolve.py test_find.py` — PASS (16) | ruff + pytest (204) + boundaries — PASS | Exact TS precedence; ≤5 candidates in API order; values not exceptions. |
-| P11 — Implement optional resolver cache and preflight | NOT_STARTED | — | — | — | — |
+| P11 — Implement optional resolver cache and preflight | DONE | p11 | `pytest tests/unit/test_resolver_cache.py test_preflight.py` — PASS (15) | ruff + pytest (219) + boundaries — PASS | Fake-clock TTL; foreground-only refresh; concurrent preflight. |
 | P12 — Port defensive exhaustive search and message pagination | NOT_STARTED | — | — | — | — |
 | P13 — Port compact thread context and reply helper | NOT_STARTED | — | — | — | — |
 | P14 — Build the async curated client façade and read namespaces | NOT_STARTED | — | — | — | — |
@@ -54,6 +54,18 @@
 | P45 — Perform final adversarial parity and release audit | NOT_STARTED | — | — | — | — |
 
 ## Current packet detail
+
+- Packet: `P11` (DONE)
+- Objective: Implement optional resolver cache and preflight.
+- Allowed files: `src/pumble_keys/extensions/resolver_cache.py`, `preflight.py`, `tests/unit/test_resolver_cache.py`, `test_preflight.py`
+- Exit condition: Resolve-before-act can be reused safely across CLI, MCP, and App.
+- Started from commit: `36c839e` (p10)
+- Commands/results:
+  - `uv run pytest tests/unit/test_resolver_cache.py tests/unit/test_preflight.py -q` → 15 passed.
+  - `resolver_cache.py` ports resolver-cache.ts: `ResolverCache` wraps a source client and satisfies the same resolver protocols; TTL-bounded entries per kind (fake monotonic clock injectable — plan-mandated change from TS `Date.now()`), foreground-only reload, `refresh_on_miss=False` serves stale, `clear` (whole or per-kind for P15/P17 invalidation), `info`, `metrics` (hits/misses/evictions), failed load self-evicts, concurrent callers share one in-flight task (shielded from caller cancellation), stores source objects, never persists. `enabled=False` is a pure passthrough — proven to make zero cache reads/writes.
+  - `preflight.py` ports resolver-preflight.ts: `preflight_resolvers` resolves channel/user concurrently (`asyncio.gather`, concurrency proven by an event-ordering test), `ok` only when every requested target resolved, failure keeps both underlying results for diagnostics, performs no write.
+  - Fast gate: ruff — PASS; `pytest tests` → 219 passed; boundaries — PASS; `git diff --check` clean.
+- Deviations: `extensions/__init__.py` re-exports (continuation).
 
 - Packet: `P10` (DONE)
 - Objective: Implement deterministic user/channel resolution.

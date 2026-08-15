@@ -43,6 +43,10 @@ from pumble_keys.extensions.operations import (
     operation_failure,
     operation_failure_reason,
 )
+from pumble_keys.extensions.preflight import (
+    PreflightResult,
+    preflight_resolvers,
+)
 from pumble_keys.extensions.rate_limit import (
     RateLimiter,
     RateLimitQueueFullError,
@@ -63,6 +67,7 @@ from pumble_keys.extensions.resolve import (
     resolve_channel,
     resolve_user,
 )
+from pumble_keys.extensions.resolver_cache import ResolverCache
 from pumble_keys.extensions.results import (
     FacadeError,
     FacadeFailure,
@@ -94,6 +99,7 @@ __all__ = [
     "FacadeFailure",
     "FacadeFailureReason",
     "MessageId",
+    "PreflightResult",
     "PumbleId",
     "RateLimitQueueFullError",
     "RateLimiter",
@@ -101,6 +107,7 @@ __all__ = [
     "ResolveFailure",
     "ResolveSuccess",
     "ResolveUserResult",
+    "ResolverCache",
     "ScheduledMessageId",
     "UserCandidate",
     "UserGroupId",
@@ -130,6 +137,7 @@ __all__ = [
     "mark_safe_to_retry",
     "operation_failure",
     "operation_failure_reason",
+    "preflight_resolvers",
     "redact_debug_headers",
     "redact_debug_value",
     "redact_sensitive_text",
